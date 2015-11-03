@@ -93,6 +93,7 @@ namespace FlatZinc {
 			} else {
 				v = ::newIntVar();
 			}
+                        std::cerr << "int var: " << intVarCount << " " << v << "\n";
 			iv[intVarCount++] = v;
 		}
 		iv_introduced[intVarCount-1] = vs->introduced;

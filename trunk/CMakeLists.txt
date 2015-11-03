@@ -6,11 +6,11 @@ else()
   set(LIBCPP libc++)
 endif()
 
-if(APPLE)
-   SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
-   set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
-   set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${LIBCPP}")
-endif(APPLE)
+# if(APPLE)
+#    SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
+#    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
+#    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${LIBCPP}")
+# endif(APPLE)
 
 project (chuffed CXX)
 
@@ -139,6 +139,9 @@ chuffed/core/engine.h
 chuffed/core/sat-types.h
 chuffed/core/options.h
 chuffed/core/propagator.h
+
+cpp-integration/connector.cpp
+cpp-integration/message.pb.cpp
 )
 
 add_library(chuffed_fzn
@@ -152,7 +155,7 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lzmq -lprotobuf)
 
 INSTALL(TARGETS fzn_chuffed chuffed
   RUNTIME DESTINATION bin

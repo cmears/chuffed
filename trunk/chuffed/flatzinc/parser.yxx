@@ -193,6 +193,9 @@ void initfg(ParserState* pp) {
     if (!pp->hadError) {
       try {
         pp->fg->newIntVar(static_cast<IntVarSpec*>(pp->intvars[i].second));
+        IntVar* newiv = pp->fg->iv[pp->fg->intVarCount-1];
+        std::cerr << "created new int var for " << (pp->intvars[i].first) << ": " << newiv << "\n";
+        intVarString.insert(std::pair<IntVar*, std::string>(newiv, pp->intvars[i].first));
       } catch (FlatZinc::Error& e) {
         yyerror(pp, e.toString().c_str());
       }

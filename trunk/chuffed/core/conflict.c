@@ -8,6 +8,8 @@
 #include <chuffed/parallel/parallel.h>
 #include <chuffed/ldsb/ldsb.h>
 
+#include <iostream>
+
 #define PRINT_ANALYSIS 0
 
 
@@ -104,6 +106,15 @@ void SAT::analyze() {
 	if (so.sort_learnt_level && out_learnt.size() >= 4) {
 		std::sort((Lit*) out_learnt + 2, (Lit*) out_learnt + out_learnt.size(), lit_sort);
 	}
+
+        std::cerr << "out_learnt:";
+        for (int i = 0 ; i < out_learnt.size() ; i++)
+          std::cerr << " " << toInt(out_learnt[i]);
+        std::cerr << "\n";
+        std::cerr << "out_learnt (interpreted):";
+        for (int i = 0 ; i < out_learnt.size() ; i++)
+          std::cerr << " " << litString[toInt(out_learnt[i])];
+        std::cerr << "\n";
 
 	Clause *c = Clause_new(out_learnt, true);
 	c->activity() = cla_inc;

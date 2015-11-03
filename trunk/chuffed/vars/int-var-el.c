@@ -2,6 +2,12 @@
 #include <chuffed/vars/int-var.h>
 #include <chuffed/core/sat.h>
 
+#include <iostream>
+#include <map>
+#include <sstream>
+
+extern std::map<IntVar*, std::string> intVarString;
+
 IntVarEL::IntVarEL(const IntVar& other) :
 		IntVar(other)
 	, lit_min(INT_MIN)
@@ -13,6 +19,23 @@ IntVarEL::IntVarEL(const IntVar& other) :
 	initVals();
 	initVLits();
 	initBLits();
+
+        for (int v = lit_min ; v <= lit_max ; v++) {
+          std::string label;
+          std::stringstream ss;
+          ss << intVarString[(IntVar*)(&other)];
+          std::stringstream ssv;
+          ssv << v;
+          std::string val = ssv.str();
+          label = ss.str(); label.append("!="); label.append(val);
+          litString.insert(std::pair<int,std::string>(base_vlit+2*v, label));
+          label = ss.str(); label.append("=="); label.append(val);
+          litString.insert(std::pair<int,std::string>(base_vlit+2*v+1, label));
+          label = ss.str(); label.append(">="); label.append(val);
+          litString.insert(std::pair<int,std::string>(base_blit+2*v, label));
+          label = ss.str(); label.append("<="); label.append(val);
+          litString.insert(std::pair<int,std::string>(base_blit+2*v+1, label));
+        }
 }
 
 void IntVarEL::initVLits() {
@@ -64,6 +87,7 @@ void IntVarEL::setBDecidable(bool b) {
 
 
 Lit IntVarEL::getLit(int64_t v, int t) {
+  //    std::cerr << "IntVarEL::getLit\n";
 	if (v < lit_min) return toLit(1^(t&1));              // 1, 0, 1, 0
 	if (v > lit_max) return toLit(((t-1)>>1)&1);     // 1, 0, 0, 1
 	switch (t) {

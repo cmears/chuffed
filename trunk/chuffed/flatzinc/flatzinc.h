@@ -34,6 +34,8 @@
 #include <chuffed/core/propagator.h>
 #include <chuffed/flatzinc/ast.h>
 
+extern std::map<IntVar*, std::string> intVarString;
+
 // Controls whether expressions like bool_sum_eq([x[i] = j | i in 1..n], 1)
 // access the underlying literals x[i] = j or new ones via int_eq_reif(...)
 // NOTE:  Implemention isn't 100% ideal at this stage so kept it conditional

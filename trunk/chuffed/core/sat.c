@@ -8,9 +8,13 @@
 #include <chuffed/mip/mip.h>
 #include <chuffed/parallel/parallel.h>
 
+#include <iostream>
+
 #define PRINT_ANALYSIS 0
 
 SAT sat;
+
+std::map<int,std::string> litString;
 
 cassert(sizeof(Lit) == 4);
 cassert(sizeof(Clause) == 4);
@@ -330,6 +334,7 @@ void SAT::aEnqueue(Lit p, Reason r, int l) {
 }
 
 void SAT::btToLevel(int level) {
+  std::cerr << "SAT::btToLevel( " << level << ")\n";
   if (decisionLevel() <= level) return;
 
 	for (int l = trail.size(); l-- > level+1; ) {

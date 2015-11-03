@@ -1,6 +1,8 @@
 #include <chuffed/vars/int-var.h>
 #include <chuffed/core/sat.h>
 
+#include <iostream>
+
 // val -> (val-1)/2
 
 IntVarLL::IntVarLL(const IntVar& other) : IntVar(other), ld(2), li(0), hi(1) {
@@ -25,6 +27,7 @@ DecInfo* IntVarLL::branch() {
 }
 
 inline int IntVarLL::getLitNode() {
+  std::cerr << "IntVarLL::getLitNode\n";
 	int i = -1;
 	if (freelist.size()) {
 		i = freelist.last(); freelist.pop();
@@ -57,6 +60,7 @@ inline Lit IntVarLL::getGELit(int v) {
 	if (ld[ni].val == v-1) return Lit(ld[ni].var, 1);
 	// overshot, create new var and insert before ni
 	int mi = getLitNode();
+        std::cerr << "created new literal: " << mi << ": " << this << " >= " << v << "\n";
 	ld[mi].var = sat.getLazyVar(ChannelInfo(var_id, 1, 1, v-1));
 	ld[mi].val = v-1;
 	ld[mi].next = ni;

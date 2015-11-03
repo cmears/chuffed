@@ -1,5 +1,11 @@
 #include <cstdio>
 #include <cassert>
+
+#include <iostream>
+#include <vector>
+#include <iterator>
+#include <sstream>
+
 #include <chuffed/core/options.h>
 #include <chuffed/core/engine.h>
 #include <chuffed/core/sat.h>
@@ -9,11 +15,21 @@
 #include <chuffed/parallel/parallel.h>
 #include <chuffed/ldsb/ldsb.h>
 
+#include "cpp-integration/connector.hh"
+
+using namespace Profiling;
+
 Engine engine;
 
 uint64_t bit[65];
 
 Tint trail_inc;
+
+std::vector<int> altpath;
+std::vector<int> decisionLevelTip;
+Profiling::Connector c(6565);
+std::map<IntVar*, string> intVarString;
+        string mostRecentLabel;
 
 Engine::Engine() :
 		finished_init(false)
@@ -53,8 +69,20 @@ inline void Engine::doFixPointStuff() {
 
 inline void Engine::makeDecision(DecInfo& di, int alt) {
 	++nodes;
-	if (di.var) ((IntVar*) di.var)->set(di.val, di.type ^ alt);
-	else sat.enqueue(toLit(di.val ^ alt));
+        altpath.push_back(alt);
+	if (di.var) {
+          std::cerr << "makeDecision: " << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")" << std::endl;
+          std::stringstream ss;
+          ss << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")";
+          mostRecentLabel = ss.str();
+            ((IntVar*) di.var)->set(di.val, di.type ^ alt);
+        } else {
+            std::cerr << "enqueing SAT literal: " << di.val << "^" << alt << " = " << (di.val ^ alt) << std::endl;
+          std::stringstream ss;
+          ss << litString[di.val^alt];
+          mostRecentLabel = ss.str();
+            sat.enqueue(toLit(di.val ^ alt));
+        }
 	if (so.ldsb && di.var && di.type == 1) ldsb.processDec(sat.trail.last()[0]);
 //	if (opt_var && di.var == opt_var && ((IntVar*) di.var)->isFixed()) printf("objective = %d\n", ((IntVar*) di.var)->getVal());
 }
@@ -91,7 +119,6 @@ inline bool Engine::constrain() {
 }
 
 bool Engine::propagate() {
-
 	if (async_fail) {
 		async_fail = false;
 		assert(!so.lazy || sat.confl);
@@ -146,6 +173,7 @@ void Engine::btToPos(int pos) {
 }
 
 void Engine::btToLevel(int level) {
+  std::cerr << "Engine::btToLevel( " << level << ")\n";
 	if (decisionLevel() == 0 && level == 0) return;
 	assert(decisionLevel() > level);
 
@@ -223,15 +251,44 @@ void Engine::toggleVSIDS() {
 	}
 }
 
+int nextnodeid = 0;
+std::vector<int> nodepath;
+
+
 RESULT Engine::search() {
 	int starts = 0;
 	int nof_conflicts = so.restart_base;
 	int conflictC = 0;
 
+        decisionLevelTip.push_back(1);
+
 	while (true) {
 		if (so.parallel && slave.checkMessages()) return RES_UNK;
 
-		if (!propagate()) {
+                int nodeid = nextnodeid;
+                nextnodeid++;
+                int parent = (nodepath.size() == 0) ? (-1) : (nodepath[nodepath.size()-1]);
+                nodepath.push_back(nodeid);
+                int myalt = (altpath.size() == 0) ? (-1) : (altpath[altpath.size()-1]);
+                std::cerr << "propagate (";
+                for (int i = 0 ; i < nodepath.size() ; i++)
+                    std::cerr << " " << nodepath[i];
+                std::cerr << ")\n";
+                std::cerr << "altpath (";
+                for (int i = 0 ; i < altpath.size() ; i++)
+                    std::cerr << " " << altpath[i];
+                std::cerr << ")\n";
+
+                    if (decisionLevel() >= decisionLevelTip.size())
+                      decisionLevelTip.resize(decisionLevel()+1);
+                    decisionLevelTip[decisionLevel()] = nodepath.size();
+                    std::cerr << "setting decisionLevelTip[" << decisionLevel() << "] to " << nodepath.size() << "\n";
+
+                    if (!propagate()) {
+                    std::cerr << "failure\n";
+                    std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, NodeStatus::FAILED)\n";
+                    /* c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send(); */
+                    /* mostRecentLabel = ""; */
 
 			clearPropState();
 
@@ -243,15 +300,44 @@ RESULT Engine::search() {
 				return RES_UNK;
 			}
 
-			if (decisionLevel() == 0) { return RES_GUN; }
+			if (decisionLevel() == 0) {
+                          c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send();
+                          mostRecentLabel = "";
+                          return RES_GUN; }
+                    
 
 			// Derive learnt clause and perform backjump
 			if (so.lazy) {
 				sat.analyze();
+                                std::stringstream ss;
+                                ss << "out_learnt (interpreted):";
+                                for (int i = 0 ; i < sat.out_learnt.size() ; i++)
+                                  ss << " " << litString[toInt(sat.out_learnt[i])];
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_info(ss.str()).send();
+                                mostRecentLabel = "";
+                                std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
+                                std::cerr << "decisionLevelTip:";
+                                for (int i = 0 ; i < decisionLevelTip.size() ; i++)
+                                  std::cerr << " " << decisionLevelTip[i];
+                                std::cerr << "\n";
+                                nodepath.resize(decisionLevelTip[decisionLevel()]);
+                                altpath.resize(decisionLevelTip[decisionLevel()]-1);
+                                mostRecentLabel = "<clause propagation>";
+                                altpath.push_back(1);
 			}	else {
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send();
+                                mostRecentLabel = "";
 				sat.confl = NULL;
 				DecInfo& di = dec_info.last();
 				sat.btToLevel(decisionLevel()-1);
+                                nodepath.resize(decisionLevelTip[decisionLevel()-1]);
+                                altpath.resize(decisionLevelTip[decisionLevel()-1]-1);
+                                /* while (altpath.size() > 0 && altpath.back() == 1) { */
+                                /*     nodepath.pop_back(); */
+                                /*     altpath.pop_back(); */
+                                /* } */
+                                /* nodepath.pop_back(); */
+                                /* altpath.pop_back(); */
 				makeDecision(di, 1);
 			}
 
@@ -278,6 +364,7 @@ RESULT Engine::search() {
 			
 			// Propagate assumptions
 			while (decisionLevel() < assumptions.size()) {
+                            std::cerr << "doing something with assumptions\n";
 				int p = assumptions[decisionLevel()];
 				if (sat.value(toLit(p)) == l_True) {
 					// Dummy decision level:
@@ -302,6 +389,10 @@ RESULT Engine::search() {
           fflush(stdout);
 				}
 				if (!opt_var) {
+                                    std::cerr << "solution\n";
+                                    std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, SOLVED)\n";
+                                    c.createNode(nodeid, parent, myalt, 0, SOLVED).set_label(mostRecentLabel).send();
+                                    mostRecentLabel = "";
 					if (solutions == so.nof_solutions) return RES_SAT;
 					if (so.lazy) blockCurrentSol();
 					goto Conflict;
@@ -318,7 +409,12 @@ RESULT Engine::search() {
 
 			doFixPointStuff();
 
+                        std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 2, NodeStatus::BRANCH)\n";
+                        c.createNode(nodeid, parent, myalt, 2, BRANCH).set_label(mostRecentLabel).send();
+                        mostRecentLabel = "";
+                        
 			makeDecision(*di, 0);
+
 			delete di;
 
 		}
@@ -335,6 +431,9 @@ void Engine::solve(Problem *p) {
 	init_time = wallClockTime() - start_time;
 	base_memory = memUsed();
 
+        c.connect();
+        c.restart("chuffed");
+
 	if (!so.parallel) {
 		// sequential
 		status = search();
@@ -350,6 +449,9 @@ void Engine::solve(Problem *p) {
 		else slave.solve();
 		if (so.thread_no == -1 && master.status == RES_GUN) printf("==========\n");
 	}
+
+        c.done();
+        c.disconnect();
 
 	if (so.verbosity >= 1) printStats();
 

@@ -4,6 +4,7 @@
 #include <climits>
 #include <cmath>
 #include <map>
+#include <string>
 #include <chuffed/support/misc.h>
 #include <chuffed/support/heap.h>
 #include <chuffed/core/sat-types.h>
@@ -14,6 +15,8 @@
 
 class IntVar;
 class SClause;
+
+extern std::map<int,std::string> litString;
 
 class SAT : public Branching {
 	// For sorting Lits in learnt clause
