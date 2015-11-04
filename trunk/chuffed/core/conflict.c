@@ -107,6 +107,7 @@ void SAT::analyze() {
 		std::sort((Lit*) out_learnt + 2, (Lit*) out_learnt + out_learnt.size(), lit_sort);
 	}
 
+#if DEBUG_VERBOSE
         std::cerr << "out_learnt:";
         for (int i = 0 ; i < out_learnt.size() ; i++)
           std::cerr << " " << toInt(out_learnt[i]);
@@ -115,6 +116,7 @@ void SAT::analyze() {
         for (int i = 0 ; i < out_learnt.size() ; i++)
           std::cerr << " " << litString[toInt(out_learnt[i])];
         std::cerr << "\n";
+#endif
 
 	Clause *c = Clause_new(out_learnt, true);
 	c->activity() = cla_inc;

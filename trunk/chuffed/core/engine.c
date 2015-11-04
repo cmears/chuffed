@@ -322,7 +322,10 @@ RESULT Engine::search() {
                                 std::cerr << "\n";
                                 nodepath.resize(decisionLevelTip[decisionLevel()]);
                                 altpath.resize(decisionLevelTip[decisionLevel()]-1);
-                                mostRecentLabel = "<clause propagation>";
+                                std::stringstream ss2;
+                                ss2 << "-> ";
+                                ss2 << litString[toInt(sat.out_learnt[0])];
+                                mostRecentLabel = ss2.str();
                                 altpath.push_back(1);
 			}	else {
                                 c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send();
@@ -330,8 +333,8 @@ RESULT Engine::search() {
 				sat.confl = NULL;
 				DecInfo& di = dec_info.last();
 				sat.btToLevel(decisionLevel()-1);
-                                nodepath.resize(decisionLevelTip[decisionLevel()-1]);
-                                altpath.resize(decisionLevelTip[decisionLevel()-1]-1);
+                                nodepath.resize(decisionLevelTip[decisionLevel()]);
+                                altpath.resize(decisionLevelTip[decisionLevel()]-1);
                                 /* while (altpath.size() > 0 && altpath.back() == 1) { */
                                 /*     nodepath.pop_back(); */
                                 /*     altpath.pop_back(); */

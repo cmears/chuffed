@@ -155,7 +155,7 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lzmq -lprotobuf)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lnanomsg -lprotobuf)
 
 INSTALL(TARGETS fzn_chuffed chuffed
   RUNTIME DESTINATION bin
