@@ -35,6 +35,7 @@
 #include <chuffed/flatzinc/ast.h>
 
 extern std::map<IntVar*, std::string> intVarString;
+extern std::map<int, std::string> boolVarString;
 
 // Controls whether expressions like bool_sum_eq([x[i] = j | i in 1..n], 1)
 // access the underlying literals x[i] = j or new ones via int_eq_reif(...)
@@ -292,8 +293,9 @@ namespace FlatZinc {
 		void setOutputElem(AST::Node* ai) const;
 		void setOutput();
 
-		void printElem(AST::Node* ai) const;
+		void printElem(AST::Node* ai, std::ostream& out = std::cout) const;
 		void print();
+		void printStream(std::ostream& out);
 
 	};
 

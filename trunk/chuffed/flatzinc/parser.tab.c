@@ -335,7 +335,7 @@ void initfg(ParserState* pp) {
       try {
         pp->fg->newIntVar(static_cast<IntVarSpec*>(pp->intvars[i].second));
         IntVar* newiv = pp->fg->iv[pp->fg->intVarCount-1];
-        std::cerr << "created new int var for " << (pp->intvars[i].first) << ": " << newiv << "\n";
+//        std::cerr << "created new int var for " << (pp->intvars[i].first) << ": " << newiv << "\n";
         intVarString.insert(std::pair<IntVar*, std::string>(newiv, pp->intvars[i].first));
       } catch (FlatZinc::Error& e) {
         yyerror(pp, e.toString().c_str());
@@ -351,6 +351,14 @@ void initfg(ParserState* pp) {
       try {
         pp->fg->newBoolVar(
           static_cast<BoolVarSpec*>(pp->boolvars[i].second));
+        BoolView newiv = pp->fg->bv[pp->fg->boolVarCount-1];
+        string label;
+        label = pp->boolvars[i].first;
+        label.append("=true");
+        litString.insert(std::pair<int,std::string>(toInt(newiv.getLit(true)), label));
+        label = pp->boolvars[i].first;
+        label.append("=false");
+        litString.insert(std::pair<int,std::string>(toInt(newiv.getLit(false)), label));
       } catch (FlatZinc::Error& e) {
         yyerror(pp, e.toString().c_str());
       }

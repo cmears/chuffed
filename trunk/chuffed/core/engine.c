@@ -15,7 +15,11 @@
 #include <chuffed/parallel/parallel.h>
 #include <chuffed/ldsb/ldsb.h>
 
+#include <chuffed/flatzinc/flatzinc.h>
+
 #include "cpp-integration/connector.hh"
+
+#define DEBUG_VERBOSE 0
 
 using namespace Profiling;
 
@@ -71,13 +75,17 @@ inline void Engine::makeDecision(DecInfo& di, int alt) {
 	++nodes;
         altpath.push_back(alt);
 	if (di.var) {
+#if DEBUG_VERBOSE
           std::cerr << "makeDecision: " << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")" << std::endl;
+#endif
           std::stringstream ss;
           ss << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")";
           mostRecentLabel = ss.str();
             ((IntVar*) di.var)->set(di.val, di.type ^ alt);
         } else {
+#if DEBUG_VERBOSE
             std::cerr << "enqueing SAT literal: " << di.val << "^" << alt << " = " << (di.val ^ alt) << std::endl;
+#endif
           std::stringstream ss;
           ss << litString[di.val^alt];
           mostRecentLabel = ss.str();
@@ -173,7 +181,9 @@ void Engine::btToPos(int pos) {
 }
 
 void Engine::btToLevel(int level) {
-  std::cerr << "Engine::btToLevel( " << level << ")\n";
+#if DEBUG_VERBOSE
+    std::cerr << "Engine::btToLevel( " << level << ")\n";
+#endif
 	if (decisionLevel() == 0 && level == 0) return;
 	assert(decisionLevel() > level);
 
@@ -270,6 +280,7 @@ RESULT Engine::search() {
                 int parent = (nodepath.size() == 0) ? (-1) : (nodepath[nodepath.size()-1]);
                 nodepath.push_back(nodeid);
                 int myalt = (altpath.size() == 0) ? (-1) : (altpath[altpath.size()-1]);
+#if DEBUG_VERBOSE
                 std::cerr << "propagate (";
                 for (int i = 0 ; i < nodepath.size() ; i++)
                     std::cerr << " " << nodepath[i];
@@ -278,15 +289,19 @@ RESULT Engine::search() {
                 for (int i = 0 ; i < altpath.size() ; i++)
                     std::cerr << " " << altpath[i];
                 std::cerr << ")\n";
-
+#endif
                     if (decisionLevel() >= decisionLevelTip.size())
                       decisionLevelTip.resize(decisionLevel()+1);
                     decisionLevelTip[decisionLevel()] = nodepath.size();
+#if DEBUG_VERBOSE
                     std::cerr << "setting decisionLevelTip[" << decisionLevel() << "] to " << nodepath.size() << "\n";
+#endif
 
                     if (!propagate()) {
+#if DEBUG_VERBOSE
                     std::cerr << "failure\n";
                     std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, NodeStatus::FAILED)\n";
+#endif
                     /* c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send(); */
                     /* mostRecentLabel = ""; */
 
@@ -315,16 +330,22 @@ RESULT Engine::search() {
                                   ss << " " << litString[toInt(sat.out_learnt[i])];
                                 c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_info(ss.str()).send();
                                 mostRecentLabel = "";
+#if DEBUG_VERBOSE
                                 std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
                                 std::cerr << "decisionLevelTip:";
                                 for (int i = 0 ; i < decisionLevelTip.size() ; i++)
                                   std::cerr << " " << decisionLevelTip[i];
                                 std::cerr << "\n";
+#endif
                                 nodepath.resize(decisionLevelTip[decisionLevel()]);
                                 altpath.resize(decisionLevelTip[decisionLevel()]-1);
                                 std::stringstream ss2;
                                 ss2 << "-> ";
-                                ss2 << litString[toInt(sat.out_learnt[0])];
+                                string ls = litString[toInt(sat.out_learnt[0])];
+                                ss2 << ls;
+                                if (ls.size() < 2) {
+                                    std::cerr << "WARNING: short label for " << toInt(sat.out_learnt[0]) << ": " << ls << "\n";
+                                    }
                                 mostRecentLabel = ss2.str();
                                 altpath.push_back(1);
 			}	else {
@@ -367,7 +388,9 @@ RESULT Engine::search() {
 			
 			// Propagate assumptions
 			while (decisionLevel() < assumptions.size()) {
+#if DEBUG_VERBOSE
                             std::cerr << "doing something with assumptions\n";
+#endif
 				int p = assumptions[decisionLevel()];
 				if (sat.value(toLit(p)) == l_True) {
 					// Dummy decision level:
@@ -392,9 +415,25 @@ RESULT Engine::search() {
           fflush(stdout);
 				}
 				if (!opt_var) {
+#if DEBUG_VERBOSE
                                     std::cerr << "solution\n";
                                     std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, SOLVED)\n";
-                                    c.createNode(nodeid, parent, myalt, 0, SOLVED).set_label(mostRecentLabel).send();
+#endif
+
+                                    FlatZinc::FlatZincSpace *fzs = dynamic_cast<FlatZinc::FlatZincSpace*>(problem);
+                                    if (fzs != NULL) {
+                                        std::stringstream s;
+                                        fzs->printStream(s);
+                                        c.createNode(nodeid, parent, myalt, 0, SOLVED)
+                                            .set_label(mostRecentLabel)
+                                            .set_info(s.str())
+                                            .send();
+                                    } else {
+                                        c.createNode(nodeid, parent, myalt, 0, SOLVED)
+                                            .set_label(mostRecentLabel)
+                                            .send();
+                                    }
+                                    
                                     mostRecentLabel = "";
 					if (solutions == so.nof_solutions) return RES_SAT;
 					if (so.lazy) blockCurrentSol();
@@ -412,7 +451,9 @@ RESULT Engine::search() {
 
 			doFixPointStuff();
 
+#if DEBUG_VERBOSE
                         std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 2, NodeStatus::BRANCH)\n";
+#endif
                         c.createNode(nodeid, parent, myalt, 2, BRANCH).set_label(mostRecentLabel).send();
                         mostRecentLabel = "";
                         

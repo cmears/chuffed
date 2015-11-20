@@ -93,7 +93,7 @@ namespace FlatZinc {
 			} else {
 				v = ::newIntVar();
 			}
-                        std::cerr << "int var: " << intVarCount << " " << v << "\n";
+                        /* std::cerr << "int var: " << intVarCount << " " << v << "\n"; */
 			iv[intVarCount++] = v;
 		}
 		iv_introduced[intVarCount-1] = vs->introduced;
@@ -133,6 +133,7 @@ namespace FlatZinc {
 			else
 #endif
 				v = ::newBoolVar();
+
 			if (vs->assigned) v.setVal(vs->i);
 			else if (vs->domain()) {
 				AST::SetLit* sl = vs->domain.some();
@@ -301,30 +302,30 @@ namespace FlatZinc {
 		}
 	}
 
-	void FlatZincSpace::printElem(AST::Node* ai) const {
+	void FlatZincSpace::printElem(AST::Node* ai, ostream& out) const {
 		int k;
 		if (ai->isInt(k)) {
-			cout << k;
+			out << k;
 		} else if (ai->isIntVar()) {
-			cout << iv[ai->getIntVar()]->getVal();
+			out << iv[ai->getIntVar()]->getVal();
 		} else if (ai->isBoolVar()) {
 			if (bv[ai->getBoolVar()].isTrue()) {
-				cout << "true";
+				out << "true";
 			} else if (bv[ai->getBoolVar()].isFalse()) {
-				cout << "false";
+				out << "false";
 			} else {
-				cout << "false..true";
+				out << "false..true";
 			}
 		} else if (ai->isBool()) {
-			cout << (ai->getBool() ? "true" : "false");
+			out << (ai->getBool() ? "true" : "false");
 		} else if (ai->isSet()) {
 			AST::SetLit* s = ai->getSet();
 			if (s->interval) {
-				cout << s->min << ".." << s->max;
+				out << s->min << ".." << s->max;
 			} else {
-				cout << "{";
+				out << "{";
 				for (unsigned int i=0; i<s->s.size(); i++) {
-					cout << s->s[i] << (i < s->s.size()-1 ? ", " : "}");
+					out << s->s[i] << (i < s->s.size()-1 ? ", " : "}");
 				}
 			}
 		} else if (ai->isString()) {
@@ -332,14 +333,14 @@ namespace FlatZinc {
 			for (unsigned int i=0; i<s.size(); i++) {
 				if (s[i] == '\\' && i<s.size()-1) {
 					switch (s[i+1]) {
-					case 'n': cout << "\n"; break;
-					case '\\': cout << "\\"; break;
-					case 't': cout << "\t"; break;
-					default: cout << "\\" << s[i+1];
+					case 'n': out << "\n"; break;
+					case '\\': out << "\\"; break;
+					case 't': out << "\t"; break;
+					default: out << "\\" << s[i+1];
 					}
 					i++;
 				} else {
-					cout << s[i];
+					out << s[i];
 				}
 			}
 		}
@@ -373,6 +374,38 @@ namespace FlatZinc {
 				}
 			} else {
 				printElem(ai);
+			}
+		}
+	}
+
+        void FlatZincSpace::printStream(ostream& out) {
+		if (output == NULL) return;
+		for (unsigned int i=0; i< output->a.size(); i++) {
+			AST::Node* ai = output->a[i];
+			if (ai->isArray()) {
+				AST::Array* aia = ai->getArray();
+				int size = aia->a.size();
+				out << "[";
+				for (int j=0; j<size; j++) {
+                                    printElem(aia->a[j], out);
+					if (j<size-1) out << ", ";
+				}
+				out << "]";
+			} else if (ai->isCall("ifthenelse")) {
+				AST::Array* aia = ai->getCall("ifthenelse")->getArgs(3);
+				if (aia->a[0]->isBool()) {
+                                    if (aia->a[0]->getBool()) printElem(aia->a[1], out);
+                                    else printElem(aia->a[2], out);
+				} else if (aia->a[0]->isBoolVar()) {
+					BoolView b = bv[aia->a[0]->getBoolVar()];
+					if (b.isTrue()) printElem(aia->a[1], out);
+					else if (b.isFalse()) printElem(aia->a[2], out);
+					else std::cerr << "% Error: Condition not fixed." << std::endl;
+				} else {
+					std::cerr << "% Error: Condition not Boolean." << std::endl;        
+				}
+			} else {
+                            printElem(ai, out);
 			}
 		}
 	}

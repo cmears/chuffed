@@ -71,7 +71,8 @@ const BoolView bv_true(lit_True);
 const BoolView bv_false(lit_False);
 
 inline BoolView newBoolVar(int min = 0, int max = 1) {
-	BoolView v(Lit(sat.newVar(),0));
+        int varNumber = sat.newVar();
+	BoolView v(Lit(varNumber,0));
 	if (min == 1) v.setVal(1);
 	if (max == 0) v.setVal(0);
 	return v;

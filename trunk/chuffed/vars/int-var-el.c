@@ -35,6 +35,12 @@ IntVarEL::IntVarEL(const IntVar& other) :
           litString.insert(std::pair<int,std::string>(base_blit+2*v, label));
           label = ss.str(); label.append("<="); label.append(val);
           litString.insert(std::pair<int,std::string>(base_blit+2*v+1, label));
+
+          /* std::cerr << "(" << intVarString[(IntVar*)(&other)] << ") created litString entries for: " << */
+          /*     base_vlit+2*v << " " << */
+          /*     base_vlit+2*v+1 << " " << */
+          /*     base_blit+2*v << " " << */
+          /*     base_blit+2*v+1 << "\n"; */
         }
 }
 

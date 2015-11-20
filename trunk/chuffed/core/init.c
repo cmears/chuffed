@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cassert>
 #include <signal.h>
+#include <iostream>
 #include <chuffed/core/options.h>
 #include <chuffed/core/engine.h>
 #include <chuffed/core/sat.h>
@@ -37,6 +38,7 @@ void Engine::init() {
 			if (vars[i]->getMax() - vars[i]->getMin() <= so.eager_limit) {
 				vars[i]->specialiseToEL();
 			} else {
+                            std::cerr << "using lazy literal\n";
 				vars[i]->specialiseToLL();
 			}
 		}

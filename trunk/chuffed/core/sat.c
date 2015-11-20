@@ -334,7 +334,9 @@ void SAT::aEnqueue(Lit p, Reason r, int l) {
 }
 
 void SAT::btToLevel(int level) {
+#if DEBUG_VERBOSE
   std::cerr << "SAT::btToLevel( " << level << ")\n";
+#endif
   if (decisionLevel() <= level) return;
 
 	for (int l = trail.size(); l-- > level+1; ) {
