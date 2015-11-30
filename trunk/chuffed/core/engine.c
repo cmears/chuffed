@@ -29,8 +29,14 @@ uint64_t bit[65];
 
 Tint trail_inc;
 
+int nextnodeid = 0;
+std::vector<int> nodepath;
+
+
 std::vector<int> altpath;
 std::vector<int> decisionLevelTip;
+int restartCount;
+
 Profiling::Connector c(6565);
 std::map<IntVar*, string> intVarString;
         string mostRecentLabel;
@@ -108,6 +114,11 @@ inline bool Engine::constrain() {
 	opt_time = wallClockTime() - start_time - init_time;
 
 	sat.btToLevel(0);
+        restartCount++;
+        nodepath.resize(0);
+        altpath.resize(0);
+        nextnodeid = 0;
+        c.restart("chuffed", restartCount);
 
 	if (so.parallel) {
 		Lit p = opt_type ? opt_var->getLit(best_sol+1, 2) : opt_var->getLit(best_sol-1, 3);
@@ -261,14 +272,13 @@ void Engine::toggleVSIDS() {
 	}
 }
 
-int nextnodeid = 0;
-std::vector<int> nodepath;
-
-
 RESULT Engine::search() {
 	int starts = 0;
 	int nof_conflicts = so.restart_base;
 	int conflictC = 0;
+
+        restartCount = 0;
+        c.restart("chuffed", restartCount);
 
         decisionLevelTip.push_back(1);
 
@@ -316,7 +326,7 @@ RESULT Engine::search() {
 			}
 
 			if (decisionLevel() == 0) {
-                          c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send();
+                          c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                           mostRecentLabel = "";
                           return RES_GUN; }
                     
@@ -328,7 +338,7 @@ RESULT Engine::search() {
                                 ss << "out_learnt (interpreted):";
                                 for (int i = 0 ; i < sat.out_learnt.size() ; i++)
                                   ss << " " << litString[toInt(sat.out_learnt[i])];
-                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_info(ss.str()).send();
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_info(ss.str()).set_restart_id(restartCount).send();
                                 mostRecentLabel = "";
 #if DEBUG_VERBOSE
                                 std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
@@ -349,7 +359,7 @@ RESULT Engine::search() {
                                 mostRecentLabel = ss2.str();
                                 altpath.push_back(1);
 			}	else {
-                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send();
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                                 mostRecentLabel = "";
 				sat.confl = NULL;
 				DecInfo& di = dec_info.last();
@@ -368,6 +378,12 @@ RESULT Engine::search() {
             if (!so.vsids && !so.toggle_vsids &&  conflictC >= so.switch_to_vsids_after) {
 	    	if (so.restart_base >= 1000000000) so.restart_base = 100;
                 sat.btToLevel(0);
+        restartCount++;
+        nodepath.resize(0);
+        altpath.resize(0);
+        nextnodeid = 0;
+        c.restart("chuffed", restartCount);
+
                 toggleVSIDS();
             }
 
@@ -377,6 +393,13 @@ RESULT Engine::search() {
 				starts++;
 				nof_conflicts += getRestartLimit((starts+1)/2);
 				sat.btToLevel(0);
+        restartCount++;
+        nodepath.resize(0);
+        altpath.resize(0);
+        nextnodeid = 0;
+        c.restart("chuffed", restartCount);
+
+
 				sat.confl = NULL;
 				if (so.lazy && so.toggle_vsids && (starts % 2 == 0)) toggleVSIDS();
 				continue;
@@ -414,7 +437,6 @@ RESULT Engine::search() {
 					printf("----------\n");
           fflush(stdout);
 				}
-				if (!opt_var) {
 #if DEBUG_VERBOSE
                                     std::cerr << "solution\n";
                                     std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, SOLVED)\n";
@@ -427,14 +449,15 @@ RESULT Engine::search() {
                                         c.createNode(nodeid, parent, myalt, 0, SOLVED)
                                             .set_label(mostRecentLabel)
                                             .set_info(s.str())
-                                            .send();
+                                            .set_restart_id(restartCount).send();
                                     } else {
                                         c.createNode(nodeid, parent, myalt, 0, SOLVED)
                                             .set_label(mostRecentLabel)
-                                            .send();
+                                            .set_restart_id(restartCount).send();
                                     }
                                     
                                     mostRecentLabel = "";
+				if (!opt_var) {
 					if (solutions == so.nof_solutions) return RES_SAT;
 					if (so.lazy) blockCurrentSol();
 					goto Conflict;
@@ -454,7 +477,7 @@ RESULT Engine::search() {
 #if DEBUG_VERBOSE
                         std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 2, NodeStatus::BRANCH)\n";
 #endif
-                        c.createNode(nodeid, parent, myalt, 2, BRANCH).set_label(mostRecentLabel).send();
+                        c.createNode(nodeid, parent, myalt, 2, BRANCH).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                         mostRecentLabel = "";
                         
 			makeDecision(*di, 0);
@@ -476,7 +499,6 @@ void Engine::solve(Problem *p) {
 	base_memory = memUsed();
 
         c.connect();
-        c.restart("chuffed");
 
 	if (!so.parallel) {
 		// sequential
