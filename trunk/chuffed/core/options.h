@@ -9,6 +9,8 @@
 // 0=none (1=some, 2=always, behaviour is exactly the same as MiniSat 2.2.0).
 #define PHASE_SAVING 0
 
+#define DEBUG_VERBOSE 0
+
 class Options {
 public:
 	// Solver options

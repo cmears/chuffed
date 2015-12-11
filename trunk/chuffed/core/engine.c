@@ -19,7 +19,7 @@
 
 #include "cpp-integration/connector.hh"
 
-#define DEBUG_VERBOSE 0
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace Profiling;
 
@@ -282,7 +282,9 @@ RESULT Engine::search() {
 
         decisionLevelTip.push_back(1);
 
-	while (true) {
+        boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::universal_time();
+
+        while (true) {
 		if (so.parallel && slave.checkMessages()) return RES_UNK;
 
                 int nodeid = nextnodeid;
@@ -307,10 +309,16 @@ RESULT Engine::search() {
                     std::cerr << "setting decisionLevelTip[" << decisionLevel() << "] to " << nodepath.size() << "\n";
 #endif
 
-                    if (!propagate()) {
+                    bool propResult = propagate();
+                    boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::universal_time();
+                    boost::posix_time::time_duration dur = current_time - start_time;
+                    long timeus = dur.total_microseconds();
+                    if (!propResult) {
 #if DEBUG_VERBOSE
                     std::cerr << "failure\n";
                     std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, NodeStatus::FAILED)\n";
+                    std::cerr << "label: " << mostRecentLabel << "\n";
+                    std::cerr << "restart: " << restartCount << "\n";
 #endif
                     /* c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).send(); */
                     /* mostRecentLabel = ""; */
@@ -326,7 +334,7 @@ RESULT Engine::search() {
 			}
 
 			if (decisionLevel() == 0) {
-                          c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_restart_id(restartCount).send();
+                            c.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                           mostRecentLabel = "";
                           return RES_GUN; }
                     
@@ -338,7 +346,7 @@ RESULT Engine::search() {
                                 ss << "out_learnt (interpreted):";
                                 for (int i = 0 ; i < sat.out_learnt.size() ; i++)
                                   ss << " " << litString[toInt(sat.out_learnt[i])];
-                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_info(ss.str()).set_restart_id(restartCount).send();
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_restart_id(restartCount).send();
                                 mostRecentLabel = "";
 #if DEBUG_VERBOSE
                                 std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
@@ -359,7 +367,7 @@ RESULT Engine::search() {
                                 mostRecentLabel = ss2.str();
                                 altpath.push_back(1);
 			}	else {
-                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_label(mostRecentLabel).set_restart_id(restartCount).send();
+                                c.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                                 mostRecentLabel = "";
 				sat.confl = NULL;
 				DecInfo& di = dec_info.last();
@@ -440,6 +448,7 @@ RESULT Engine::search() {
 #if DEBUG_VERBOSE
                                     std::cerr << "solution\n";
                                     std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 0, SOLVED)\n";
+                                    std::cerr << "label: " << mostRecentLabel << "\n";
 #endif
 
                                     FlatZinc::FlatZincSpace *fzs = dynamic_cast<FlatZinc::FlatZincSpace*>(problem);
@@ -447,11 +456,13 @@ RESULT Engine::search() {
                                         std::stringstream s;
                                         fzs->printStream(s);
                                         c.createNode(nodeid, parent, myalt, 0, SOLVED)
+                                            .set_time(timeus)
                                             .set_label(mostRecentLabel)
                                             .set_info(s.str())
                                             .set_restart_id(restartCount).send();
                                     } else {
                                         c.createNode(nodeid, parent, myalt, 0, SOLVED)
+                                            .set_time(timeus)
                                             .set_label(mostRecentLabel)
                                             .set_restart_id(restartCount).send();
                                     }
@@ -476,8 +487,9 @@ RESULT Engine::search() {
 
 #if DEBUG_VERBOSE
                         std::cerr << "createNode(" << nodeid << ", " << parent << ", " << myalt << ", 2, NodeStatus::BRANCH)\n";
+                        std::cerr << "label: " << mostRecentLabel << "\n";
 #endif
-                        c.createNode(nodeid, parent, myalt, 2, BRANCH).set_label(mostRecentLabel).set_restart_id(restartCount).send();
+                        c.createNode(nodeid, parent, myalt, 2, BRANCH).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount).send();
                         mostRecentLabel = "";
                         
 			makeDecision(*di, 0);
