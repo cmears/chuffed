@@ -25,6 +25,7 @@ IntVar::IntVar(int _min, int _max) :
 	, preferred_val(PV_MIN)
 	, activity(0)
 	, in_queue(false)
+        , should_be_learnable(true)
 {
 	assert(min_limit <= min && min <= max && max <= max_limit);
 	engine.vars.push(this);

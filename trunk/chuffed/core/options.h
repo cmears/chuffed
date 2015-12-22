@@ -52,6 +52,8 @@ public:
 	bool sort_learnt_level;          // Sort lits in learnt clause based on level
 	bool one_watch;                  // One watch learnt clauses
 
+        bool exclude_introduced;         // Exclude introduced variables from learnt clauses
+
 	int eager_limit;                 // Max var range before we use lazy lit generation
 	int sat_var_limit;               // Max number of sat vars before turning off lazy clause
 	int nof_learnts;                 // Learnt clause no. limit

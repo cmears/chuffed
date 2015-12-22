@@ -35,8 +35,8 @@ public:
 
 	void initVLits();
 	void initBLits();
-	void setVLearnable();
-	void setBLearnable();
+	void setVLearnable(bool b = true);
+	void setBLearnable(bool b = true);
 	void setVDecidable(bool t);
 	void setBDecidable(bool t);
 

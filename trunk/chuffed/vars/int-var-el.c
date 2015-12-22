@@ -19,6 +19,8 @@ IntVarEL::IntVarEL(const IntVar& other) :
 	initVals();
 	initVLits();
 	initBLits();
+        setVLearnable(should_be_learnable);
+        setBLearnable(should_be_learnable);
 
         for (int v = lit_min ; v <= lit_max ; v++) {
           std::string label;
@@ -65,17 +67,17 @@ void IntVarEL::initBLits() {
 	for (int i = max; i <= lit_max; i++) sat.cEnqueue(getLELit(i), NULL);
 }
 
-void IntVarEL::setVLearnable() {
+void IntVarEL::setVLearnable(bool b) {
 	for (int i = lit_min; i <= lit_max; i++) {
-		sat.flags[base_vlit/2+i].setLearnable(true);
-		sat.flags[base_vlit/2+i].setUIPable(true);
+		sat.flags[base_vlit/2+i].setLearnable(b);
+		sat.flags[base_vlit/2+i].setUIPable(b);
 	}
 }
 
-void IntVarEL::setBLearnable() {
+void IntVarEL::setBLearnable(bool b) {
 	for (int i = lit_min; i <= lit_max+1; i++) {
-		sat.flags[(base_blit-1)/2+i].setLearnable(true);
-		sat.flags[(base_blit-1)/2+i].setUIPable(true);
+		sat.flags[(base_blit-1)/2+i].setLearnable(b);
+		sat.flags[(base_blit-1)/2+i].setUIPable(b);
 	}
 }
 

@@ -94,6 +94,8 @@ namespace FlatZinc {
 				v = ::newIntVar();
 			}
                         /* std::cerr << "int var: " << intVarCount << " " << v << "\n"; */
+                        if (so.exclude_introduced && vs->introduced)
+                            v->should_be_learnable = false;
 			iv[intVarCount++] = v;
 		}
 		iv_introduced[intVarCount-1] = vs->introduced;

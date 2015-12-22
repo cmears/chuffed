@@ -38,6 +38,8 @@ Options::Options() :
 	, sort_learnt_level(false)
 	, one_watch(true)
 
+        , exclude_introduced(false)
+
 	, eager_limit(1000)
 	, sat_var_limit(2000000)
 	, nof_learnts(100000)
@@ -121,6 +123,8 @@ void parseOptions(int& argc, char**& argv) {
 		parseBoolArg(vsids)
 		parseBoolArg(sort_learnt_level)
 		parseBoolArg(one_watch)
+
+                parseBoolArg(exclude_introduced)
 
 		parseIntArg(eager_limit)
 		parseIntArg(sat_var_limit)
