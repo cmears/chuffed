@@ -30,12 +30,105 @@ uint64_t bit[65];
 Tint trail_inc;
 
 int nextnodeid = 0;
+
+// nodepath is the sequence of node ids leading from the root to the
+// current node (inclusive).
 std::vector<int> nodepath;
 
-
+// altpath is the sequence of alternatives one follows to get from the
+// root to the current node.  It is typically one element shorter than
+// nodepath.
 std::vector<int> altpath;
+
+// decisionLevelTip[i] is the number of elements in nodepath that
+// belong to decision level i or above.  For example, in this
+// situation:
+//
+//   nodepath = [0, 1, 7]
+//   altpath = [0, 1]
+//   decisionLevelTip = [1,3]
+//
+// we have that decision level 0 contains only node 0, and decision
+// level 1 contains nodes 1 and 7.  Since decisionLevelTip[1]=3, if we
+// wish to return to decision level 1 via a backjump, we should keep
+// the first 3 elements of nodepath.
+//
+// Note that decisionLevelTip is never shrunk so its size should not
+// be depended on.  In other words, there may be elements at the end
+// of the vector, past the current decision level, whose values are
+// stale and meaningless.
 std::vector<int> decisionLevelTip;
+
 int restartCount;
+
+// When we rewind after a backjump, should we send the skipped nodes
+// to the profiler?
+enum RewindStyle {
+    REWIND_OMIT_SKIPPED,
+    REWIND_SEND_SKIPPED
+};
+
+std::string showVector(const std::vector<int>& v) {
+    stringstream ss;
+    for (int i = 0 ; i < v.size() ; i++) {
+        if (i > 0)
+            ss << " ";
+        ss << v[i];
+    }
+    return ss.str();
+}
+
+// Rewind nodepath and altpath after a backjump.
+void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLevel, int newDecisionLevel, RewindStyle rewindStyle) {
+    switch (rewindStyle) {
+    case REWIND_OMIT_SKIPPED:
+        nodepath.resize(decisionLevelTip[newDecisionLevel]);
+        altpath.resize(decisionLevelTip[newDecisionLevel]-1);
+        break;
+    case REWIND_SEND_SKIPPED:
+#if DEBUG_VERBOSE
+        std::cerr << "rewinding to level " << newDecisionLevel << "\n";
+        std::cerr << "before, nodepath is: " << showVector(nodepath) << "\n";
+        std::cerr << "     and altpath is: " << showVector(altpath) << "\n";
+        std::cerr << "       and dlTip is: " << showVector(decisionLevelTip) << "\n";
+#endif
+
+        // The tip of the nodepath and altpath lead us to the node
+        // that failed.  (That is, the last element of nodepath is the
+        // id of the node that failed.)  We first unwind that tip to
+        // the next decision level, so that we don't send a "skipped
+        // child" for that node or any others at this level.
+        nodepath.resize(decisionLevelTip[previousDecisionLevel-1]);
+        altpath.resize(decisionLevelTip[previousDecisionLevel-1] - 1);
+
+        // Now walk back through the decision levels, sending a
+        // "skipped" node for each child that was never visited.
+        while (nodepath.size() > decisionLevelTip[newDecisionLevel]) {
+            int nodeid = nextnodeid;
+            nextnodeid++;
+            int parent = (nodepath.size() == 0) ? (-1) : (nodepath[nodepath.size()-1]);
+            int myalt  =  (altpath.size() == 0) ? (-1) : (altpath[altpath.size()-1]);
+
+            // myalt is the alternative that led to the failure; the
+            // skipped node is conceptually the next alternative.
+            myalt++;
+            
+            profilerConnector
+                .createNode(nodeid, parent, myalt, 0, SKIPPED)
+                .set_restart_id(restartCount).send();
+            nodepath.resize(nodepath.size() - 1);
+            altpath.resize(altpath.size() - 1);
+        }
+#if DEBUG_VERBOSE
+        std::cerr << "after, nodepath is: " << showVector(nodepath) << "\n";
+        std::cerr << "    and altpath is: " << showVector(altpath) << "\n";
+        std::cerr << "       and dlTip is: " << showVector(decisionLevelTip) << "\n";
+#endif
+        break;
+    default:
+        abort();
+    }
+}
 
 Profiling::Connector profilerConnector(6565);
 std::map<IntVar*, string> intVarString;
@@ -312,6 +405,8 @@ RESULT Engine::search() {
         std::cerr << "setting decisionLevelTip[" << decisionLevel() << "] to " << nodepath.size() << "\n";
 #endif
 
+        int previousDecisionLevel = decisionLevel();
+
         bool propResult = propagate();
         boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::universal_time();
         boost::posix_time::time_duration dur = current_time - start_time;
@@ -362,8 +457,8 @@ RESULT Engine::search() {
                         std::cerr << " " << decisionLevelTip[i];
                     std::cerr << "\n";
 #endif
-                    nodepath.resize(decisionLevelTip[decisionLevel()]);
-                    altpath.resize(decisionLevelTip[decisionLevel()]-1);
+
+                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), REWIND_SEND_SKIPPED);
                                 
                     std::stringstream ss2;
                     ss2 << "-> ";
@@ -384,15 +479,8 @@ RESULT Engine::search() {
                 DecInfo& di = dec_info.last();
                 sat.btToLevel(decisionLevel()-1);
                 if (profilerConnector.connected()) {
-                    nodepath.resize(decisionLevelTip[decisionLevel()]);
-                    altpath.resize(decisionLevelTip[decisionLevel()]-1);
+                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), REWIND_SEND_SKIPPED);
                 }
-                /* while (altpath.size() > 0 && altpath.back() == 1) { */
-                /*     nodepath.pop_back(); */
-                /*     altpath.pop_back(); */
-                /* } */
-                /* nodepath.pop_back(); */
-                /* altpath.pop_back(); */
                 makeDecision(di, 1);
             }
 
