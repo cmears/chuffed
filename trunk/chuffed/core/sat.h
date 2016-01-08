@@ -18,6 +18,15 @@ class SClause;
 
 extern std::map<int,std::string> litString;
 
+inline
+std::string getLitString(int n) {
+    std::map<int,std::string>::const_iterator it = litString.find(n);
+    if (it != litString.end())
+        return it->second;
+    else
+        return "UNKNOWN_LITERAL";
+}
+
 class SAT : public Branching {
 	// For sorting Lits in learnt clause
 	struct LitSort {

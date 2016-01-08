@@ -189,7 +189,7 @@ inline void Engine::makeDecision(DecInfo& di, int alt) {
 #endif
         if (profilerConnector.connected()) {
             std::stringstream ss;
-            ss << litString[di.val^alt];
+            ss << getLitString(di.val^alt);
             mostRecentLabel = ss.str();
         }
         sat.enqueue(toLit(di.val ^ alt));
@@ -447,7 +447,7 @@ RESULT Engine::search() {
                     std::stringstream ss;
                     ss << "out_learnt (interpreted):";
                     for (int i = 0 ; i < sat.out_learnt.size() ; i++)
-                        ss << " " << litString[toInt(sat.out_learnt[i])];
+                        ss << " " << getLitString(toInt(sat.out_learnt[i]));
                     profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_restart_id(restartCount).send();
                     mostRecentLabel = "";
 #if DEBUG_VERBOSE
@@ -462,7 +462,7 @@ RESULT Engine::search() {
                                 
                     std::stringstream ss2;
                     ss2 << "-> ";
-                    string ls = litString[toInt(sat.out_learnt[0])];
+                    string ls = getLitString(toInt(sat.out_learnt[0]));
                     ss2 << ls;
                     if (ls.size() < 2) {
                         std::cerr << "WARNING: short label for " << toInt(sat.out_learnt[0]) << ": " << ls << "\n";
