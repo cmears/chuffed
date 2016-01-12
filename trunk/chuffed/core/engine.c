@@ -555,7 +555,7 @@ RESULT Engine::search() {
                 solutions++;
                 if (so.print_sol) {
                     problem->print();
-                    printf("----------\n");
+                    printf("\n----------\n");
                     fflush(stdout);
                 }
 #if DEBUG_VERBOSE

@@ -379,7 +379,7 @@ namespace FlatZinc {
 				} else {
 					a->a.push_back(_output[i].second);
 				}
-				a->a.push_back(new AST::String(";\n"));
+				a->a.push_back(new AST::String(";"));
 			}
 			return a;
 		}
