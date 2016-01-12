@@ -53,7 +53,10 @@ public:
 	bool one_watch;                  // One watch learnt clauses
 
         bool exclude_introduced;         // Exclude introduced variables from learnt clauses
-
+        bool print_nodes;                // Print nodes as they are sent to the profiler (or
+                                         // would be sent)
+        bool send_skipped;               // Send skipped nodes?
+        
 	int eager_limit;                 // Max var range before we use lazy lit generation
 	int sat_var_limit;               // Max number of sat vars before turning off lazy clause
 	int nof_learnts;                 // Learnt clause no. limit

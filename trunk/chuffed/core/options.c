@@ -39,6 +39,8 @@ Options::Options() :
 	, one_watch(true)
 
         , exclude_introduced(false)
+        , print_nodes(false)
+        , send_skipped(true)
 
 	, eager_limit(1000)
 	, sat_var_limit(2000000)
@@ -125,6 +127,8 @@ void parseOptions(int& argc, char**& argv) {
 		parseBoolArg(one_watch)
 
                 parseBoolArg(exclude_introduced)
+                parseBoolArg(print_nodes)
+                parseBoolArg(send_skipped)
 
 		parseIntArg(eager_limit)
 		parseIntArg(sat_var_limit)
