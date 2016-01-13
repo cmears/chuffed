@@ -380,13 +380,13 @@ void Engine::toggleVSIDS() {
     }
 }
 
-RESULT Engine::search() {
+RESULT Engine::search(const std::string& problemLabel) {
     int starts = 0;
     int nof_conflicts = so.restart_base;
     int conflictC = 0;
 
     restartCount = 0;
-    profilerConnector.restart("chuffed", restartCount);
+    profilerConnector.restart(problemLabel, restartCount);
 
     decisionLevelTip.push_back(1);
 
@@ -615,7 +615,7 @@ RESULT Engine::search() {
     }
 }
 
-void Engine::solve(Problem *p) {
+void Engine::solve(Problem *p, const std::string& problemLabel) {
     problem = p;
 
     init();
@@ -629,7 +629,7 @@ void Engine::solve(Problem *p) {
 
     if (!so.parallel) {
         // sequential
-        status = search();
+        status = search(problemLabel);
         if (status == RES_GUN) {
             if (solutions > 0)
                 printf("==========\n");

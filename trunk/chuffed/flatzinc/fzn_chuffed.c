@@ -5,6 +5,14 @@
 #include <chuffed/flatzinc/flatzinc.h>
 
 int main(int argc, char** argv) {
+    // Make a copy of the arguments for posterity.
+    std::string commandLine;
+    for (int i = 0; i < argc ; i++) {
+        if (i > 0) commandLine += " ";
+        commandLine += argv[i];
+    }
+
+    
 	parseOptions(argc, argv);
 /*
 	if (argc < 2) {
@@ -83,7 +91,7 @@ int main(int argc, char** argv) {
 		FlatZinc::solve(std::string(argv[1]));
 	}
 
-	engine.solve(FlatZinc::s);
+	engine.solve(FlatZinc::s, commandLine);
 
 	return 0;
 }

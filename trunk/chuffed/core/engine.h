@@ -2,6 +2,7 @@
 #define engine_h
 
 #include <chuffed/support/misc.h>
+#include <string>
 
 #define DEBUG 0
 
@@ -90,8 +91,8 @@ public:
 	void btToLevel(int level);
 
 	// Interface methods
-	RESULT search();
-	void solve(Problem *p);
+	RESULT search(const std::string& problemLabel = "chuffed");
+	void solve(Problem *p, const std::string& problemLabel = "chuffed");
 
 	// Stats
 	void printStats();
