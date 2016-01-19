@@ -146,6 +146,11 @@ namespace FlatZinc {
 				if (sl->min == 1) v.setVal(true);
 				if (sl->max == 0) v.setVal(false);
 			}
+                        if (so.exclude_introduced && vs->introduced) {
+                            v.setLearnable(false);
+                            v.setDecidable(false);
+                            v.setUIPable(false);
+                        }
 			bv[boolVarCount++] = v;
 		}
 		bv_introduced[boolVarCount-1] = vs->introduced;

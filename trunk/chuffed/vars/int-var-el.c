@@ -21,6 +21,10 @@ IntVarEL::IntVarEL(const IntVar& other) :
 	initBLits();
         setVLearnable(should_be_learnable);
         setBLearnable(should_be_learnable);
+        if (!should_be_learnable) {
+            setVDecidable(false);
+            setBDecidable(false);
+        }
 
         for (int v = lit_min ; v <= lit_max ; v++) {
           std::string label;

@@ -65,6 +65,17 @@ public:
 	Lit operator = (bool v) const { return getLit(v); }
 	bool operator == (BoolView o) const { return v == o.v && s == o.s; }
 
+        void setLearnable(bool learnable) {
+            sat.flags[v].setLearnable(learnable);
+        }
+
+        void setDecidable(bool decidable) {
+            sat.flags[v].setDecidable(decidable);
+        }
+
+        void setUIPable(bool UIPable) {
+            sat.flags[v].setUIPable(UIPable);
+        }
 };
 
 const BoolView bv_true(lit_True);
