@@ -1,6 +1,8 @@
 # Run this from the build directory.
 
-DIRNAME=chuffed-portable
+HASH=$(git show-ref -s HEAD)
+SHORT=${HASH:0:8}
+DIRNAME=chuffed-portable-$SHORT
 
 make
 mkdir -p $DIRNAME
@@ -14,4 +16,4 @@ install_name_tool -change /usr/local/lib/libprotobuf.9.dylib @executable_path/li
 install_name_tool -change libboost_system.dylib @executable_path/libboost_system.dylib fzn_chuffed
 cd ..
 
-zip -r chuffed-portable.zip $DIRNAME
+zip -r chuffed-portable-$SHORT.zip $DIRNAME
