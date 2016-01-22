@@ -567,7 +567,9 @@ RESULT Engine::search(const std::string& problemLabel) {
                 FlatZinc::FlatZincSpace *fzs = dynamic_cast<FlatZinc::FlatZincSpace*>(problem);
                 if (fzs != NULL) {
                     std::stringstream s;
+                    s << "\"";
                     fzs->printStream(s);
+                    s << "\"";
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, SOLVED)
                              .set_time(timeus)
                              .set_label(mostRecentLabel)
