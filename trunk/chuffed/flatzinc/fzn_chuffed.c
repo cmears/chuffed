@@ -4,12 +4,19 @@
 #include <chuffed/core/engine.h>
 #include <chuffed/flatzinc/flatzinc.h>
 
+#include "version.h"
+
 int main(int argc, char** argv) {
     // Make a copy of the arguments for posterity.
     std::string commandLine;
     for (int i = 0; i < argc ; i++) {
         if (i > 0) commandLine += " ";
         commandLine += argv[i];
+    }
+
+    if (argc == 2 && strcmp(argv[1], "--version") == 0) {
+      std::cout << versionString << "\n";
+      return 0;
     }
 
     

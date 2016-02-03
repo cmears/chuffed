@@ -21,6 +21,7 @@ set (chuffed_VERSION_PATCH 0)
 
 include_directories("chuffed")
 include_directories(".")
+include_directories(${CMAKE_BINARY_DIR})
 
 SET_SOURCE_FILES_PROPERTIES(
 chuffed/vars/int-var.c
@@ -156,6 +157,12 @@ chuffed/flatzinc/ast.h
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
 target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lboost_system -lprotobuf -lpthread)
+
+add_custom_target(
+  versionTarget
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/update-version.sh ${CMAKE_BINARY_DIR}/version.h
+)
+add_dependencies(fzn_chuffed versionTarget)
 
 INSTALL(TARGETS fzn_chuffed chuffed
   RUNTIME DESTINATION bin
