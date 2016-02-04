@@ -39,6 +39,8 @@ Options::Options() :
 	, one_watch(true)
 
         , exclude_introduced(false)
+        , decide_introduced(true)
+        , introduced_heuristic(false)
         , print_nodes(false)
         , send_skipped(true)
 
@@ -127,6 +129,8 @@ void parseOptions(int& argc, char**& argv) {
 		parseBoolArg(one_watch)
 
                 parseBoolArg(exclude_introduced)
+                parseBoolArg(decide_introduced)
+                parseBoolArg(introduced_heuristic)
                 parseBoolArg(print_nodes)
                 parseBoolArg(send_skipped)
 

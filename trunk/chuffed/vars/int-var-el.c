@@ -21,6 +21,8 @@ IntVarEL::IntVarEL(const IntVar& other) :
 	initBLits();
         setVLearnable(should_be_learnable);
         setBLearnable(should_be_learnable);
+        setVDecidable(should_be_decidable);
+        setBDecidable(should_be_decidable);
         if (!should_be_learnable) {
             setVDecidable(false);
             setBDecidable(false);

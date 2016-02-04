@@ -94,8 +94,14 @@ namespace FlatZinc {
 				v = ::newIntVar();
 			}
                         /* std::cerr << "int var: " << intVarCount << " " << v << "\n"; */
-                        if (so.exclude_introduced && vs->introduced)
+                        bool considerIntroduced = false;
+                        if (vs->introduced) considerIntroduced = true;
+                        if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
+                        
+                        if (so.exclude_introduced && considerIntroduced)
                             v->should_be_learnable = false;
+                        if (!so.decide_introduced && considerIntroduced)
+                            v->should_be_decidable = false;
 			iv[intVarCount++] = v;
 		}
 		iv_introduced[intVarCount-1] = vs->introduced;
@@ -146,10 +152,17 @@ namespace FlatZinc {
 				if (sl->min == 1) v.setVal(true);
 				if (sl->max == 0) v.setVal(false);
 			}
-                        if (so.exclude_introduced && vs->introduced) {
+                        bool considerIntroduced = false;
+                        if (vs->introduced) considerIntroduced = true;
+                        if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
+                        
+                        if (so.exclude_introduced && considerIntroduced) {
                             v.setLearnable(false);
                             v.setDecidable(false);
                             v.setUIPable(false);
+                        }
+                        if (!so.decide_introduced && considerIntroduced) {
+                            v.setDecidable(false);
                         }
 			bv[boolVarCount++] = v;
 		}

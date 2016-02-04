@@ -53,6 +53,8 @@ public:
 	bool one_watch;                  // One watch learnt clauses
 
         bool exclude_introduced;         // Exclude introduced variables from learnt clauses
+        bool decide_introduced;          // Search on introduced variables
+        bool introduced_heuristic;       // Use name of variable to decide whether a variable is introduced
         bool print_nodes;                // Print nodes as they are sent to the profiler (or
                                          // would be sent)
         bool send_skipped;               // Send skipped nodes?

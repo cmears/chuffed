@@ -79,6 +79,8 @@ namespace FlatZinc {
 	public:
 		/// Whether the variable was introduced in the mzn2fzn translation
 		bool introduced;
+		/// Whether the variable *looks* introduced by the mzn2fzn translation
+		bool looks_introduced;
 		/// Destructor
 		virtual ~VarSpec(void) {}
 		/// Variable index
@@ -88,23 +90,26 @@ namespace FlatZinc {
 		/// Whether the variable is assigned
 		bool assigned;
 		/// Constructor
-		VarSpec(bool introduced0) : introduced(introduced0) {}
+                VarSpec(bool introduced0, bool looks0) : introduced(introduced0), looks_introduced(looks0) {}
+                void set_looks_introduced(bool b) {
+                    looks_introduced = b;
+                }
 	};
 
 	/// Specification for integer variables
 	class IntVarSpec : public VarSpec {
 	public:
 		Option<AST::SetLit* > domain;
-		IntVarSpec(const Option<AST::SetLit* >& d, bool introduced)
-			: VarSpec(introduced) {
+                IntVarSpec(const Option<AST::SetLit* >& d, bool introduced, bool looks = false)
+                      : VarSpec(introduced, looks) {
 			alias = false;
 			assigned = false;
 			domain = d;
 		}
-		IntVarSpec(int i0, bool introduced) : VarSpec(introduced) {
+		IntVarSpec(int i0, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
 			alias = false; assigned = true; i = i0;
 		}
-		IntVarSpec(const Alias& eq, bool introduced) : VarSpec(introduced) {
+		IntVarSpec(const Alias& eq, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
 			alias = true; i = eq.v;
 		}
 		~IntVarSpec(void) {
@@ -123,20 +128,20 @@ namespace FlatZinc {
 		IntRelType alias_irt;
 		int alias_val;
 #endif
-		BoolVarSpec(Option<AST::SetLit* >& d, bool introduced)
-		: VarSpec(introduced) {
+		BoolVarSpec(Option<AST::SetLit* >& d, bool introduced, bool looks = false)
+		: VarSpec(introduced, looks) {
 			alias = false; assigned = false; domain = d;
 #if EXPOSE_INT_LITS
 			alias_var = -1;
 #endif
 		}
-		BoolVarSpec(bool b, bool introduced) : VarSpec(introduced) {
+		BoolVarSpec(bool b, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
 			alias = false; assigned = true; i = b;
 #if EXPOSE_INT_LITS
 			alias_var = -1;
 #endif
 		}
-		BoolVarSpec(const Alias& eq, bool introduced) : VarSpec(introduced) {
+		BoolVarSpec(const Alias& eq, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
 			alias = true; i = eq.v;
 #if EXPOSE_INT_LITS
 			alias_var = -1;
@@ -152,19 +157,19 @@ namespace FlatZinc {
   class SetVarSpec : public VarSpec {
   public:
     Option<AST::SetLit*> upperBound;
-    SetVarSpec(bool introduced) : VarSpec(introduced) {
+    SetVarSpec(bool introduced, bool looks = false) : VarSpec(introduced, looks) {
       alias = false; assigned = false;
       upperBound = Option<AST::SetLit* >::none();
     }
-    SetVarSpec(const Option<AST::SetLit* >& v, bool introduced)
-    : VarSpec(introduced) {
+    SetVarSpec(const Option<AST::SetLit* >& v, bool introduced, bool looks = false)
+    : VarSpec(introduced, looks) {
       alias = false; assigned = false; upperBound = v;
     }
-    SetVarSpec(AST::SetLit* v, bool introduced) : VarSpec(introduced) {
+    SetVarSpec(AST::SetLit* v, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
       alias = false; assigned = true;
       upperBound = Option<AST::SetLit*>::some(v);
     }
-    SetVarSpec(const Alias& eq, bool introduced) : VarSpec(introduced) {
+    SetVarSpec(const Alias& eq, bool introduced, bool looks = false) : VarSpec(introduced, looks) {
       alias = true; i = eq.v;
     }
     ~SetVarSpec(void) {
@@ -179,13 +184,13 @@ namespace FlatZinc {
   public:
     Option<std::vector<double>* > domain;
     FloatVarSpec(Option<std::vector<double>* >& d, bool introduced)
-    : VarSpec(introduced) {
+    : VarSpec(introduced, false) {
       alias = false; assigned = false; domain = d;
     }
-    FloatVarSpec(bool b, bool introduced) : VarSpec(introduced) {
+    FloatVarSpec(bool b, bool introduced) : VarSpec(introduced, false) {
       alias = false; assigned = true; i = b;
     }
-    FloatVarSpec(const Alias& eq, bool introduced) : VarSpec(introduced) {
+    FloatVarSpec(const Alias& eq, bool introduced) : VarSpec(introduced, false) {
       alias = true; i = eq.v;
     }
     ~FloatVarSpec(void) {

@@ -55,6 +55,7 @@ public:
 	bool all_in_scip;
 
         bool should_be_learnable;
+        bool should_be_decidable;
 
 	Tchar *vals;
 #if INT_DOMAIN_LIST
