@@ -2,7 +2,8 @@
 
 HASH=$(git show-ref -s HEAD)
 SHORT=${HASH:0:8}
-DIRNAME=chuffed-portable-$SHORT
+DATE=$(date +%Y%m%d)
+DIRNAME=chuffed-portable-$DATE-$SHORT
 
 make
 mkdir -p $DIRNAME
