@@ -458,7 +458,7 @@ namespace FlatZinc {
 
     void p_set_in_reif(const ConExpr& ce, AST::Node *) {
 			if (ce[1]->isSetVar()) ERROR("Cannot handle set vars\n");
-			assert(ce[0]->isIntVar());
+			assert(ce[0]->isIntVar() || ce[0]->isInt());
 			assert(ce[2]->isBoolVar());
       AST::SetLit* sl = ce[1]->getSet();
 			IntVar* v = getIntVar(ce[0]);
