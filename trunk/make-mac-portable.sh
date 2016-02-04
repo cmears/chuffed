@@ -5,6 +5,7 @@ SHORT=${HASH:0:8}
 DATE=$(date +%Y%m%d)
 DIRNAME=chuffed-mac-$DATE-$SHORT
 
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 mkdir -p $DIRNAME
 cp fzn_chuffed $DIRNAME
