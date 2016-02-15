@@ -191,7 +191,8 @@ inline void Engine::makeDecision(DecInfo& di, int alt) {
 #endif
         if (doProfiling()) {
             std::stringstream ss;
-            ss << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")";
+            /* ss << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")"; */
+            ss << intVarString[(IntVar*)di.var] << "==" << di.val;
             mostRecentLabel = ss.str();
         }
         ((IntVar*) di.var)->set(di.val, di.type ^ alt);
@@ -457,7 +458,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                 sat.analyze();
                 if (doProfiling()) {
                     std::stringstream ss;
-                    ss << "out_learnt (interpreted):";
+                    //                    ss << "out_learnt (interpreted):";
                     for (int i = 0 ; i < sat.out_learnt.size() ; i++)
                         ss << " " << getLitString(toInt(sat.out_learnt[i]));
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_restart_id(restartCount));
@@ -473,7 +474,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                     rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), (so.send_skipped ? REWIND_SEND_SKIPPED : REWIND_OMIT_SKIPPED));
                                 
                     std::stringstream ss2;
-                    ss2 << "-> ";
+                    /* ss2 << "-> "; */
                     string ls = getLitString(toInt(sat.out_learnt[0]));
                     ss2 << ls;
                     if (ls.size() < 2) {
