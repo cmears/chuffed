@@ -218,7 +218,9 @@ inline Clause* SAT::getExpl(Lit p) {
 			return _getExpl(p);
 		default:
 			Clause& c = *short_expl;
-			c.sz = r.d.type; c[1] = toLit(r.d.d1); c[2] = toLit(r.d.d2);
+			c.sz = r.d.type; c[1] = toLit(r.d.d1);
+      if (c.sz == 3)
+        c[2] = toLit(r.d.d2);
 			return short_expl;
 	}
 }

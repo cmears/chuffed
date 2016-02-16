@@ -88,7 +88,9 @@ Clause* SAT::getConfl(Reason& r, Lit p) {
 			return engine.propagators[r.d.d2]->explain(p, r.d.d1);
 		default:
 			Clause& c = *short_expl;
-			c.sz = r.d.type; c[1] = toLit(r.d.d1); c[2] = toLit(r.d.d2);
+			c.sz = r.d.type; c[1] = toLit(r.d.d1);
+      if (c.sz == 3)
+        c[2] = toLit(r.d.d2);
 			return short_expl;
 	}
 }

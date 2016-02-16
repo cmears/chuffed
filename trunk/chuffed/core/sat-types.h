@@ -98,7 +98,9 @@ public:
 	void         clearFlags  ()              { *((char*) this) = 0; }
 	int          size        ()      const   { return sz; }
 
-	Lit&         operator [] (int i)         { return data[i]; }
+	Lit&         operator [] (int i)         {
+    if (i >= sz) abort();
+    return data[i]; }
 	Lit          operator [] (int i) const   { return data[i]; }
 	operator const Lit* (void) const         { return data; }
 
