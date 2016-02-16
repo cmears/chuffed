@@ -128,6 +128,7 @@ void SAT::analyze() {
 
 	Clause *c = Clause_new(out_learnt, true);
 	c->activity() = cla_inc;
+  c->rawActivity() = 1;
 
 	learntLenBumpActivity(c->size());
 
@@ -181,7 +182,10 @@ void SAT::getLearntClause() {
 			printClause(c);
 		}
 
-		if (c.learnt) c.activity() += cla_inc;
+		if (c.learnt) {
+      c.activity() += cla_inc;
+      c.rawActivity() += 1;
+    }
 
 		for (int j = (p == lit_Undef) ? 0 : 1; j < c.size(); j++) {
 			Lit q = c[j];

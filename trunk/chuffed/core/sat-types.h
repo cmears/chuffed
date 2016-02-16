@@ -77,19 +77,31 @@ const lbool l_Undef = toLbool( 0);
 
 class Clause {
 public:
-	unsigned int learnt    : 1;             // is it a learnt clause
+  // Why do we track the size separately from the original size?
+  // Because the original size tells us the offset where we can find
+  // the activity counts (in data2 and data3).  The original size is
+  // tracked separately because the regular size can change
+  // (e.g. during simplification).
+  //
+  // Everything here heavily depends on sizeof(float) == sizeof(int),
+  // and the alignment of float and int being the same.
+
+  unsigned int learnt    : 1;             // is it a learnt clause
 	unsigned int temp_expl : 1;             // is it a temporary explanation clause
 	unsigned int padding   : 6;             // save some bits for other bitflags
-	unsigned int sz        : 24;            // the size of the clause
+	unsigned int sz        : 12;            // the size of the clause
+	unsigned int origsz    : 12;            // the original size of the clause
   Lit data[0];                            // the literals of the clause
 	float data2[0];
+  int data3[0];
 
 	// NOTE: This constructor cannot be used directly (doesn't allocate enough memory).
 	template<class V>
 	Clause(const V& ps, bool learnt) {
-		assert(ps.size() < (1<<24));
+		assert(ps.size() < (1<<12));
 		clearFlags();
 		sz = ps.size();
+    origsz = sz;
 		this->learnt = learnt;
 		for (int i = 0; i < ps.size(); i++) data[i] = ps[i];
 	}
@@ -104,15 +116,17 @@ public:
 	Lit          operator [] (int i) const   { return data[i]; }
 	operator const Lit* (void) const         { return data; }
 
-	float&       activity    ()              { return data2[sz]; }
-
+	float&       activity    ()              { return data2[origsz]; }
+  int&         rawActivity ()              { return data3[origsz+1]; }
 };
 
 template<class V>
 static Clause* Clause_new(const V& ps, bool learnt = false) {
-	int mem_size = sizeof(Clause) + ps.size() * sizeof(Lit) + (learnt ? 1 : 0) * sizeof(int);
+	int mem_size = sizeof(Clause) + ps.size() * sizeof(Lit) + (learnt ? 2 : 0) * sizeof(int);
 	void* mem = malloc(mem_size);
-	return new (mem) Clause(ps, learnt); }
+  Clause* newClause = new (mem) Clause(ps, learnt);
+	return newClause;
+}
 
 
 
