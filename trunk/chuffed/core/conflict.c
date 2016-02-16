@@ -59,9 +59,15 @@ inline void SAT::varBumpActivity(Lit p) {
 }
 
 inline void SAT::claDecayActivity() {
-	if ((cla_inc *= 1.001) > 1e20) {
-		for (int i = 0; i < learnts.size(); i++) learnts[i]->activity() *= 1e-20;
+  // Increase the increment by 0.1%.  This introduces "activity
+  // inflation", making all previous activity counts have less value.
+  cla_inc *= 1.001;
+  // If inflation has become too much, normalise all the activity
+  // counts by scaling everything down by a factor of 1e20.
+	if (cla_inc > 1e20) {
 		cla_inc *= 1e-20;
+		for (int i = 0; i < learnts.size(); i++)
+      learnts[i]->activity() *= 1e-20;
 	}
 }
 
