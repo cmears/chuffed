@@ -9,6 +9,7 @@
 #include <chuffed/parallel/parallel.h>
 
 #include <iostream>
+#include <sstream>
 
 #define PRINT_ANALYSIS 0
 
@@ -460,6 +461,22 @@ void SAT::reduceDB() {
   learnts.resize(j);
 
 	if (so.verbosity >= 1) printf("Pruned %d learnt clauses\n", i-j);
+}
+
+std::string showClause(Clause& c) {
+  std::stringstream ss;
+  for (int i = 0 ; i < c.size() ; i++)
+    ss << " " << getLitString(toInt(c[i]));
+  return ss.str();
+}
+
+struct raw_activity_gt { bool operator() (Clause* x, Clause* y) { return x->rawActivity() > y->rawActivity(); } };
+void SAT::printLearntStats() {
+	std::sort((Clause**) learnts, (Clause**) learnts + learnts.size(), raw_activity_gt());
+  std::cerr << "top ten clauses:\n";
+  for (int i = 0 ; i < 10 && i < learnts.size() ; i++) {
+    std::cerr << i << ": " << learnts[i]->rawActivity() << " " << showClause(*learnts[i]) << "\n";
+  }
 }
 
 void SAT::printStats() {

@@ -140,6 +140,7 @@ public:
 
 	void reduceDB();
 	void printStats();
+	void printLearntStats();
 
 	// Branching methods
 
