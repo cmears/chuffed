@@ -280,7 +280,7 @@ bool SAT::simplify(Clause& c) {
 		if (value(c[i]) == l_True) return true;
 		if (value(c[i]) == l_Undef) c[j++] = c[i];
 	}
-	c.sz = j;
+  c.resize(j);
 	return false;
 }
 

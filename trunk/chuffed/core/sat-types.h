@@ -77,20 +77,10 @@ const lbool l_Undef = toLbool( 0);
 
 class Clause {
 public:
-  // Why do we track the size separately from the original size?
-  // Because the original size tells us the offset where we can find
-  // the activity counts (in data2 and data3).  The original size is
-  // tracked separately because the regular size can change
-  // (e.g. during simplification).
-  //
-  // Everything here heavily depends on sizeof(float) == sizeof(int),
-  // and the alignment of float and int being the same.
-
   unsigned int learnt    : 1;             // is it a learnt clause
 	unsigned int temp_expl : 1;             // is it a temporary explanation clause
 	unsigned int padding   : 6;             // save some bits for other bitflags
-	unsigned int sz        : 12;            // the size of the clause
-	unsigned int origsz    : 12;            // the original size of the clause
+	unsigned int sz        : 24;            // the size of the clause
   Lit data[0];                            // the literals of the clause
 	float data2[0];
   int data3[0];
@@ -98,10 +88,9 @@ public:
 	// NOTE: This constructor cannot be used directly (doesn't allocate enough memory).
 	template<class V>
 	Clause(const V& ps, bool learnt) {
-		assert(ps.size() < (1<<12));
+		assert(ps.size() < (1<<24));
 		clearFlags();
 		sz = ps.size();
-    origsz = sz;
 		this->learnt = learnt;
 		for (int i = 0; i < ps.size(); i++) data[i] = ps[i];
 	}
@@ -110,14 +99,26 @@ public:
 	void         clearFlags  ()              { *((char*) this) = 0; }
 	int          size        ()      const   { return sz; }
 
+  void         resize      (unsigned int newSize) {
+    // Careful of the order of operations here: don't overwrite sz
+    // with newSize until we've copied the activities, and make sure
+    // you copy data2 before data3 in case one would overwrite the
+    // other.
+    if (learnt) {
+      data2[newSize]   = data2[sz];
+      data3[newSize+1] = data3[sz+1];
+    }
+    sz = newSize;
+  }
+
 	Lit&         operator [] (int i)         {
     if (i >= sz) abort();
     return data[i]; }
 	Lit          operator [] (int i) const   { return data[i]; }
 	operator const Lit* (void) const         { return data; }
 
-	float&       activity    ()              { return data2[origsz]; }
-  int&         rawActivity ()              { return data3[origsz+1]; }
+	float&       activity    ()              { return data2[sz]; }
+  int&         rawActivity ()              { return data3[sz+1]; }
 };
 
 template<class V>
