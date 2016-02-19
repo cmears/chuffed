@@ -129,9 +129,12 @@ void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLe
             // skipped node is conceptually the next alternative.
             myalt++;
             
+            long timeus = dur.total_microseconds();
+
             sendNode(profilerConnector
                      .createNode(nodeid, parent, myalt, 0, SKIPPED)
-                     .set_restart_id(restartCount));
+                     .set_restart_id(restartCount)
+                     .set_time(timeus));
             nodepath.resize(nodepath.size() - 1);
             altpath.resize(altpath.size() - 1);
         }
