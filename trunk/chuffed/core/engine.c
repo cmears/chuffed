@@ -95,7 +95,7 @@ std::string showVector(const std::vector<int>& v) {
 }
 
 // Rewind nodepath and altpath after a backjump.
-void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLevel, int newDecisionLevel, RewindStyle rewindStyle) {
+void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLevel, int newDecisionLevel, RewindStyle rewindStyle, long timestamp) {
     switch (rewindStyle) {
     case REWIND_OMIT_SKIPPED:
         nodepath.resize(decisionLevelTip[newDecisionLevel]);
@@ -129,12 +129,10 @@ void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLe
             // skipped node is conceptually the next alternative.
             myalt++;
             
-            long timeus = dur.total_microseconds();
-
             sendNode(profilerConnector
                      .createNode(nodeid, parent, myalt, 0, SKIPPED)
                      .set_restart_id(restartCount)
-                     .set_time(timeus));
+                     .set_time(timestamp));
             nodepath.resize(nodepath.size() - 1);
             altpath.resize(altpath.size() - 1);
         }
@@ -474,7 +472,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                     std::cerr << "\n";
 #endif
 
-                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), (so.send_skipped ? REWIND_SEND_SKIPPED : REWIND_OMIT_SKIPPED));
+                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), (so.send_skipped ? REWIND_SEND_SKIPPED : REWIND_OMIT_SKIPPED), timeus);
                                 
                     std::stringstream ss2;
                     /* ss2 << "-> "; */
@@ -495,7 +493,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                 DecInfo& di = dec_info.last();
                 sat.btToLevel(decisionLevel()-1);
                 if (doProfiling()) {
-                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), (so.send_skipped ? REWIND_SEND_SKIPPED : REWIND_OMIT_SKIPPED));
+                    rewindPaths(profilerConnector, previousDecisionLevel, decisionLevel(), (so.send_skipped ? REWIND_SEND_SKIPPED : REWIND_OMIT_SKIPPED), timeus);
                 }
                 makeDecision(di, 1);
             }
