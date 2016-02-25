@@ -212,6 +212,10 @@ void initfg(ParserState* pp) {
         pp->fg->newBoolVar(
           static_cast<BoolVarSpec*>(pp->boolvars[i].second));
         BoolView newiv = pp->fg->bv[pp->fg->boolVarCount-1];
+        if (pp->boolvars[i].second->assigned)
+          boolVarString.insert(std::pair<BoolView, std::string>(newiv, "ASSIGNED_AT_ROOT"));
+        else
+          boolVarString.insert(std::pair<BoolView, std::string>(newiv, pp->boolvars[i].first));
         string label;
         label = pp->boolvars[i].first;
         label.append("=true");

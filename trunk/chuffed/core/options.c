@@ -43,6 +43,7 @@ Options::Options() :
         , introduced_heuristic(false)
         , print_nodes(false)
         , send_skipped(true)
+        , send_domains(false)
 
 	, eager_limit(1000)
 	, sat_var_limit(2000000)
@@ -133,6 +134,7 @@ void parseOptions(int& argc, char**& argv) {
                 parseBoolArg(introduced_heuristic)
                 parseBoolArg(print_nodes)
                 parseBoolArg(send_skipped)
+                parseBoolArg(send_domains)
 
 		parseIntArg(eager_limit)
 		parseIntArg(sat_var_limit)

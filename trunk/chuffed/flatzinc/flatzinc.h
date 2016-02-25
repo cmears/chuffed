@@ -28,6 +28,7 @@
 #include <vector>
 #include <iostream>
 #include <ostream>
+#include <sstream>
 #include <algorithm>
 
 #include <chuffed/support/vec.h>
@@ -35,7 +36,7 @@
 #include <chuffed/flatzinc/ast.h>
 
 extern std::map<IntVar*, std::string> intVarString;
-extern std::map<int, std::string> boolVarString;
+extern std::map<BoolView, std::string> boolVarString;
 
 // Controls whether expressions like bool_sum_eq([x[i] = j | i in 1..n], 1)
 // access the underlying literals x[i] = j or new ones via int_eq_reif(...)
@@ -301,6 +302,82 @@ namespace FlatZinc {
 		void printElem(AST::Node* ai, std::ostream& out = std::cout) const;
 		void print();
 		void printStream(std::ostream& out);
+                
+                void printDomains(std::ostream& out = std::cout) {
+                    out << "{";
+                    bool outerFirst = true;
+
+                    for (int i = 0 ; i < iv.size() ; i++) {
+                        if (iv_introduced[i])
+                            continue;
+
+                        IntVar* var = iv[i];
+
+                        if (!outerFirst)
+                            out << ",";
+                        outerFirst = false;
+                        
+                        out << intVarString[var] << ":{";
+                        bool first = true;
+                        for (int val = var->getMin() ; val <= var->getMax() ; val++) {
+                            if (var->vals[val]) {
+                                if (!first)
+                                    out << ",";
+                                first = false;
+                                out << val;
+                            }
+                        }
+                        out << "}";
+                    }
+
+                    for (int i = 0 ; i < bv.size() ; i++) {
+                        if (bv_introduced[i])
+                            continue;
+
+                        BoolView bview = bv[i];
+
+                        std::string bvstring = boolVarString[bview];
+
+                        // TODO: see if this is actually necessary
+                        if (bvstring.empty()) {
+                            // Try the other value
+                            BoolView otherval = bview;
+                            otherval.setSign(!otherval.getSign());
+                            bvstring = boolVarString[otherval];
+                        }
+
+                        if (bvstring.compare("ASSIGNED_AT_ROOT") == 0)
+                            continue;
+
+                        if (!outerFirst)
+                            out << ",";
+                        outerFirst = false;
+
+                        out << boolVarString[bview] << ":";
+                        /* out << litString[toInt(bview.getLit(true))] << ":"; */
+                        /* out << litString[toInt(bview.getLit(false))] << ":"; */
+                        bool first = true;
+                        if (!bview.isFixed())
+                            out << "'undef'";
+                        else if (bview.isTrue())
+                            out << "'true'";
+                        else if (bview.isFalse())
+                            out << "'false'";
+                        else
+                            abort();
+                    }
+
+                    /* for (int i = 0 ; i < bv.size() ; i++) { */
+                    /*     out << "bool var " << i << "\t" << boolVarString[bv[i]] << (bv_introduced[i] ? " (introduced)" : "") << "\n"; */
+                    /* } */
+                    out << "}";
+                }
+
+                std::string getDomainsString(void) {
+                    std::stringstream ss;
+                    printDomains(ss);
+                    return ss.str();
+                }
 
 	};
 

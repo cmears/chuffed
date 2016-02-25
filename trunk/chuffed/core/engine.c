@@ -33,6 +33,7 @@ int nextnodeid = 0;
 
 Profiling::Connector profilerConnector(6565);
 std::map<IntVar*, string> intVarString;
+std::map<BoolView, string> boolVarString;
         string mostRecentLabel;
 
 bool doProfiling() {
@@ -607,7 +608,19 @@ RESULT Engine::search(const std::string& problemLabel) {
             std::cerr << "label: " << mostRecentLabel << "\n";
 #endif
             if (doProfiling()) {
-                sendNode(profilerConnector.createNode(nodeid, parent, myalt, 2, BRANCH).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount));
+                string info;
+                if (so.send_domains) {
+                    FlatZinc::FlatZincSpace* fzs = dynamic_cast<FlatZinc::FlatZincSpace*>(problem);
+                    if (fzs != NULL) {
+                        info = fzs->getDomainsString();
+                    }
+                }
+
+                sendNode(profilerConnector.createNode(nodeid, parent, myalt, 2, BRANCH)
+                                          .set_time(timeus)
+                                          .set_label(mostRecentLabel)
+                                          .set_info(info)
+                                          .set_restart_id(restartCount));
                 mostRecentLabel = "";
             }
                         

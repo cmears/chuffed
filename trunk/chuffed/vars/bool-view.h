@@ -17,6 +17,13 @@ public:
 
 	friend BoolView operator ~(BoolView& o) { return BoolView(o.getLit(0)); }
 
+        friend bool operator<(const BoolView& a, const BoolView& b) {
+            return (2*a.v+a.s < 2*b.v+b.s);
+        }
+
+        bool getSign() { return s; }
+        void setSign(bool sign) { s = sign; }
+
 	void setPreferredVal(PreferredVal p) {
 		if (p == PV_MIN || p == PV_SPLIT_MIN) sat.polarity[v] = s^1;
 		if (p == PV_MAX || p == PV_SPLIT_MAX) sat.polarity[v] = s;

@@ -75,6 +75,9 @@ namespace FlatZinc {
     bv(boolVars), bv_introduced(boolVars), output(NULL) { s = this; }
 
 	void FlatZincSpace::newIntVar(IntVarSpec* vs) {
+            bool considerIntroduced = false;
+            if (vs->introduced) considerIntroduced = true;
+            if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
 		if (vs->alias) {
 			iv[intVarCount++] = iv[vs->i];
 		} else {
@@ -94,9 +97,6 @@ namespace FlatZinc {
 				v = ::newIntVar();
 			}
                         /* std::cerr << "int var: " << intVarCount << " " << v << "\n"; */
-                        bool considerIntroduced = false;
-                        if (vs->introduced) considerIntroduced = true;
-                        if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
                         
                         if (so.exclude_introduced && considerIntroduced)
                             v->should_be_learnable = false;
@@ -104,10 +104,13 @@ namespace FlatZinc {
                             v->should_be_decidable = false;
 			iv[intVarCount++] = v;
 		}
-		iv_introduced[intVarCount-1] = vs->introduced;
+		iv_introduced[intVarCount-1] = considerIntroduced;
 	}
 
 	void FlatZincSpace::newBoolVar(BoolVarSpec* vs) {
+            bool considerIntroduced = false;
+            if (vs->introduced) considerIntroduced = true;
+            if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
 		if (vs->alias) {
 			bv[boolVarCount++] = bv[vs->i];
 		} else {
@@ -152,10 +155,6 @@ namespace FlatZinc {
 				if (sl->min == 1) v.setVal(true);
 				if (sl->max == 0) v.setVal(false);
 			}
-                        bool considerIntroduced = false;
-                        if (vs->introduced) considerIntroduced = true;
-                        if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
-                        
                         if (so.exclude_introduced && considerIntroduced) {
                             v.setLearnable(false);
                             v.setDecidable(false);
@@ -166,7 +165,7 @@ namespace FlatZinc {
                         }
 			bv[boolVarCount++] = v;
 		}
-		bv_introduced[boolVarCount-1] = vs->introduced;
+		bv_introduced[boolVarCount-1] = considerIntroduced;
 	}
 
   void
