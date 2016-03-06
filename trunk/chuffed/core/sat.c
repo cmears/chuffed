@@ -228,8 +228,12 @@ void SAT::addClause(Clause& c, bool one_watch) {
 	watches[toInt(~c[1])].push(&c);
 	if (c.learnt) learnts_literals += c.size();
 	else            clauses_literals += c.size();
-	if (c.learnt) learnts.push(&c);
-	else            clauses.push(&c);
+	if (c.learnt) {
+          learnts.push(&c);
+          std::cerr << "learntclause " << c.clauseID() << " " << c.size() << "\n";
+        } else {
+          clauses.push(&c);
+        }
 }
 
 void SAT::removeClause(Clause& c) {
@@ -240,6 +244,10 @@ void SAT::removeClause(Clause& c) {
 	else          clauses_literals -= c.size();
 
 	if (c.learnt) for (int i = 0; i < c.size(); i++) decVarUse(var(c[i]));
+
+        if (c.learnt) {
+          std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
+        }
 
 	free(&c);
 }
@@ -471,12 +479,20 @@ std::string showClause(Clause& c) {
 }
 
 struct raw_activity_gt { bool operator() (Clause* x, Clause* y) { return x->rawActivity() > y->rawActivity(); } };
+// This is wrong, because probably most of the clauses have been
+// removed by the time we do this.
 void SAT::printLearntStats() {
-	std::sort((Clause**) learnts, (Clause**) learnts + learnts.size(), raw_activity_gt());
+  /* std::ofstream clausefile("clause-info.csv"); */
+  /* for (int i = 0 ; i < learnts.size() ; i++) { */
+  /*   clausefile << learnts[i]->clauseID() << "," << learnts[i]->rawActivity() << "," << showClause(*learnts[i]) << "\n"; */
+  /* } */
+
+  std::sort((Clause**) learnts, (Clause**) learnts + learnts.size(), raw_activity_gt());
   std::cerr << "top ten clauses:\n";
   for (int i = 0 ; i < 10 && i < learnts.size() ; i++) {
     std::cerr << i << ": " << learnts[i]->rawActivity() << " " << showClause(*learnts[i]) << "\n";
   }
+
 }
 
 void SAT::printStats() {

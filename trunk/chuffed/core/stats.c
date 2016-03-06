@@ -41,7 +41,7 @@ void Engine::printStats() {
 		if (so.parallel) master.printStats();
 		fprintf(stderr, "\n");
 		sat.printStats();
-		sat.printLearntStats();
+		/* sat.printLearntStats(); */
 		if (so.mip) mip->printStats();
 	}
 	else {

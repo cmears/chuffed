@@ -570,9 +570,9 @@ RESULT Engine::search(const std::string& problemLabel) {
                 FlatZinc::FlatZincSpace *fzs = dynamic_cast<FlatZinc::FlatZincSpace*>(problem);
                 if (fzs != NULL) {
                     std::stringstream s;
-                    s << "\"";
+                    /* s << "\""; */
                     fzs->printStream(s);
-                    s << "\"";
+                    /* s << "\""; */
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, SOLVED)
                              .set_time(timeus)
                              .set_label(mostRecentLabel)
@@ -658,6 +658,11 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
         if (so.thread_no == -1) master.solve();
         else slave.solve();
         if (so.thread_no == -1 && master.status == RES_GUN) printf("==========\n");
+    }
+
+    for (int i = 0 ; i < sat.learnts.size() ; i++) {
+      Clause& c = *(sat.learnts[i]);
+      std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
     }
 
     profilerConnector.done();

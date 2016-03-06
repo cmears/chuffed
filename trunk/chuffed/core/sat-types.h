@@ -84,6 +84,7 @@ public:
   Lit data[0];                            // the literals of the clause
 	float data2[0];
   int data3[0];
+  int data4[0];
 
 	// NOTE: This constructor cannot be used directly (doesn't allocate enough memory).
 	template<class V>
@@ -107,6 +108,7 @@ public:
     if (learnt) {
       data2[newSize]   = data2[sz];
       data3[newSize+1] = data3[sz+1];
+      data4[newSize+2] = data4[sz+2];
     }
     sz = newSize;
   }
@@ -119,11 +121,12 @@ public:
 
 	float&       activity    ()              { return data2[sz]; }
   int&         rawActivity ()              { return data3[sz+1]; }
+  int& clauseID() { return data4[sz+2]; }
 };
 
 template<class V>
 static Clause* Clause_new(const V& ps, bool learnt = false) {
-	int mem_size = sizeof(Clause) + ps.size() * sizeof(Lit) + (learnt ? 2 : 0) * sizeof(int);
+	int mem_size = sizeof(Clause) + ps.size() * sizeof(Lit) + (learnt ? 3 : 0) * sizeof(int);
 	void* mem = malloc(mem_size);
   Clause* newClause = new (mem) Clause(ps, learnt);
 	return newClause;

@@ -12,6 +12,8 @@
 
 #define PRINT_ANALYSIS 0
 
+static int nextClauseID = 0;
+
 
 //---------
 // inline methods
@@ -129,6 +131,8 @@ void SAT::analyze() {
 	Clause *c = Clause_new(out_learnt, true);
 	c->activity() = cla_inc;
   c->rawActivity() = 1;
+  c->clauseID() = nextClauseID;
+  nextClauseID++;
 
 	learntLenBumpActivity(c->size());
 
@@ -136,7 +140,12 @@ void SAT::analyze() {
 		slave.shareClause(*c);
 	}
 
-	if (so.learn && c->size() >= 2) addClause(*c, so.one_watch);
+        /* std::cerr << "conflict found clause of length " << c->size() << "\n"; */
+
+	if (so.learn && c->size() >= 2) {
+          addClause(*c, so.one_watch);
+        }
+
 	if (!so.learn || c->size() <= 2) rtrail.last().push(c);
 
 	enqueue(out_learnt[0], c->size() == 2 ? Reason(out_learnt[1]) : c);
