@@ -100,6 +100,18 @@ Clause* SAT::getConfl(Reason& r, Lit p) {
 void SAT::analyze() {
 	avg_depth += 0.01*(decisionLevel()-avg_depth);
 
+        if (so.debug) {
+          std::cerr << "trail:\n";
+          for (int i = 0 ; i < trail.size() ; i++) {
+            std::cerr << "level " << i << ":";
+            for (int j = 0 ; j < trail[i].size() ; j++) {
+              Lit& lit = trail[i][j];
+              std::cerr << " " << getLitString(toInt(lit));
+            }
+            std::cerr << "\n";
+          }
+        }
+
 	checkConflict();
 	varDecayActivity();
 	claDecayActivity();
@@ -196,15 +208,40 @@ void SAT::getLearntClause() {
       c.rawActivity() += 1;
     }
 
+                if (so.debug) {
+                  if (p == lit_Undef) {
+                    std::cerr << "explaining away failure (" << decisionLevel() << ")\n";
+                  } else {
+                    std::cerr << "explaining away " << getLitString(toInt(p)) << " (lit number " << toInt(p) << ", level " << getLevel(var(p)) << ")\n";
+                  }
+                  std::cerr << "expl:";
+                  for (int i = 0 ; i < c.size() ; i++)
+                    std::cerr << " " << getLitString(toInt(c[i]));
+                  std::cerr << "\n";
+                }
+
 		for (int j = (p == lit_Undef) ? 0 : 1; j < c.size(); j++) {
 			Lit q = c[j];
 			int x = var(q);
+                        if (so.debug) {
+                          std::cerr << "adding " << getLitString(toInt(~q)) << " (lit number " << toInt(~q) << ", var " << x << ") from level " << getLevel(x);
+                        }
 			if (!seen[x]) {
 				varBumpActivity(q);
 				seen[x] = 1;
-				if (isCurLevel(x)) pathC++;
-				else out_learnt.push(q);
-			}
+				if (isCurLevel(x)) {
+                                  pathC++;
+                                } else {
+                                  out_learnt.push(q);
+                                }
+			} else {
+                          if (so.debug) {
+                            std::cerr << " but already seen this variable";
+                          }
+                        }
+                        if (so.debug) {
+                          std::cerr << ", pathC is now " << pathC << "\n";
+                        }
 		}
 
 

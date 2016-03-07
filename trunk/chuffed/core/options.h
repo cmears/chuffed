@@ -59,6 +59,8 @@ public:
                                          // would be sent)
         bool send_skipped;               // Send skipped nodes?
         bool send_domains;               // Compute and send variable domains
+
+        bool debug;                      // Produce debug output
         
 	int eager_limit;                 // Max var range before we use lazy lit generation
 	int sat_var_limit;               // Max number of sat vars before turning off lazy clause

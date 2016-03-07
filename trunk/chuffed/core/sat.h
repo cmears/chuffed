@@ -10,6 +10,8 @@
 #include <chuffed/core/sat-types.h>
 #include <chuffed/branching/branching.h>
 
+#include <sstream>
+
 #define TEMP_SC_LEN 1024
 #define MAX_SHARE_LEN 512
 
@@ -20,11 +22,16 @@ extern std::map<int,std::string> litString;
 
 inline
 std::string getLitString(int n) {
+  if (n == toInt(lit_True)) return "true";
+  if (n == toInt(lit_False)) return "false";
     std::map<int,std::string>::const_iterator it = litString.find(n);
     if (it != litString.end())
         return it->second;
-    else
-        return "UNKNOWN_LITERAL";
+    else {
+      std::stringstream ss;
+      ss << "UNKNOWN_LITERAL (" << n << ")";
+      return ss.str();
+    }
 }
 
 class SAT : public Branching {
@@ -180,8 +187,11 @@ public:
 	bool isRootLevel(int v) const { return trailpos[v] < engine.trail_lim[0]; }
 	bool isCurLevel(int v) const { return trailpos[v] >= engine.trail_lim.last(); }
 	int getLevel(int v) const { 
-		for (int i = engine.trail_lim.size(); i--; ) if (trailpos[v] >= engine.trail_lim[i]) return i;
-		return 0;
+          for (int i = engine.trail_lim.size(); i--; ) {
+            if (trailpos[v] >= engine.trail_lim[i])
+              return i;
+          }
+          return 0;
 	}
 
 	// Debug Methods

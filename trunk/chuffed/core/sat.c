@@ -230,7 +230,14 @@ void SAT::addClause(Clause& c, bool one_watch) {
 	else            clauses_literals += c.size();
 	if (c.learnt) {
           learnts.push(&c);
-          std::cerr << "learntclause " << c.clauseID() << " " << c.size() << "\n";
+          if (so.debug) {
+            std::cerr << "learntclause " << c.clauseID() << " " << c.size() << "\n";
+            for (int i = 0 ; i < c.size() ; i++) {
+              std::cerr << " " << getLitString(toInt(c[i]));
+              std::cerr << " (" << getLevel(var(c[i])) << ")";
+            }
+            std::cerr << "\n";
+          }
         } else {
           clauses.push(&c);
         }
@@ -292,6 +299,26 @@ bool SAT::simplify(Clause& c) {
 	return false;
 }
 
+string showReason(Reason r) {
+  std::stringstream ss;
+  switch (r.d.type) {
+  case 0:
+    if (r.pt == NULL) {
+      ss << "no reason";
+    } else {
+      Clause& c = *r.pt;
+      ss << "clause";
+      for (int i = 0 ; i < c.size() ; i++) {
+        ss << " " << getLitString(toInt(c[i]));
+      }
+    }
+    break;
+  case 1: ss << "absorbed binary clause?"; break;
+  case 2: ss << "single literal " << getLitString(toInt(~toLit(r.d.d1))); break;
+  case 3: ss << "two literals " << getLitString(toInt(~toLit((r.d.d1)))) << " & " << getLitString(toInt(~toLit((r.d.d2)))); break;
+  }
+  return ss.str();
+}
 
 // Use cases:
 // enqueue from decision   , value(p) = u  , r = NULL , channel
@@ -299,6 +326,9 @@ bool SAT::simplify(Clause& c) {
 // enqueue from unit prop  , value(p) = u  , r != NULL, channel
 
 void SAT::enqueue(Lit p, Reason r) {
+  if (so.debug) {
+    std::cerr << "enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n";
+  }
 	assert(value(p) == l_Undef);
 	int v = var(p);
 	assigns [v] = toInt(lbool(!sign(p)));
@@ -312,6 +342,9 @@ void SAT::enqueue(Lit p, Reason r) {
 // enqueue from FD variable, value(p) = u/f, r = ?, don't channel
 
 void SAT::cEnqueue(Lit p, Reason r) {
+  if (so.debug) {
+    std::cerr << "c-enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n";
+  }
 	assert(value(p) != l_True);
 	int v = var(p);
 	if (value(p) == l_False) {
@@ -334,6 +367,9 @@ void SAT::cEnqueue(Lit p, Reason r) {
 
 
 void SAT::aEnqueue(Lit p, Reason r, int l) {
+  if (so.debug) {
+    std::cerr << "a-enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << " and l=" << l << "\n";
+  }
 	assert(value(p) == l_Undef);
 	int v = var(p);
 	assigns [v] = toInt(lbool(!sign(p)));
