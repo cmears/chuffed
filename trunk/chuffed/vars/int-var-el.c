@@ -43,14 +43,46 @@ IntVarEL::IntVarEL(const IntVar& other) :
           litString.insert(std::pair<int,std::string>(base_blit+2*v, label));
           label = ss.str(); label.append("<="); label.append(val);
           litString.insert(std::pair<int,std::string>(base_blit+2*v+1, label));
-
-          /* std::cerr << "(" << intVarString[(IntVar*)(&other)] << ") created litString entries for: " << */
-          /*     base_vlit+2*v << " " << */
-          /*     base_vlit+2*v+1 << " " << */
-          /*     base_blit+2*v << " " << */
-          /*     base_blit+2*v+1 << "\n"; */
         }
+        // The extra <= min-1 and >= max+1 bounds literals (both
+        // obviously false).
+        std::string label;
+        std::stringstream ss;
+        ss << intVarString[(IntVar*)(&other)] << "<=" << (lit_min-1);
+        litString.insert(std::pair<int,std::string>(base_blit+2*(lit_min-1)+1, ss.str()));
+        ss.str("");
+        ss << intVarString[(IntVar*)(&other)] << ">=" << (lit_max+1);
+        litString.insert(std::pair<int,std::string>(base_blit+2*(lit_max+1), ss.str()));
 }
+
+// lit_min is the smallest value for which we can get a literal for
+// this variable.  For example, if we already have "n" SAT variables,
+// and lit_min=3 and lit_max=6, the SAT variables are arranged like
+// this:
+//
+// n-5 n-4 n-3 n-2 n-1  n  n+1 n+2 n+3 n+4
+//  X   X   X   X   X   X   3   4   5   6
+//
+// where X is an already-in-use SAT variable, and 3,4,5.. are the SAT
+// variables representing this integer variable.  There are two
+// literals for each variable, so the literals are arranged like this:
+//
+//  SAT variable  value     literal    literal index
+//      n-2         X
+//
+//      n-1         X
+//
+//      n           3         !=3        2*n
+//                             =3        2*n+1
+//      n+1         4         !=4        2*(n+1)
+//                             =4        2*(n+1)+1
+//      n+2         5         !=5        2*(n+2)
+//                             =5        2*(n+2)+1
+//      n+3         6         !=6        2*(n+3)
+//                             =6        2*(n+3)+1
+//
+// base_vlit is chosen such that base_vlit+2*v gives the !=v literal,
+// i.e. base_vlit = 2*(n - lit_min).
 
 void IntVarEL::initVLits() {
 	if (base_vlit != INT_MIN) return;
@@ -64,13 +96,42 @@ void IntVarEL::initVLits() {
 	if (isFixed()) sat.cEnqueue(getEQLit(min), NULL);
 }
 
+// Bounds literals are arranged similarly to the value/equality
+// literals above.  There is one more SAT variable than there are
+// values in the integer variable.
+//  
+//  SAT variable  value        literal      literal index
+//      n-2         X
+//
+//      n-1         X
+//
+//      n           3          <3  <=2        2*n
+//                                 >=3        2*n+1
+//      n+1         4          <4  <=3        2*(n+1)
+//                                 >=4        2*(n+1)+1
+//      n+2         5          <5  <=4        2*(n+2)
+//                                 >=5        2*(n+2)+1
+//      n+3         6          <6  <=5        2*(n+3)
+//                                 >=6        2*(n+3)+1
+//      n+4         7          <7  <=6        2*(n+4)
+//                                 >=7        2*(n+4)+1
+//
+// base_blit is chosen such that base_blit+2*v gives the >=v literal,
+// and base_blit+2*v+1 gives the <=v literal.  Note that these are not
+// negations of one another, and that base_vlit is odd!
+// base_blit = 2*(n - lit_min) + 1.
+
 void IntVarEL::initBLits() {
 	if (base_blit != INT_MIN) return;
 	if (lit_min == INT_MIN) { lit_min = min; lit_max = max; }
 	base_blit = 2*(sat.nVars()-lit_min)+1;
 	sat.newVar(lit_max-lit_min+2, ChannelInfo(var_id, 1, 1, lit_min-1));
-	for (int i = lit_min; i <= min; i++) sat.cEnqueue(getGELit(i), NULL);
-	for (int i = max; i <= lit_max; i++) sat.cEnqueue(getLELit(i), NULL);
+	for (int i = lit_min; i <= min; i++) {
+          sat.cEnqueue(getGELit(i), NULL);
+        }
+	for (int i = max; i <= lit_max; i++) {
+          sat.cEnqueue(getLELit(i), NULL);
+        }
 }
 
 void IntVarEL::setVLearnable(bool b) {
