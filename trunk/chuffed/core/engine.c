@@ -243,9 +243,14 @@ inline bool Engine::constrain() {
     //	printf("opt_var = %d, opt_type = %d, best_sol = %d\n", opt_var->var_id, opt_type, best_sol);
     //	printf("opt_var min = %d, opt_var max = %d\n", opt_var->min, opt_var->max);
 
+    Lit p = opt_type ? opt_var->getLit(best_sol+1, 2) : opt_var->getLit(best_sol-1, 3);
+    assumptions.clear();
+    assumptions.push(toInt(p));
+
     if (so.mip) mip->setObjective(best_sol);
 
-    return (opt_type ? opt_var->setMin(best_sol+1) : opt_var->setMax(best_sol-1));
+    /* return (opt_type ? opt_var->setMin(best_sol+1) : opt_var->setMax(best_sol-1)); */
+    return true;
 }
 
 bool Engine::propagate() {
@@ -535,9 +540,6 @@ RESULT Engine::search(const std::string& problemLabel) {
 			
             // Propagate assumptions
             while (decisionLevel() < assumptions.size()) {
-#if DEBUG_VERBOSE
-                std::cerr << "doing something with assumptions\n";
-#endif
                 int p = assumptions[decisionLevel()];
                 if (sat.value(toLit(p)) == l_True) {
                     // Dummy decision level:
@@ -643,6 +645,12 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
     base_memory = memUsed();
 
     profilerConnector.connect();
+
+    if (so.debug) {
+      for (int i = 0 ; i < 2*sat.nVars() ; i++) {
+        std::cerr << "literal " << i << " is " << litString[i] << "\n";
+      }
+    }
 
     if (!so.parallel) {
         // sequential

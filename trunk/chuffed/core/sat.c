@@ -309,7 +309,7 @@ string showReason(Reason r) {
       Clause& c = *r.pt;
       ss << "clause";
       for (int i = 0 ; i < c.size() ; i++) {
-        ss << " " << getLitString(toInt(c[i]));
+        ss << " " << getLitString(toInt(~c[i]));
       }
     }
     break;
