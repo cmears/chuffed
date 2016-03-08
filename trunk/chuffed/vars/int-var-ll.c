@@ -22,6 +22,12 @@ IntVarLL::IntVarLL(const IntVar& other) : IntVar(other), ld(2), li(0), hi(1) {
 	if (isFixed()) sat.cEnqueue(valLit, NULL);
 
         varLabel = intVarString[(IntVar*)(&other)];
+        std::stringstream ss;
+        ss << varLabel << "=fixed";
+        litString.insert(make_pair(toInt(valLit), ss.str()));
+        ss.str("");
+        ss << varLabel << "=notfixed";
+        litString.insert(make_pair(toInt(~valLit), ss.str()));
 }
 
 DecInfo* IntVarLL::branch() {

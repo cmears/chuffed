@@ -24,6 +24,8 @@ inline
 std::string getLitString(int n) {
   if (n == toInt(lit_True)) return "true";
   if (n == toInt(lit_False)) return "false";
+  if (n == toInt(~lit_True)) return "false";
+  if (n == toInt(~lit_False)) return "true";
     std::map<int,std::string>::const_iterator it = litString.find(n);
     if (it != litString.end())
         return it->second;
