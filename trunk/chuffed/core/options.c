@@ -99,6 +99,11 @@ void parseOptions(int& argc, char**& argv) {
 		so.name = (strcmp(value, "true") == 0);                 \
 	} else 
 
+	#define parseStringArg(name)                                \
+	if ((value = hasPrefix(argv[i], "-" #name "="))) {        \
+          so.name = std::string(value);                           \
+	} else
+
 	for (i = j = 1; i < argc; i++) {
 
 		// PLEASE KEEP THE HELP TEXT IN flatzinc/fzn_chuffed.c UPDATED
@@ -137,6 +142,7 @@ void parseOptions(int& argc, char**& argv) {
                 parseBoolArg(print_nodes)
                 parseBoolArg(send_skipped)
                 parseBoolArg(send_domains)
+                parseStringArg(filter_domains)
                 parseBoolArg(debug)
 
 		parseIntArg(eager_limit)

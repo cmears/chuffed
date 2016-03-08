@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <chuffed/support/misc.h>
 
 // When enabled, there is a command-line option -phase_saving=n, defaults to
@@ -59,7 +60,7 @@ public:
                                          // would be sent)
         bool send_skipped;               // Send skipped nodes?
         bool send_domains;               // Compute and send variable domains
-
+        std::string filter_domains;
         bool debug;                      // Produce debug output
         
 	int eager_limit;                 // Max var range before we use lazy lit generation

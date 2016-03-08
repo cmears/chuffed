@@ -308,16 +308,22 @@ namespace FlatZinc {
                     bool outerFirst = true;
 
                     for (int i = 0 ; i < iv.size() ; i++) {
-                        if (iv_introduced[i])
-                            continue;
+                      if (iv_introduced[i]) {
+                        continue;
+                      }
 
                         IntVar* var = iv[i];
+                        std::string varName = intVarString[var];
+
+                        bool passesFilter = (varName.find(so.filter_domains) != std::string::npos);
+                        if (!passesFilter)
+                          continue;
 
                         if (!outerFirst)
                             out << ",";
                         outerFirst = false;
                         
-                        out << intVarString[var] << ":{";
+                        out << varName << ":[";
                         bool first = true;
                         for (int val = var->getMin() ; val <= var->getMax() ; val++) {
                             if (var->vals[val]) {
@@ -327,7 +333,7 @@ namespace FlatZinc {
                                 out << val;
                             }
                         }
-                        out << "}";
+                        out << "]";
                     }
 
                     for (int i = 0 ; i < bv.size() ; i++) {
