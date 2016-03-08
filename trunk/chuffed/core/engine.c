@@ -668,9 +668,11 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
         if (so.thread_no == -1 && master.status == RES_GUN) printf("==========\n");
     }
 
-    for (int i = 0 ; i < sat.learnts.size() ; i++) {
-      Clause& c = *(sat.learnts[i]);
-      std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
+    if (so.debug) {
+      for (int i = 0 ; i < sat.learnts.size() ; i++) {
+        Clause& c = *(sat.learnts[i]);
+        std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
+      }
     }
 
     profilerConnector.done();
