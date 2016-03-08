@@ -13,6 +13,8 @@ class IntVarLL : public IntVar {
 
 	Lit valLit;
 
+        std::string varLabel;
+
 	Lit getGELit(int v);
 	Lit getLELit(int v);
 

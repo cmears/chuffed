@@ -3,17 +3,25 @@
 
 #include <iostream>
 
+extern std::map<IntVar*, std::string> intVarString;
+
 // val -> (val-1)/2
 
 IntVarLL::IntVarLL(const IntVar& other) : IntVar(other), ld(2), li(0), hi(1) {
 	ld[0].var = 0; ld[0].val = min-1; ld[0].prev = -1; ld[0].next = 1;
 	ld[1].var = 1; ld[1].val = max; ld[1].prev = 0; ld[1].next = -1;
+        // This literal becomes true when the integer variable is
+        // fixed (see updateFixed).  It's not learnable, so any
+        // explanation will use the reason which includes the actual
+        // bounds literals.
 	valLit = Lit(sat.nVars(), 1);
 	int v = sat.newVar(1, ChannelInfo(var_id, 1, 0, 0));
 	sat.flags[v].setDecidable(false);
 	sat.flags[v].setUIPable(false);
 	sat.flags[v].setLearnable(false);
 	if (isFixed()) sat.cEnqueue(valLit, NULL);
+
+        varLabel = intVarString[(IntVar*)(&other)];
 }
 
 DecInfo* IntVarLL::branch() {
@@ -71,6 +79,14 @@ inline Lit IntVarLL::getGELit(int v) {
 	ld[mi].prev = ld[ni].prev;
 	ld[ni].prev = mi;
 	ld[ld[mi].prev].next = mi;
+
+        std::stringstream ss;
+        ss << varLabel << ">=" << v;
+        litString.insert(make_pair(ld[mi].var*2+1, ss.str()));
+        ss.str("");
+        ss << varLabel << "<=" << v-1;
+        litString.insert(make_pair(ld[mi].var*2, ss.str()));
+
 	return Lit(ld[mi].var, 1);
 }
 
@@ -88,7 +104,15 @@ inline Lit IntVarLL::getLELit(int v) {
 	ld[mi].next = ld[ni].next;
 	ld[ni].next = mi;
 	ld[ld[mi].next].prev = mi;
-	return Lit(ld[mi].var, 0);
+
+        std::stringstream ss;
+        ss << varLabel << ">=" << v+1;
+        litString.insert(make_pair(ld[mi].var*2+1, ss.str()));
+        ss.str("");
+        ss << varLabel << "<=" << v;
+        litString.insert(make_pair(ld[mi].var*2, ss.str()));
+
+        return Lit(ld[mi].var, 0);
 }
 
 Lit IntVarLL::getLit(int64_t v, int t) {
