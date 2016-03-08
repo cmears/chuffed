@@ -315,15 +315,15 @@ namespace FlatZinc {
                         IntVar* var = iv[i];
                         std::string varName = intVarString[var];
 
-                        bool passesFilter = (varName.find(so.filter_domains) != std::string::npos);
-                        if (!passesFilter)
+                        if (varName.find(so.filter_domains) == std::string::npos) {
                           continue;
+                        }
 
                         if (!outerFirst)
                             out << ",";
                         outerFirst = false;
                         
-                        out << varName << ":[";
+                        out << '"' << varName << '"' << ":[";
                         bool first = true;
                         for (int val = var->getMin() ; val <= var->getMax() ; val++) {
                             if (var->vals[val]) {
@@ -343,6 +343,10 @@ namespace FlatZinc {
                         BoolView bview = bv[i];
 
                         std::string bvstring = boolVarString[bview];
+
+                        if (bvstring.find(so.filter_domains) == std::string::npos) {
+                          continue;
+                        }
 
                         // TODO: see if this is actually necessary
                         if (bvstring.empty()) {

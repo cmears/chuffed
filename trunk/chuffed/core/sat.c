@@ -252,8 +252,10 @@ void SAT::removeClause(Clause& c) {
 
 	if (c.learnt) for (int i = 0; i < c.size(); i++) decVarUse(var(c[i]));
 
-        if (c.learnt) {
-          std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
+        if (so.debug) {
+          if (c.learnt) {
+            std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
+          }
         }
 
 	free(&c);
