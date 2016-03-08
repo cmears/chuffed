@@ -156,7 +156,7 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lboost_system -lprotobuf -lpthread)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lprotobuf -lpthread)
 
 add_custom_target(
   versionTarget
