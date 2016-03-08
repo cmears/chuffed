@@ -61,6 +61,7 @@ public:
         bool send_skipped;               // Send skipped nodes?
         bool send_domains;               // Compute and send variable domains
         std::string filter_domains;
+        bool learnt_stats;
         bool debug;                      // Produce debug output
         
 	int eager_limit;                 // Max var range before we use lazy lit generation

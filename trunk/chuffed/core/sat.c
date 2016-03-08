@@ -230,13 +230,17 @@ void SAT::addClause(Clause& c, bool one_watch) {
 	else            clauses_literals += c.size();
 	if (c.learnt) {
           learnts.push(&c);
-          if (so.debug) {
-            std::cerr << "learntclause " << c.clauseID() << " " << c.size() << "\n";
+          if (so.learnt_stats) {
+            std::set<int> levels;
             for (int i = 0 ; i < c.size() ; i++) {
-              std::cerr << " " << getLitString(toInt(c[i]));
-              std::cerr << " (" << getLevel(var(c[i])) << ")";
+              levels.insert(out_learnt_level[i]);
             }
-            std::cerr << "\n";
+            std::cerr << "learntclause," << c.clauseID() << "," << c.size() << "," << levels.size() << "\n";
+            /* for (int i = 0 ; i < c.size() ; i++) { */
+            /*   std::cerr << " " << getLitString(toInt(c[i])); */
+            /*   std::cerr << " (" << out_learnt_level[i] << ")"; */
+            /* } */
+            /* std::cerr << "\n"; */
           }
         } else {
           clauses.push(&c);

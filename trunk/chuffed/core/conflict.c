@@ -191,7 +191,9 @@ void SAT::getLearntClause() {
 
 	index = ctrail.size();
 	out_learnt.clear();
+        out_learnt_level.clear();
 	out_learnt.push();      // (leave room for the asserting literal)
+        out_learnt_level.push();
 
 	while (true) {
 
@@ -215,8 +217,8 @@ void SAT::getLearntClause() {
                     std::cerr << "explaining away " << getLitString(toInt(p)) << " (lit number " << toInt(p) << ", level " << getLevel(var(p)) << ")\n";
                   }
                   std::cerr << "expl:";
-                  for (int i = 0 ; i < c.size() ; i++)
-                    std::cerr << " " << getLitString(toInt(c[i]));
+                  for (int i = (p == lit_Undef ? 0 : 1) ; i < c.size() ; i++)
+                    std::cerr << " " << getLitString(toInt(~c[i]));
                   std::cerr << "\n";
                 }
 
@@ -233,6 +235,7 @@ void SAT::getLearntClause() {
                                   pathC++;
                                 } else {
                                   out_learnt.push(q);
+                                  out_learnt_level.push(getLevel(x));
                                 }
 			} else {
                           if (so.debug) {
@@ -265,6 +268,7 @@ FindNextExpl:
 	}
 
 	out_learnt[0] = ~p;
+        out_learnt_level[0] = decisionLevel()-1;
 
 }
 
@@ -310,12 +314,16 @@ void SAT::explainUnlearnable() {
 		assert(!reason[var(p)].isLazy());
 		Clause& c = *getExpl(~p);
 		removed.push(p);
-		out_learnt[i] = out_learnt.last(); out_learnt.pop(); i--;
+		out_learnt[i] = out_learnt.last();
+                out_learnt.pop();
+                out_learnt_level.pop();
+                i--;
 		for (int j = 1; j < c.size(); j++) {
 			Lit q = c[j];
 			if (!seen[var(q)]) {
 				seen[var(q)] = 1;
 				out_learnt.push(q);
+                                out_learnt_level.push(getLevel(var(q)));
 			}
 		}
 	}
@@ -343,8 +351,11 @@ int SAT::findBackTrackLevel() {
 		if (trailpos[var(out_learnt[i])] > trailpos[var(out_learnt[max_i])]) max_i = i;
 	}
 	Lit p = out_learnt[max_i];
+        int plevel = out_learnt_level[max_i];
 	out_learnt[max_i] = out_learnt[1];
+        out_learnt_level[max_i] = out_learnt_level[1];
 	out_learnt[1] = p;
+        out_learnt_level[1] = plevel;
 
 	return engine.tpToLevel(trailpos[var(p)]);
 }

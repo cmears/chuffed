@@ -45,6 +45,7 @@ Options::Options() :
         , send_skipped(true)
         , send_domains(false)
 
+        , learnt_stats(false)
         , debug(false)
 
 	, eager_limit(1000)
@@ -143,6 +144,7 @@ void parseOptions(int& argc, char**& argv) {
                 parseBoolArg(send_skipped)
                 parseBoolArg(send_domains)
                 parseStringArg(filter_domains)
+                parseBoolArg(learnt_stats)
                 parseBoolArg(debug)
 
 		parseIntArg(eager_limit)

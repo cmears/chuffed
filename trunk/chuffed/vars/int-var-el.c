@@ -28,6 +28,10 @@ IntVarEL::IntVarEL(const IntVar& other) :
             setBDecidable(false);
         }
 
+        if (so.debug) {
+          std::cerr << "created integer variable " << intVarString[(IntVar*)(&other)] << "\n";
+        }
+
         for (int v = lit_min ; v <= lit_max ; v++) {
           std::string label;
           std::stringstream ss;

@@ -81,6 +81,7 @@ public:
 	Clause *confl;
 	int index;
 	vec<Lit> out_learnt;
+        vec<int> out_learnt_level;
   vec<char> seen;
 	vec<bool> ivseen;
 	vec<int> ivseen_toclear;
