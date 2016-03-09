@@ -429,4 +429,95 @@ namespace FlatZinc {
 		}
 	}
 
+        void FlatZincSpace::printDomains(std::ostream& out) {
+            out << "{";
+            bool outerFirst = true;
+
+            for (int i = 0 ; i < iv.size() ; i++) {
+              if (iv_introduced[i]) {
+                continue;
+              }
+
+                IntVar* var = iv[i];
+                std::string varName = intVarString[var];
+
+                if (varName.find(so.filter_domains) == std::string::npos) {
+                  continue;
+                }
+
+                if (!outerFirst)
+                    out << ",";
+                outerFirst = false;
+
+                out << '"' << varName << '"' << ":";
+                if (var->vals != NULL) {
+                    out << "[";
+                    bool first = true;
+                    for (int val = var->getMin() ; val <= var->getMax() ; val++) {
+                        if (var->vals[val]) {
+                            if (!first)
+                                out << ",";
+                            first = false;
+                            out << val;
+                        }
+                    }
+                    out << "]";
+                } else {
+                    out << var->getMin() << ".." << var->getMax();
+                }
+            }
+
+            for (int i = 0 ; i < bv.size() ; i++) {
+                if (bv_introduced[i])
+                    continue;
+
+                BoolView bview = bv[i];
+
+                std::string bvstring = boolVarString[bview];
+
+                if (bvstring.find(so.filter_domains) == std::string::npos) {
+                  continue;
+                }
+
+                // TODO: see if this is actually necessary
+                if (bvstring.empty()) {
+                    // Try the other value
+                    BoolView otherval = bview;
+                    otherval.setSign(!otherval.getSign());
+                    bvstring = boolVarString[otherval];
+                }
+
+                if (bvstring.compare("ASSIGNED_AT_ROOT") == 0)
+                    continue;
+
+                if (!outerFirst)
+                    out << ",";
+                outerFirst = false;
+
+                out << boolVarString[bview] << ":";
+                /* out << litString[toInt(bview.getLit(true))] << ":"; */
+                /* out << litString[toInt(bview.getLit(false))] << ":"; */
+                bool first = true;
+                if (!bview.isFixed())
+                    out << "'undef'";
+                else if (bview.isTrue())
+                    out << "'true'";
+                else if (bview.isFalse())
+                    out << "'false'";
+                else
+                    abort();
+            }
+
+            /* for (int i = 0 ; i < bv.size() ; i++) { */
+            /*     out << "bool var " << i << "\t" << boolVarString[bv[i]] << (bv_introduced[i] ? " (introduced)" : "") << "\n"; */
+            /* } */
+            out << "}";
+        }
+
+        std::string FlatZincSpace::getDomainsString(void) {
+            std::stringstream ss;
+            printDomains(ss);
+            return ss.str();
+        }
+
 }
