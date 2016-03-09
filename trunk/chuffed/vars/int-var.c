@@ -12,6 +12,8 @@ using namespace std;
 
 map<int,IntVar*> ic_map;
 
+extern std::map<IntVar*, std::string> intVarString;
+
 IntVar::IntVar(int _min, int _max) :
 		var_id(engine.vars.size())
 	, min(_min)
@@ -51,6 +53,9 @@ IntVar* getConstant(int v) {
 	IntVar *var = newIntVar(v,v);
 	var->specialiseToEL();
 	ic_map.insert(pair<int,IntVar*>(v, var));
+
+        intVarString[var] = "";
+        
 	return var;
 }
 

@@ -441,6 +441,9 @@ namespace FlatZinc {
                 IntVar* var = iv[i];
                 std::string varName = intVarString[var];
 
+                if (varName.empty())
+                  continue;
+
                 if (varName.find(so.filter_domains) == std::string::npos) {
                   continue;
                 }
