@@ -158,9 +158,9 @@ void SAT::analyze() {
           addClause(*c, so.one_watch);
         }
 
-	if (!so.learn || c->size() <= 2) rtrail.last().push(c);
+	if (!so.learn || (so.bin_clause_opt && c->size() <= 2)) rtrail.last().push(c);
 
-	enqueue(out_learnt[0], c->size() == 2 ? Reason(out_learnt[1]) : c);
+	enqueue(out_learnt[0], (so.bin_clause_opt && c->size() == 2) ? Reason(out_learnt[1]) : c);
 
 	if (PRINT_ANALYSIS) printClause(*c);
 

@@ -63,6 +63,8 @@ public:
         std::string filter_domains;
         bool learnt_stats;
         bool debug;                      // Produce debug output
+
+        bool bin_clause_opt;          // Should length-2 learnt clauses be optimised?
         
 	int eager_limit;                 // Max var range before we use lazy lit generation
 	int sat_var_limit;               // Max number of sat vars before turning off lazy clause

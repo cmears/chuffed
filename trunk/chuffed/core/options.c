@@ -48,6 +48,8 @@ Options::Options() :
         , learnt_stats(false)
         , debug(false)
 
+        , bin_clause_opt(true)
+
 	, eager_limit(1000)
 	, sat_var_limit(2000000)
 	, nof_learnts(100000)
@@ -146,6 +148,8 @@ void parseOptions(int& argc, char**& argv) {
                 parseStringArg(filter_domains)
                 parseBoolArg(learnt_stats)
                 parseBoolArg(debug)
+
+                parseBoolArg(bin_clause_opt)
 
 		parseIntArg(eager_limit)
 		parseIntArg(sat_var_limit)

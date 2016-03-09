@@ -218,7 +218,7 @@ void SAT::addClause(Clause& c, bool one_watch) {
 	// Mark lazy lits which are used
 	if (c.learnt) for (int i = 0; i < c.size(); i++) incVarUse(var(c[i]));
 
-	if (c.size() == 2) {
+	if (c.size() == 2 && ((!c.learnt) || (so.bin_clause_opt))) {
 		if (!one_watch) watches[toInt(~c[0])].push(c[1]);
 		watches[toInt(~c[1])].push(c[0]);
 		if (!c.learnt) free(&c);
