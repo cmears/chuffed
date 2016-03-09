@@ -449,7 +449,7 @@ namespace FlatZinc {
                     out << ",";
                 outerFirst = false;
 
-                out << varName << ":";
+                out << '"' << varName << '"' << ":";
                 out << "[";
                 if (var->vals != NULL) {
                     bool first = true;
@@ -462,7 +462,7 @@ namespace FlatZinc {
                         }
                     }
                 } else {
-                    out << var->getMin() << ".." << var->getMax();
+                    out << '[' << var->getMin() << "," << var->getMax() << ']';
                 }
                 out << "]";
             }

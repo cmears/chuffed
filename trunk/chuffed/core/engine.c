@@ -573,7 +573,8 @@ RESULT Engine::search(const std::string& problemLabel) {
                 if (fzs != NULL) {
                     std::stringstream s;
                     /* s << "\""; */
-                    fzs->printStream(s);
+                    /* fzs->printStream(s); */
+                    fzs->printDomains(s);
                     /* s << "\""; */
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, SOLVED)
                              .set_time(timeus)
