@@ -449,9 +449,9 @@ namespace FlatZinc {
                     out << ",";
                 outerFirst = false;
 
-                out << '"' << varName << '"' << ":";
+                out << varName << ":";
+                out << "[";
                 if (var->vals != NULL) {
-                    out << "[";
                     bool first = true;
                     for (int val = var->getMin() ; val <= var->getMax() ; val++) {
                         if (var->vals[val]) {
@@ -461,10 +461,10 @@ namespace FlatZinc {
                             out << val;
                         }
                     }
-                    out << "]";
                 } else {
                     out << var->getMin() << ".." << var->getMax();
                 }
+                out << "]";
             }
 
             for (int i = 0 ; i < bv.size() ; i++) {
