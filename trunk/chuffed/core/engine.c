@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cassert>
 
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <iterator>
@@ -35,6 +36,9 @@ Profiling::Connector profilerConnector(6565);
 std::map<IntVar*, string> intVarString;
 std::map<BoolView, string> boolVarString;
         string mostRecentLabel;
+
+extern std::map<int,string> learntClauseString;
+extern std::ofstream learntStatsStream;
 
 bool doProfiling() {
     return so.print_nodes || profilerConnector.connected();
@@ -653,6 +657,14 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
     /*   } */
     /* } */
 
+    if (so.learnt_stats) {
+        learntStatsStream.open("learnt-stats.csv");
+        learntStatsStream << "id,length,block";
+        if (so.learnt_stats_nogood)
+            learntStatsStream << ",nogood";
+        learntStatsStream << ",score\n";
+    }
+
     if (!so.parallel) {
         // sequential
         status = search(problemLabel);
@@ -672,7 +684,13 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
     if (so.learnt_stats) {
       for (int i = 0 ; i < sat.learnts.size() ; i++) {
         Clause& c = *(sat.learnts[i]);
-        std::cerr << "clausescore," << c.clauseID() << "," << c.rawActivity() << "\n";
+        //        std::cerr << "clausescore," << c.clauseID() << ","
+        //        << c.rawActivity() << "\n";
+        int id = c.clauseID();
+        learntStatsStream << learntClauseString[id];
+        learntStatsStream << ",";
+        learntStatsStream << c.rawActivity();
+        learntStatsStream << "\n";
       }
     }
 

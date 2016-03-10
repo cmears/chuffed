@@ -10,12 +10,16 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 #define PRINT_ANALYSIS 0
 
 SAT sat;
 
 std::map<int,std::string> litString;
+
+std::map<int,string> learntClauseString;
+std::ofstream learntStatsStream;
 
 cassert(sizeof(Lit) == 4);
 cassert(sizeof(Clause) == 4);
@@ -235,12 +239,18 @@ void SAT::addClause(Clause& c, bool one_watch) {
             for (int i = 0 ; i < c.size() ; i++) {
               levels.insert(out_learnt_level[i]);
             }
-            std::cerr << "learntclause," << c.clauseID() << "," << c.size() << "," << levels.size() << "\n";
-            /* for (int i = 0 ; i < c.size() ; i++) { */
-            /*   std::cerr << " " << getLitString(toInt(c[i])); */
-            /*   std::cerr << " (" << out_learnt_level[i] << ")"; */
-            /* } */
-            /* std::cerr << "\n"; */
+            std::stringstream s;
+            //            s << "learntclause,";
+            s << c.clauseID() << "," << c.size() << "," << levels.size();
+            if (so.learnt_stats_nogood) {
+                s << ",";
+                for (int i = 0 ; i < c.size() ; i++) {
+                    s << (i == 0 ? "" : " ") << getLitString(toInt(c[i]));
+              //              s << " (" << out_learnt_level[i] << ")";
+                }
+            }
+            //std::cerr << "\n";
+            learntClauseString[c.clauseID()] = s.str();
           }
         } else {
           clauses.push(&c);
@@ -256,10 +266,18 @@ void SAT::removeClause(Clause& c) {
 
 	if (c.learnt) for (int i = 0; i < c.size(); i++) decVarUse(var(c[i]));
 
-        if (so.debug) {
-          if (c.learnt) {
-            std::cerr << "clausescore " << c.clauseID() << " " << c.rawActivity() << "\n";
-          }
+        if (c.learnt) {
+            //            learntClauseScore[c.clauseID()] = c.rawActivity();
+            /* if (so.debug) { */
+            if (so.learnt_stats) {
+                int id = c.clauseID();
+                learntStatsStream << learntClauseString[id];
+                learntStatsStream << ",";
+                learntStatsStream << c.rawActivity();
+                learntStatsStream << "\n";
+                /* std::cerr << "clausescore," <<  << "," << c.rawActivity() << "\n"; */
+            }
+            /* } */
         }
 
 	free(&c);

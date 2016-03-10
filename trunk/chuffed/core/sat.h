@@ -171,6 +171,7 @@ public:
 	void getLearntClause();
 	int findConflictLevel();
 	void explainUnlearnable();
+	void explainToExhaustion();
 	void clearSeen();
 	int  findBackTrackLevel();
 

@@ -117,6 +117,8 @@ void SAT::analyze() {
 	claDecayActivity();
 	getLearntClause();
 	explainUnlearnable();
+        if (so.exhaustive_activity)
+            explainToExhaustion();
 	clearSeen();
 
 	int btlevel = findBackTrackLevel();
@@ -331,6 +333,56 @@ void SAT::explainUnlearnable() {
 	for (int i = 0; i < removed.size(); i++) seen[var(removed[i])] = 0;
 
 	pushback_time += wallClockTime();
+}
+
+void SAT::explainToExhaustion() {
+    vec<char> oldseen(seen);
+    vec<Lit> old_out_learnt(out_learnt);
+    vec<int> old_out_learnt_level(out_learnt_level);
+
+    for (int i = 0; i < out_learnt.size(); i++) {
+        Lit p = out_learnt[i];
+        assert(!reason[var(p)].isLazy());
+        Clause* cp = getExpl(~p);
+        if (so.debug) {
+            std::cerr << "checking literal " << getLitString(toInt(~p)) << "\n";
+        }
+        if (cp == NULL) {
+            if (so.debug) {
+                std::cerr << "it has no reason\n";
+            }
+            continue;
+        }
+        Clause& c = *cp;
+        if (c.learnt)
+            c.rawActivity() += 1;
+        out_learnt[i] = out_learnt.last();
+        out_learnt.pop();
+        out_learnt_level.pop();
+        i--;
+        for (int j = 1; j < c.size(); j++) {
+            Lit q = c[j];
+            if (so.debug) {
+                std::cerr << "adding literal " << getLitString(toInt(q));
+            }
+            if (!seen[var(q)]) {
+                seen[var(q)] = 1;
+                out_learnt.push(q);
+                out_learnt_level.push(getLevel(var(q)));
+            } else {
+                if (so.debug) {
+                    std::cerr << " but already seen it";
+                }
+            }
+            if (so.debug) {
+                std::cerr << "\n";
+            }
+        }
+    }
+
+    oldseen.moveTo(seen);
+    old_out_learnt.moveTo(out_learnt);
+    old_out_learnt_level.moveTo(out_learnt_level);
 }
 
 void SAT::clearSeen() {

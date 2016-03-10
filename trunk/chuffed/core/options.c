@@ -46,7 +46,9 @@ Options::Options() :
         , send_domains(false)
 
         , learnt_stats(false)
+        , learnt_stats_nogood(false)
         , debug(false)
+        , exhaustive_activity(false)
 
         , bin_clause_opt(true)
 
@@ -147,7 +149,9 @@ void parseOptions(int& argc, char**& argv) {
                 parseBoolArg(send_domains)
                 parseStringArg(filter_domains)
                 parseBoolArg(learnt_stats)
+                parseBoolArg(learnt_stats_nogood)
                 parseBoolArg(debug)
+                parseBoolArg(exhaustive_activity)
 
                 parseBoolArg(bin_clause_opt)
 
@@ -205,6 +209,8 @@ void parseOptions(int& argc, char**& argv) {
 	if (so.ldsb) rassert(so.lazy);
 	if (so.mip_branch) rassert(so.mip);
 	if (so.vsids) engine.branching->add(&sat);
+
+        if (so.learnt_stats_nogood) so.learnt_stats = true;
 
 #ifndef PARALLEL
 	if (so.parallel) {

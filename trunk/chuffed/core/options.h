@@ -62,7 +62,9 @@ public:
         bool send_domains;               // Compute and send variable domains
         std::string filter_domains;
         bool learnt_stats;
+        bool learnt_stats_nogood;
         bool debug;                      // Produce debug output
+        bool exhaustive_activity;
 
         bool bin_clause_opt;          // Should length-2 learnt clauses be optimised?
         
