@@ -668,7 +668,7 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
     if (!so.parallel) {
         // sequential
         status = search(problemLabel);
-        if (status == RES_GUN) {
+        if (status == RES_GUN || status == RES_LUN) {
             if (solutions > 0)
                 printf("==========\n");
             else
