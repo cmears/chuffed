@@ -4,6 +4,7 @@
 #include <climits>
 #include <cmath>
 #include <map>
+#include <set>
 #include <string>
 #include <chuffed/support/misc.h>
 #include <chuffed/support/heap.h>
@@ -167,11 +168,11 @@ public:
 
 	// Conflict methods
 
-	void analyze();
-	void getLearntClause();
+	void analyze(int nodeid, std::set<int>& contributingNogoods);
+	void getLearntClause(std::set<int>& contributingNogoods);
 	int findConflictLevel();
-	void explainUnlearnable();
-	void explainToExhaustion();
+	void explainUnlearnable(std::set<int>& contributingNogoods);
+	void explainToExhaustion(std::set<int>& contributingNogoods);
 	void clearSeen();
 	int  findBackTrackLevel();
 

@@ -12,8 +12,6 @@
 
 #define PRINT_ANALYSIS 0
 
-static int nextClauseID = 0;
-
 
 //---------
 // inline methods
@@ -97,7 +95,7 @@ Clause* SAT::getConfl(Reason& r, Lit p) {
 	}
 }
 
-void SAT::analyze() {
+void SAT::analyze(int nodeid, std::set<int>& contributingNogoods) {
 	avg_depth += 0.01*(decisionLevel()-avg_depth);
 
         if (so.debug) {
@@ -115,10 +113,10 @@ void SAT::analyze() {
 	checkConflict();
 	varDecayActivity();
 	claDecayActivity();
-	getLearntClause();
-	explainUnlearnable();
+	getLearntClause(contributingNogoods);
+	explainUnlearnable(contributingNogoods);
         if (so.exhaustive_activity)
-            explainToExhaustion();
+            explainToExhaustion(contributingNogoods);
 	clearSeen();
 
 	int btlevel = findBackTrackLevel();
@@ -145,8 +143,7 @@ void SAT::analyze() {
 	Clause *c = Clause_new(out_learnt, true);
 	c->activity() = cla_inc;
   c->rawActivity() = 1;
-  c->clauseID() = nextClauseID;
-  nextClauseID++;
+  c->clauseID() = nodeid;
 
 	learntLenBumpActivity(c->size());
 
@@ -183,7 +180,7 @@ void SAT::analyze() {
 }
 
 
-void SAT::getLearntClause() {
+void SAT::getLearntClause(std::set<int>& contributingNogoods) {
 	Lit p = lit_Undef;
 	int pathC = 0;
 	int clevel = findConflictLevel();
@@ -210,6 +207,7 @@ void SAT::getLearntClause() {
 		if (c.learnt) {
       c.activity() += cla_inc;
       c.rawActivity() += 1;
+      contributingNogoods.insert(c.clauseID());
     }
 
                 if (so.debug) {
@@ -306,7 +304,7 @@ int SAT::findConflictLevel() {
 	return clevel;
 }
 
-void SAT::explainUnlearnable() {
+void SAT::explainUnlearnable(std::set<int>& contributingNogoods) {
 	pushback_time -= wallClockTime();
 
 	vec<Lit> removed;
@@ -335,7 +333,7 @@ void SAT::explainUnlearnable() {
 	pushback_time += wallClockTime();
 }
 
-void SAT::explainToExhaustion() {
+void SAT::explainToExhaustion(std::set<int>& contributingNogoods) {
     vec<char> oldseen(seen);
     vec<Lit> old_out_learnt(out_learnt);
     vec<int> old_out_learnt_level(out_learnt_level);
@@ -354,8 +352,10 @@ void SAT::explainToExhaustion() {
             continue;
         }
         Clause& c = *cp;
-        if (c.learnt)
+        if (c.learnt) {
             c.rawActivity() += 1;
+            contributingNogoods.insert(c.clauseID());
+        }
         out_learnt[i] = out_learnt.last();
         out_learnt.pop();
         out_learnt_level.pop();
