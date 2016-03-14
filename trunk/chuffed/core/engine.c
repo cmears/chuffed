@@ -474,11 +474,13 @@ RESULT Engine::search(const std::string& problemLabel) {
                     for (int i = 0 ; i < sat.out_learnt.size() ; i++)
                         ss << " " << getLitString(toInt(sat.out_learnt[i]));
                     std::stringstream contribString;
+                    contribString << "{\"nogoods\":[";
                     for (std::set<int>::const_iterator it = contributingNogoods.begin() ;
                          it != contributingNogoods.end() ;
                          it++) {
-                        contribString << (it == contributingNogoods.begin() ? "" : " ") << *it;
+                        contribString << (it == contributingNogoods.begin() ? "" : ",") << *it;
                     }
+                    contribString << "]}";
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_restart_id(restartCount).set_info(contribString.str()));
                     mostRecentLabel = "";
 #if DEBUG_VERBOSE
