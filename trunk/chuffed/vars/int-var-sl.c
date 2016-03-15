@@ -2,6 +2,8 @@
 #include <chuffed/core/sat.h>
 #include <chuffed/core/propagator.h>
 
+extern std::map<IntVar*, std::string> intVarString;
+
 IntVarSL::IntVarSL(const IntVar& other, vec<int>& _values)
 	: IntVar(other), values(_values) {
 
@@ -35,6 +37,8 @@ IntVarSL::IntVarSL(const IntVar& other, vec<int>& _values)
 
 	// create the IntVarEL
 	IntVar *v = newIntVar(0, values.size()-1);
+        // inherit the name from this SL
+        intVarString[v] = intVarString[this];
 	v->specialiseToEL();
 	el = (IntVarEL*) v;
 

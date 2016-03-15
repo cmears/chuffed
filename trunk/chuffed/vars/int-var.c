@@ -1,6 +1,7 @@
 #include <map>
 #include <chuffed/vars/int-var.h>
 #include <chuffed/mip/mip.h>
+#include <sstream>
 
 // When set, branch variable (first_fail) and value (indomain_median,
 // indomain_split, indomain_reverse_split) specifications will count domain
@@ -51,10 +52,14 @@ IntVar* getConstant(int v) {
 	map<int,IntVar*>::iterator it = ic_map.find(v);
 	if (it != ic_map.end()) return it->second;
 	IntVar *var = newIntVar(v,v);
-	var->specialiseToEL();
+
+        std::stringstream ss;
+        ss << "constant_" << v;
+        intVarString[var] = ss.str();
+
+        var->specialiseToEL();
 	ic_map.insert(pair<int,IntVar*>(v, var));
 
-        intVarString[var] = "";
         
 	return var;
 }
