@@ -30,6 +30,8 @@ IntVarEL::IntVarEL(const IntVar& other) :
 
         if (so.debug) {
           std::cerr << "created integer variable " << intVarString[(IntVar*)(&other)] << "\n";
+          if (intVarString[(IntVar*)(&other)] == "")
+              abort();
         }
 
         for (int v = lit_min ; v <= lit_max ; v++) {

@@ -153,6 +153,10 @@ void SAT::analyze(int nodeid, std::set<int>& contributingNogoods) {
 
         /* std::cerr << "conflict found clause of length " << c->size() << "\n"; */
 
+        /* if (c->size() == 1) { */
+        /*     std::cerr << "learntfact: " << getLitString(toInt((*c)[0])) << "\n"; */
+        /* } */
+
 	if (so.learn && c->size() >= 2) {
           addClause(*c, so.one_watch);
         }
