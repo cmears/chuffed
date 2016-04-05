@@ -3,6 +3,8 @@
 
 #include <chuffed/core/options.h>
 
+// Integer variable with sparse domains.
+
 class IntVarSL : public IntVar {
 	vec<int> values;          // values that the var can take in ascending order
 	IntVarEL *el;
