@@ -350,9 +350,9 @@ string showReason(Reason r) {
 // enqueue from unit prop  , value(p) = u  , r != NULL, channel
 
 void SAT::enqueue(Lit p, Reason r) {
-  if (so.debug) {
-    std::cerr << "enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n";
-  }
+  /* if (so.debug) { */
+  /*   std::cerr << "enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n"; */
+  /* } */
 	assert(value(p) == l_Undef);
 	int v = var(p);
 	assigns [v] = toInt(lbool(!sign(p)));
@@ -366,9 +366,9 @@ void SAT::enqueue(Lit p, Reason r) {
 // enqueue from FD variable, value(p) = u/f, r = ?, don't channel
 
 void SAT::cEnqueue(Lit p, Reason r) {
-  if (so.debug) {
-    std::cerr << "c-enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n";
-  }
+  /* if (so.debug) { */
+  /*   std::cerr << "c-enqueue literal " << getLitString(toInt(p)) << " because " << showReason(r) << "\n"; */
+  /* } */
 	assert(value(p) != l_True);
 	int v = var(p);
 	if (value(p) == l_False) {
