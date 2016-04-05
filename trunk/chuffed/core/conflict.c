@@ -227,6 +227,11 @@ void SAT::getLearntClause(std::set<int>& contributingNogoods) {
                 /* } */
 
                 if (so.debug) {
+                    if (c.learnt) {
+                        std::cerr << "L" << c.clauseID() << " ";
+                    }
+                    std::cerr << "\t";
+
                     if (p == lit_Undef) {
                         std::cerr << "false";
                     } else {
