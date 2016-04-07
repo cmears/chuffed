@@ -481,7 +481,14 @@ RESULT Engine::search(const std::string& problemLabel) {
                         contribString << (it == contributingNogoods.begin() ? "" : ",") << *it;
                     }
                     contribString << "]}";
-                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_restart_id(restartCount).set_info(contribString.str()));
+
+                    // Calculate block level distance.
+                    std::set<int> levels;
+                    for (int i = 0 ; i < sat.out_learnt_level.size() ; i++)
+                        levels.insert(sat.out_learnt_level[i]);
+                    int bld = levels.size();
+
+                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_nogood_bld(bld).set_restart_id(restartCount).set_info(contribString.str()));
                     mostRecentLabel = "";
 #if DEBUG_VERBOSE
                     std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
