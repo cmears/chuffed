@@ -488,7 +488,21 @@ RESULT Engine::search(const std::string& problemLabel) {
                         levels.insert(sat.out_learnt_level[i]);
                     int bld = levels.size();
 
-                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_nogood_bld(bld).set_restart_id(restartCount).set_info(contribString.str()));
+                    // Does this nogood involve literals that are
+                    // derived from assumption literals?
+                    int numAssumptions = assumptions.size();
+                    bool usesAssumptions = false;
+                    for (int i = 0 ; i < sat.out_learnt_level.size() ; i++) {
+                      if (sat.out_learnt_level[i] < numAssumptions) {
+                        usesAssumptions = true;
+                      }
+                    }
+
+                    if (so.debug) {
+                      std::cerr << "uses assumptions: " << usesAssumptions << "\n";
+                    }
+
+                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_nogood_bld(bld).set_uses_assumptions(usesAssumptions).set_restart_id(restartCount).set_info(contribString.str()));
                     mostRecentLabel = "";
 #if DEBUG_VERBOSE
                     std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
