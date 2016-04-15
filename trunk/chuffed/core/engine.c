@@ -198,7 +198,14 @@ inline void Engine::makeDecision(DecInfo& di, int alt) {
         if (doProfiling()) {
             std::stringstream ss;
             /* ss << intVarString[(IntVar*)di.var] << " / " << di.val << " (" << alt << ")"; */
-            ss << intVarString[(IntVar*)di.var] << "==" << di.val;
+            ss << intVarString[(IntVar*)di.var];
+            switch (di.type) {
+            case 1: ss << "=="; break;
+            case 2: ss << ">="; break;
+            case 3: ss << "<="; break;
+            default: ss << "?="; break;
+            }
+            ss << di.val;
             mostRecentLabel = ss.str();
         }
         ((IntVar*) di.var)->set(di.val, di.type ^ alt);
