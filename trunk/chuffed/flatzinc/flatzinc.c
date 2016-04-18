@@ -76,7 +76,8 @@ namespace FlatZinc {
 
 	void FlatZincSpace::newIntVar(IntVarSpec* vs) {
             bool considerIntroduced = false;
-            if (vs->introduced) considerIntroduced = true;
+            if (so.use_var_is_introduced) considerIntroduced = vs->introduced;
+            else                          considerIntroduced = !vs->output;
             if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
 		if (vs->alias) {
 			iv[intVarCount++] = iv[vs->i];
@@ -109,7 +110,8 @@ namespace FlatZinc {
 
 	void FlatZincSpace::newBoolVar(BoolVarSpec* vs) {
             bool considerIntroduced = false;
-            if (vs->introduced) considerIntroduced = true;
+            if (so.use_var_is_introduced) considerIntroduced = vs->introduced;
+            else                          considerIntroduced = !vs->output;
             if (so.introduced_heuristic && vs->looks_introduced) considerIntroduced = true;
 		if (vs->alias) {
 			bv[boolVarCount++] = bv[vs->i];

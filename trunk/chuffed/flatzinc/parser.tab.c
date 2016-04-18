@@ -1916,10 +1916,10 @@ yyreduce:
           AST::Node* arg = (yyvsp[0].oArg).some();
           if (arg->isInt()) {
             pp->intvars.push_back(varspec((yyvsp[-2].sValue),
-              new IntVarSpec(arg->getInt(),introduced,looks_introduced)));
+              new IntVarSpec(arg->getInt(),print,introduced,looks_introduced)));
           } else if (arg->isIntVar()) {
             pp->intvars.push_back(varspec((yyvsp[-2].sValue),
-              new IntVarSpec(Alias(arg->getIntVar()),introduced,looks_introduced)));
+              new IntVarSpec(Alias(arg->getIntVar()),print,introduced,looks_introduced)));
           } else {
             yyassert(pp, false, "Invalid var int initializer.");
           }
@@ -1928,7 +1928,7 @@ yyreduce:
                                 new AST::IntVar(pp->intvars.size()-1), (yyvsp[-4].oSet));
           delete arg;
         } else {
-          pp->intvars.push_back(varspec((yyvsp[-2].sValue), new IntVarSpec((yyvsp[-4].oSet),introduced,looks_introduced)));
+          pp->intvars.push_back(varspec((yyvsp[-2].sValue), new IntVarSpec((yyvsp[-4].oSet),print,introduced,looks_introduced)));
         }
         delete (yyvsp[-1].argVec); free((yyvsp[-2].sValue));
       }
@@ -1950,10 +1950,10 @@ yyreduce:
           AST::Node* arg = (yyvsp[0].oArg).some();
           if (arg->isBool()) {
             pp->boolvars.push_back(varspec((yyvsp[-2].sValue),
-              new BoolVarSpec(arg->getBool(),introduced,looks_introduced)));            
+              new BoolVarSpec(arg->getBool(),print,introduced,looks_introduced)));            
           } else if (arg->isBoolVar()) {
             pp->boolvars.push_back(varspec((yyvsp[-2].sValue),
-              new BoolVarSpec(Alias(arg->getBoolVar()),introduced,looks_introduced)));
+              new BoolVarSpec(Alias(arg->getBoolVar()),print,introduced,looks_introduced)));
           } else {
             yyassert(pp, false, "Invalid var bool initializer.");
           }
@@ -1962,7 +1962,7 @@ yyreduce:
                                 new AST::BoolVar(pp->boolvars.size()-1), (yyvsp[-4].oSet));
           delete arg;
         } else {
-          pp->boolvars.push_back(varspec((yyvsp[-2].sValue), new BoolVarSpec((yyvsp[-4].oSet),introduced,looks_introduced)));
+          pp->boolvars.push_back(varspec((yyvsp[-2].sValue), new BoolVarSpec((yyvsp[-4].oSet),print,introduced,looks_introduced)));
         }
         delete (yyvsp[-1].argVec); free((yyvsp[-2].sValue));
       }
@@ -1993,10 +1993,10 @@ yyreduce:
           AST::Node* arg = (yyvsp[0].oArg).some();
           if (arg->isSet()) {
             pp->setvars.push_back(varspec((yyvsp[-2].sValue),
-              new SetVarSpec(arg->getSet(),introduced,looks_introduced)));            
+              new SetVarSpec(arg->getSet(),print,introduced,looks_introduced)));            
           } else if (arg->isSetVar()) {
             pp->setvars.push_back(varspec((yyvsp[-2].sValue),
-              new SetVarSpec(Alias(arg->getSetVar()),introduced,looks_introduced)));
+              new SetVarSpec(Alias(arg->getSetVar()),print,introduced,looks_introduced)));
             delete arg;
           } else {
             yyassert(pp, false, "Invalid var set initializer.");
@@ -2006,7 +2006,7 @@ yyreduce:
             addDomainConstraint(pp, "set_subset",
                                 new AST::SetVar(pp->setvars.size()-1), (yyvsp[-4].oSet));
         } else {
-          pp->setvars.push_back(varspec((yyvsp[-2].sValue), new SetVarSpec((yyvsp[-4].oSet),introduced,looks_introduced)));
+          pp->setvars.push_back(varspec((yyvsp[-2].sValue), new SetVarSpec((yyvsp[-4].oSet),print,introduced,looks_introduced)));
         }
         delete (yyvsp[-1].argVec); free((yyvsp[-2].sValue));
       }
@@ -2105,7 +2105,7 @@ yyreduce:
               }
               delete vsv;
             } else {
-              IntVarSpec* ispec = new IntVarSpec((yyvsp[-4].oSet),!print,false);
+              IntVarSpec* ispec = new IntVarSpec((yyvsp[-4].oSet),print,!print,false);
               string arrayname = "["; arrayname += (yyvsp[-2].sValue);
               for (int i=0; i<(yyvsp[-8].iValue)-1; i++) {
                 vars[i] = pp->intvars.size();
@@ -2167,7 +2167,7 @@ yyreduce:
             for (int i=0; i<(yyvsp[-8].iValue); i++) {
               vars[i] = pp->boolvars.size();
               pp->boolvars.push_back(varspec((yyvsp[-2].sValue),
-                                             new BoolVarSpec((yyvsp[-4].oSet),!print,false)));
+                                             new BoolVarSpec((yyvsp[-4].oSet),print,!print,false)));
             }          
           }
           if (print) {
@@ -2229,7 +2229,7 @@ yyreduce:
             }
             delete vsv;
           } else {
-            SetVarSpec* ispec = new SetVarSpec((yyvsp[-4].oSet),!print, false);
+            SetVarSpec* ispec = new SetVarSpec((yyvsp[-4].oSet),print,!print, false);
             string arrayname = "["; arrayname += (yyvsp[-2].sValue);
             for (int i=0; i<(yyvsp[-10].iValue)-1; i++) {
               vars[i] = pp->setvars.size();
@@ -2315,7 +2315,7 @@ yyreduce:
   case 48:
 #line 932 "parser.yxx" /* yacc.c:1646  */
     { 
-        (yyval.varSpec) = new IntVarSpec((yyvsp[0].iValue),false,false);
+        (yyval.varSpec) = new IntVarSpec((yyvsp[0].iValue),false,true,false);
       }
 #line 2321 "parser.tab.c" /* yacc.c:1646  */
     break;
@@ -2326,13 +2326,13 @@ yyreduce:
         int v = 0;
         ParserState* pp = static_cast<ParserState*>(parm);
         if (pp->intvarTable.get((yyvsp[0].sValue), v))
-          (yyval.varSpec) = new IntVarSpec(Alias(v),false,false);
+          (yyval.varSpec) = new IntVarSpec(Alias(v),false,true,false);
         else {
           pp->err << "Error: undefined identifier " << (yyvsp[0].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new IntVarSpec(0,false,false); // keep things consistent
+          (yyval.varSpec) = new IntVarSpec(0,false,true,false); // keep things consistent
         }
         free((yyvsp[0].sValue));
       }
@@ -2349,15 +2349,15 @@ yyreduce:
                       static_cast<unsigned int>((yyvsp[-1].iValue)) <= v.size(),
                    "array access out of bounds");
           if (!pp->hadError)
-            (yyval.varSpec) = new IntVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false,false);
+            (yyval.varSpec) = new IntVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false,true,false);
           else
-            (yyval.varSpec) = new IntVarSpec(0,false); // keep things consistent
+            (yyval.varSpec) = new IntVarSpec(0,false,true,false); // keep things consistent
         } else {
           pp->err << "Error: undefined array identifier " << (yyvsp[-3].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new IntVarSpec(0,false); // keep things consistent
+          (yyval.varSpec) = new IntVarSpec(0,false,true,false); // keep things consistent
         }
         free((yyvsp[-3].sValue));
       }
@@ -2396,7 +2396,7 @@ yyreduce:
 
   case 58:
 #line 991 "parser.yxx" /* yacc.c:1646  */
-    { (yyval.varSpec) = new FloatVarSpec((yyvsp[0].dValue),false); }
+    { (yyval.varSpec) = new FloatVarSpec((yyvsp[0].dValue),false,true,false); }
 #line 2401 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2406,13 +2406,13 @@ yyreduce:
         int v = 0;
         ParserState* pp = static_cast<ParserState*>(parm);
         if (pp->floatvarTable.get((yyvsp[0].sValue), v))
-          (yyval.varSpec) = new FloatVarSpec(Alias(v),false);
+          (yyval.varSpec) = new FloatVarSpec(Alias(v),false,true,false);
         else {
           pp->err << "Error: undefined identifier " << (yyvsp[0].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new FloatVarSpec(0.0,false);
+          (yyval.varSpec) = new FloatVarSpec(0.0,false,true,false);
         }
         free((yyvsp[0].sValue));
       }
@@ -2429,15 +2429,15 @@ yyreduce:
                       static_cast<unsigned int>((yyvsp[-1].iValue)) <= v.size(),
                    "array access out of bounds");
           if (!pp->hadError)
-            (yyval.varSpec) = new FloatVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false);
+            (yyval.varSpec) = new FloatVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false,true,false);
           else
-            (yyval.varSpec) = new FloatVarSpec(0.0,false);
+            (yyval.varSpec) = new FloatVarSpec(0.0,false,true,false);
         } else {
           pp->err << "Error: undefined array identifier " << (yyvsp[-3].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new FloatVarSpec(0.0,false);
+          (yyval.varSpec) = new FloatVarSpec(0.0,false,true,false);
         }
         free((yyvsp[-3].sValue));
       }
@@ -2476,7 +2476,7 @@ yyreduce:
 
   case 66:
 #line 1047 "parser.yxx" /* yacc.c:1646  */
-    { (yyval.varSpec) = new BoolVarSpec((yyvsp[0].iValue),false); }
+    { (yyval.varSpec) = new BoolVarSpec((yyvsp[0].iValue),false,true,false); }
 #line 2481 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2486,13 +2486,13 @@ yyreduce:
         int v = 0;
         ParserState* pp = static_cast<ParserState*>(parm);
         if (pp->boolvarTable.get((yyvsp[0].sValue), v))
-          (yyval.varSpec) = new BoolVarSpec(Alias(v),false);
+          (yyval.varSpec) = new BoolVarSpec(Alias(v),false,true,false);
         else {
           pp->err << "Error: undefined identifier " << (yyvsp[0].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new BoolVarSpec(false,false);
+          (yyval.varSpec) = new BoolVarSpec(false,false,true,false);
         }
         free((yyvsp[0].sValue));
       }
@@ -2509,15 +2509,15 @@ yyreduce:
                       static_cast<unsigned int>((yyvsp[-1].iValue)) <= v.size(),
                    "array access out of bounds");
           if (!pp->hadError)
-            (yyval.varSpec) = new BoolVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false);
+            (yyval.varSpec) = new BoolVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false,true,false);
           else
-            (yyval.varSpec) = new BoolVarSpec(false,false);
+            (yyval.varSpec) = new BoolVarSpec(false,false,true,false);
         } else {
           pp->err << "Error: undefined array identifier " << (yyvsp[-3].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new BoolVarSpec(false,false);
+          (yyval.varSpec) = new BoolVarSpec(false,false,true,false);
         }
         free((yyvsp[-3].sValue));
       }
@@ -2556,7 +2556,7 @@ yyreduce:
 
   case 74:
 #line 1101 "parser.yxx" /* yacc.c:1646  */
-    { (yyval.varSpec) = new SetVarSpec(Option<AST::SetLit*>::some((yyvsp[0].setLit)),false); }
+    { (yyval.varSpec) = new SetVarSpec(Option<AST::SetLit*>::some((yyvsp[0].setLit)),false,true,false); }
 #line 2561 "parser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2566,13 +2566,13 @@ yyreduce:
         ParserState* pp = static_cast<ParserState*>(parm);
         int v = 0;
         if (pp->setvarTable.get((yyvsp[0].sValue), v))
-          (yyval.varSpec) = new SetVarSpec(Alias(v),false);
+          (yyval.varSpec) = new SetVarSpec(Alias(v),false,true,false);
         else {
           pp->err << "Error: undefined identifier " << (yyvsp[0].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new SetVarSpec(Alias(0),false);
+          (yyval.varSpec) = new SetVarSpec(Alias(0),false,true,false);
         }
         free((yyvsp[0].sValue));
       }
@@ -2589,15 +2589,15 @@ yyreduce:
                       static_cast<unsigned int>((yyvsp[-1].iValue)) <= v.size(),
                    "array access out of bounds");
           if (!pp->hadError)
-            (yyval.varSpec) = new SetVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false);
+            (yyval.varSpec) = new SetVarSpec(Alias(v[(yyvsp[-1].iValue)-1]),false,true,false);
           else
-            (yyval.varSpec) = new SetVarSpec(Alias(0),false);
+            (yyval.varSpec) = new SetVarSpec(Alias(0),false,true,false);
         } else {
           pp->err << "Error: undefined array identifier " << (yyvsp[-3].sValue)
                   << " in line no. "
                   << yyget_lineno(pp->yyscanner) << std::endl;
           pp->hadError = true;
-          (yyval.varSpec) = new SetVarSpec(Alias(0),false);
+          (yyval.varSpec) = new SetVarSpec(Alias(0),false,true,false);
         }
         free((yyvsp[-3].sValue));
       }
