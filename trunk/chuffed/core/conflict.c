@@ -9,8 +9,11 @@
 #include <chuffed/ldsb/ldsb.h>
 
 #include <iostream>
+#include <fstream>
 
 #define PRINT_ANALYSIS 0
+
+std::ofstream implication_stream;
 
 
 //---------
@@ -113,7 +116,7 @@ void SAT::analyze(int nodeid, std::set<int>& contributingNogoods) {
 	checkConflict();
 	varDecayActivity();
 	claDecayActivity();
-	getLearntClause(contributingNogoods);
+	getLearntClause(nodeid, contributingNogoods);
 	explainUnlearnable(contributingNogoods);
         if (so.exhaustive_activity)
             explainToExhaustion(contributingNogoods);
@@ -184,7 +187,7 @@ void SAT::analyze(int nodeid, std::set<int>& contributingNogoods) {
 }
 
 
-void SAT::getLearntClause(std::set<int>& contributingNogoods) {
+void SAT::getLearntClause(int nodeid, std::set<int>& contributingNogoods) {
 	Lit p = lit_Undef;
 	int pathC = 0;
 	int clevel = findConflictLevel();
@@ -225,6 +228,24 @@ void SAT::getLearntClause(std::set<int>& contributingNogoods) {
                 /*     std::cerr << " " << getLitString(toInt(~c[i])); */
                 /*   std::cerr << "\n"; */
                 /* } */
+
+                if (so.print_implications) {
+                  if (!implication_stream.is_open()) {
+                    implication_stream.open("implication-log.csv");
+                  }
+                  
+                  implication_stream << nodeid;
+                  implication_stream << ",";
+                  if (p == lit_Undef) {
+                    implication_stream << "false";
+                  } else {
+                    implication_stream << getLitString(toInt(p));
+                  }
+                  implication_stream << ",";
+                  for (int i = (p == lit_Undef ? 0 : 1) ; i < c.size() ; i++)
+                    implication_stream << " " << getLitString(toInt(~c[i]));
+                  implication_stream << "\n";
+                }
 
                 if (so.debug) {
                     if (c.learnt) {

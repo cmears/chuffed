@@ -43,6 +43,7 @@ Options::Options() :
         , introduced_heuristic(false)
         , use_var_is_introduced(false)
         , print_nodes(false)
+        , print_implications(false)
         , send_skipped(true)
         , send_domains(false)
 
@@ -147,6 +148,7 @@ void parseOptions(int& argc, char**& argv) {
                 parseBoolArg(introduced_heuristic)
                 parseBoolArg(use_var_is_introduced)
                 parseBoolArg(print_nodes)
+                parseBoolArg(print_implications)
                 parseBoolArg(send_skipped)
                 parseBoolArg(send_domains)
                 parseStringArg(filter_domains)

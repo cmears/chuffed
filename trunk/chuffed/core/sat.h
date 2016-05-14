@@ -169,7 +169,7 @@ public:
 	// Conflict methods
 
 	void analyze(int nodeid, std::set<int>& contributingNogoods);
-	void getLearntClause(std::set<int>& contributingNogoods);
+	void getLearntClause(int nodeid, std::set<int>& contributingNogoods);
 	int findConflictLevel();
 	void explainUnlearnable(std::set<int>& contributingNogoods);
 	void explainToExhaustion(std::set<int>& contributingNogoods);
