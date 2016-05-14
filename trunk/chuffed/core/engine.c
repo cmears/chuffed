@@ -40,13 +40,19 @@ std::map<BoolView, string> boolVarString;
 extern std::map<int,string> learntClauseString;
 extern std::ofstream learntStatsStream;
 
+std::ofstream node_stream;
+
 bool doProfiling() {
     return so.print_nodes || profilerConnector.connected();
 }
 
 void sendNode(Node& node) {
     if (so.print_nodes) {
-        node.print(std::cerr);
+      if (!node_stream.is_open()) {
+        node_stream.open("node-log.csv");
+        node_stream << "type,id,restart,parent,alt,children,status,time,label,nogood,block,uses_objective,info\n";
+      }
+      node.print(node_stream);
     }
     node.send();
 }
