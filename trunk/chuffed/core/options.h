@@ -61,6 +61,7 @@ public:
         bool print_nodes;                // Print nodes as they are sent to the profiler (or
                                          // would be sent)
         bool print_implications;
+        bool print_variable_list;
         bool send_skipped;               // Send skipped nodes?
         bool send_domains;               // Compute and send variable domains
         std::string filter_domains;

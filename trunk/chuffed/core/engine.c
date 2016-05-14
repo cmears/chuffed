@@ -410,6 +410,17 @@ RESULT Engine::search(const std::string& problemLabel) {
     int nof_conflicts = so.restart_base;
     int conflictC = 0;
 
+    if (so.print_variable_list) {
+      std::ofstream s;
+      s.open("variable-list");
+      for (auto const & p : intVarString) {
+        s << p.second << "\n";
+      }
+      for (auto const & p : boolVarString) {
+        s << p.second << "\n";
+      }
+    }
+
     restartCount = 0;
     profilerConnector.restart(problemLabel, restartCount);
 
