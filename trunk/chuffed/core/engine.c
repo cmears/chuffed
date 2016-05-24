@@ -50,7 +50,7 @@ void sendNode(Node& node) {
     if (so.print_nodes) {
       if (!node_stream.is_open()) {
         node_stream.open("node-log.csv");
-        node_stream << "type,id,restart,parent,alt,children,status,time,label,nogood,block,uses_objective,info\n";
+        node_stream << "type,id,restart,parent,alt,children,status,time,label,nogood,block,uses_objective,backjump_distance,decision_level,info\n";
       }
       node.print(node_stream);
     }
@@ -107,6 +107,7 @@ std::string showVector(const std::vector<int>& v) {
 
 // Rewind nodepath and altpath after a backjump.
 void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLevel, int newDecisionLevel, RewindStyle rewindStyle, long timestamp) {
+    int currentDecisionLevel;
     switch (rewindStyle) {
     case REWIND_OMIT_SKIPPED:
         nodepath.resize(decisionLevelTip[newDecisionLevel]);
@@ -127,6 +128,7 @@ void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLe
         // child" for that node or any others at this level.
         nodepath.resize(decisionLevelTip[previousDecisionLevel-1]);
         altpath.resize(decisionLevelTip[previousDecisionLevel-1] - 1);
+        currentDecisionLevel = previousDecisionLevel-1;
 
         // Now walk back through the decision levels, sending a
         // "skipped" node for each child that was never visited.
@@ -143,9 +145,11 @@ void rewindPaths(Profiling::Connector& profilerConnector, int previousDecisionLe
             sendNode(profilerConnector
                      .createNode(nodeid, parent, myalt, 0, SKIPPED)
                      .set_restart_id(restartCount)
+                     .set_decision_level(currentDecisionLevel)
                      .set_time(timestamp));
             nodepath.resize(nodepath.size() - 1);
             altpath.resize(altpath.size() - 1);
+            currentDecisionLevel--;
         }
 #if DEBUG_VERBOSE
         std::cerr << "after, nodepath is: " << showVector(nodepath) << "\n";
@@ -481,7 +485,7 @@ RESULT Engine::search(const std::string& problemLabel) {
 
             if (decisionLevel() == 0) {
                 if (doProfiling()) {
-                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount));
+                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount).set_decision_level(previousDecisionLevel));
                     mostRecentLabel = "";
                 }
                 return RES_GUN;
@@ -526,7 +530,9 @@ RESULT Engine::search(const std::string& problemLabel) {
                       std::cerr << "uses assumptions: " << usesAssumptions << "\n";
                     }
 
-                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_nogood_bld(bld).set_uses_assumptions(usesAssumptions).set_restart_id(restartCount).set_info(contribString.str()));
+                    int backjumpDistance = previousDecisionLevel - decisionLevel();
+
+                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_nogood(ss.str()).set_nogood_bld(bld).set_uses_assumptions(usesAssumptions).set_restart_id(restartCount).set_info(contribString.str()).set_backjump_distance(backjumpDistance).set_decision_level(previousDecisionLevel));
                     mostRecentLabel = "";
 #if DEBUG_VERBOSE
                     std::cerr << "after analyze, decisionLevel() is " << decisionLevel() << "\n";
@@ -550,7 +556,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                 }
             }	else {
                 if (doProfiling()) {
-                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount));
+                    sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, FAILED).set_time(timeus).set_label(mostRecentLabel).set_restart_id(restartCount).set_decision_level(previousDecisionLevel));
                     mostRecentLabel = "";
                 }
                 sat.confl = NULL;
@@ -640,11 +646,13 @@ RESULT Engine::search(const std::string& problemLabel) {
                              .set_time(timeus)
                              .set_label(mostRecentLabel)
                              .set_info(s.str())
+                             .set_decision_level(previousDecisionLevel)
                              .set_restart_id(restartCount));
                 } else {
                     sendNode(profilerConnector.createNode(nodeid, parent, myalt, 0, SOLVED)
                              .set_time(timeus)
                              .set_label(mostRecentLabel)
+                             .set_decision_level(previousDecisionLevel)
                              .set_restart_id(restartCount));
                 }
                                     
@@ -683,6 +691,7 @@ RESULT Engine::search(const std::string& problemLabel) {
                                           .set_time(timeus)
                                           .set_label(mostRecentLabel)
                                           .set_info(info)
+                                          .set_decision_level(previousDecisionLevel)
                                           .set_restart_id(restartCount));
                 mostRecentLabel = "";
             }
