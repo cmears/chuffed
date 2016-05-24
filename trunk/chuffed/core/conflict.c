@@ -195,6 +195,15 @@ void SAT::getLearntClause(int nodeid, std::set<int>& contributingNogoods) {
 	Clause* expl = confl;
 	Reason last_reason = NULL;
 
+        if (so.debug) {
+            std::cerr << "trail of conflict level:";
+            for (int i = 0 ; i < ctrail.size() ; i++) {
+                std::cerr << " ";
+                std::cerr << getLitString(toInt(ctrail[i]));
+            }
+            std::cerr << "\n";
+        }
+
 	index = ctrail.size();
 	out_learnt.clear();
         out_learnt_level.clear();
@@ -275,14 +284,21 @@ void SAT::getLearntClause(int nodeid, std::set<int>& contributingNogoods) {
 				seen[x] = 1;
 				if (isCurLevel(x)) {
                                   pathC++;
+                                  if (so.debug) {
+                                      std::cerr << getLitString(toInt(~q)) << " is from current level; incremented pathC to " << pathC << "\n";
+                                  }
                                 } else {
+                                  if (so.debug) {
+                                      std::cerr << "added " << getLitString(toInt(~q)) << " to nogood\n";
+                                  }
                                   out_learnt.push(q);
                                   out_learnt_level.push(getLevel(x));
                                 }
 			} else {
-                          /* if (so.debug) { */
-                          /*   std::cerr << " but already seen this variable"; */
-                          /* } */
+                          if (so.debug) {
+                              //                            std::cerr << " but already seen this variable";
+                              std::cerr << getLitString(toInt(~q)) << " already marked as seen; skipping explanation\n";
+                          }
                         }
                         /* if (so.debug) { */
                         /*   std::cerr << ", pathC is now " << pathC << "\n"; */
@@ -301,9 +317,23 @@ FindNextExpl:
 		seen[var(p)] = 0;
 		pathC--;
 
-		if (pathC == 0 && flags[var(p)].uipable) break;
+                if (so.debug) {
+                    std::cerr << "selected " << getLitString(toInt(p)) << " as next literal to explain away\n";
+                }
 
-		if (last_reason == reason[var(p)]) goto FindNextExpl;
+		if (pathC == 0 && flags[var(p)].uipable) {
+                    if (so.debug) {
+                        std::cerr << "one only literal left at current level; finished\n";
+                    }
+                    break;
+                }
+
+                // This appears to be just an optimisation.
+		if (last_reason == reason[var(p)]) {
+                    if (so.debug)
+                        std::cerr << "same reason as previously explained literal; skipping\n";
+                    goto FindNextExpl;
+                }
 		last_reason = reason[var(p)];
 		expl = getExpl(p);
 

@@ -293,6 +293,9 @@ void SAT::topLevelCleanUp() {
 	if (so.sat_simplify && propagations >= next_simp_db) simplifyDB();
 
 	for (int i = 0; i < trail[0].size(); i++) {
+            if (so.debug) {
+                std::cerr << "setting true at top-level: " << getLitString(toInt(trail[0][i])) << "\n";
+            }
         seen[var(trail[0][i])] = true;
         trailpos[var(trail[0][i])] = -1;
     }
