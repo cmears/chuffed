@@ -53,6 +53,9 @@ void sendNode(Node& node) {
         node_stream << "type,id,restart,parent,alt,children,status,time,label,nogood,block,uses_objective,backjump_distance,decision_level,info\n";
       }
       node.print(node_stream);
+      if (so.debug) {
+          node.print(std::cerr);
+      }
     }
     node.send();
 }
@@ -96,6 +99,16 @@ enum RewindStyle {
 };
 
 std::string showVector(const std::vector<int>& v) {
+    stringstream ss;
+    for (int i = 0 ; i < v.size() ; i++) {
+        if (i > 0)
+            ss << " ";
+        ss << v[i];
+    }
+    return ss.str();
+}
+
+std::string showVec(const vec<int>& v) {
     stringstream ss;
     for (int i = 0 ; i < v.size() ; i++) {
         if (i > 0)
@@ -185,7 +198,15 @@ Engine::Engine()
 
 inline void Engine::newDecisionLevel() {
     trail_inc++;
+    if (so.debug) {
+        std::cerr << "Engine::newDecisionLevel\n";
+        std::cerr << "  trail_lim size is currently " << trail_lim.size() << "\n";
+        std::cerr << "  pushing " << trail.size() << " to trail_lim\n";
+    }
     trail_lim.push(trail.size());
+    if (so.debug) {
+        std::cerr << "trail_lim is now: " << showVec(trail_lim) << "\n";
+    }
     sat.newDecisionLevel();
     if (so.mip) mip->newDecisionLevel();
     assert(dec_info.size() == decisionLevel());
@@ -329,14 +350,17 @@ void Engine::btToPos(int pos) {
 }
 
 void Engine::btToLevel(int level) {
-#if DEBUG_VERBOSE
-    std::cerr << "Engine::btToLevel( " << level << ")\n";
-#endif
+    if (so.debug) {
+        std::cerr << "Engine::btToLevel( " << level << ")\n";
+    }
     if (decisionLevel() == 0 && level == 0) return;
     assert(decisionLevel() > level);
 
     btToPos(trail_lim[level]);
     trail_lim.resize(level);
+    if (so.debug) {
+        std::cerr << "trail_lim is now: " << showVec(trail_lim) << "\n";
+    }
     dec_info.resize(level);
 }
 
@@ -508,12 +532,27 @@ RESULT Engine::search(const std::string& problemLabel) {
                          it++) {
                         contribString << (it == contributingNogoods.begin() ? "" : ",") << *it;
                     }
-                    contribString << "]}";
-
-                    // Calculate block level distance.
+                    contribString << "],";
+                    contribString << "blocks:[";
+                    // First, compute the set of blocks.
                     std::set<int> levels;
                     for (int i = 0 ; i < sat.out_learnt_level.size() ; i++)
                         levels.insert(sat.out_learnt_level[i]);
+                    // Now put them all in the string.
+                    for (std::set<int>::const_iterator it = levels.begin() ; it != levels.end() ; it++) {
+                        int rawLevel = *it;
+                        // We increment the "raw level" by one,
+                        // because internally (on the trail) the first
+                        // decision level -- that is, after a single
+                        // search decision has been made -- is called
+                        // zero.  We would rather that it be called
+                        // one, to equal the number of decisions made.
+                        int adjustedLevel = rawLevel + 1;
+                        contribString << (it == levels.begin() ? "" : ",") << adjustedLevel;
+                    }
+                    contribString << "]}";
+
+                    // Calculate block level distance.
                     int bld = levels.size();
 
                     // Does this nogood involve literals that are
