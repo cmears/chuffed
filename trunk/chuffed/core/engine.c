@@ -533,14 +533,12 @@ RESULT Engine::search(const std::string& problemLabel) {
                         contribString << (it == contributingNogoods.begin() ? "" : ",") << *it;
                     }
                     contribString << "],";
-                    contribString << "blocks:[";
-                    // First, compute the set of blocks.
+                    contribString << "\"blocks\":[";
+                    // We leave duplicates in the list of blocks, so
+                    // that the profiler can make use of them.
                     std::set<int> levels;
-                    for (int i = 0 ; i < sat.out_learnt_level.size() ; i++)
-                        levels.insert(sat.out_learnt_level[i]);
-                    // Now put them all in the string.
-                    for (std::set<int>::const_iterator it = levels.begin() ; it != levels.end() ; it++) {
-                        int rawLevel = *it;
+                    for (int i = 0 ; i < sat.out_learnt_level.size() ; i++) {
+                        int rawLevel = sat.out_learnt_level[i];
                         // We increment the "raw level" by one,
                         // because internally (on the trail) the first
                         // decision level -- that is, after a single
@@ -548,7 +546,8 @@ RESULT Engine::search(const std::string& problemLabel) {
                         // zero.  We would rather that it be called
                         // one, to equal the number of decisions made.
                         int adjustedLevel = rawLevel + 1;
-                        contribString << (it == levels.begin() ? "" : ",") << adjustedLevel;
+                        contribString << ((i==0) ? "" : ",") << adjustedLevel;
+                        levels.insert(adjustedLevel);
                     }
                     contribString << "]}";
 
