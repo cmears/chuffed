@@ -141,8 +141,8 @@ chuffed/core/sat-types.h
 chuffed/core/options.h
 chuffed/core/propagator.h
 
-cpp-integration/connector.cpp
-cpp-integration/message.pb.cpp
+#cpp-integration/connector.cpp
+#cpp-integration/message.pb.cpp
 )
 
 add_library(chuffed_fzn
@@ -156,7 +156,8 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lprotobuf -lpthread)
+# target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lprotobuf -lpthread)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lpthread)
 
 add_custom_target(
   versionTarget
