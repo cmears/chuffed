@@ -449,8 +449,18 @@ RESULT Engine::search(const std::string& problemLabel) {
       }
     }
 
+    std::stringstream ss;
+    for (auto const & p : intVarString) {
+        ss << p.second << " ";
+    }
+    ss << ";";
+    for (auto const & p : boolVarString) {
+        ss << p.second << " ";
+    }
+    std::string variableListString = ss.str();
+
     restartCount = 0;
-    profilerConnector.restart(problemLabel, restartCount);
+    profilerConnector.restart(problemLabel, restartCount, variableListString);
 
     decisionLevelTip.push_back(1);
 
