@@ -204,7 +204,7 @@ void parseOptions(int& argc, char**& argv) {
 		if ((value = hasPrefix(argv[i], "-S"))) {
 			so.verbosity = 1;
 		} else if (argv[i][0] == '-') {
-			ERROR("Unknown flag %s\n", argv[i]);
+			CHUFFED_ERROR("Unknown flag %s\n", argv[i]);
 		} else argv[j++] = argv[i];
 	}
 	argc = j;

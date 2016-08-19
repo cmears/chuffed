@@ -150,7 +150,7 @@ MDDProp<U>::MDDProp(MDDTemplate* _templ, vec<IntView<U> >& _intvars, bool _simpl
          if (intvars[val_entries[i].var].remValNotR(val_entries[i].val))
          {
             if(!intvars[val_entries[i].var].remVal(val_entries[i].val))
-                ERROR("Failure in static propagation.");
+                CHUFFED_ERROR("Failure in static propagation.");
          }
 
          fixedvars.insert(i);

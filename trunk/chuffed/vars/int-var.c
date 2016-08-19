@@ -113,7 +113,7 @@ void IntVar::initVals(bool optional) {
 	if (vals) return;
 	if (min == min_limit || max == max_limit) {
 		if (optional) return;
-		ERROR("Cannot initialise vals in unbounded IntVar\n");
+		CHUFFED_ERROR("Cannot initialise vals in unbounded IntVar\n");
 	}
 	vals = (Tchar*) malloc((max-min+2) * sizeof(Tchar));
 	if (!vals) { perror("malloc()"); exit(1); }

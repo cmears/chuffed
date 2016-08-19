@@ -20,10 +20,14 @@ set (chuffed_VERSION_MINOR 9)
 set (chuffed_VERSION_PATCH 0)
 
 include_directories("chuffed")
-include_directories("protobuf")
+include_directories("cpp-integration/protobuf")
 include_directories(".")
 include_directories(${CMAKE_BINARY_DIR})
-include_directories("protobuf/config_win")
+if (WIN32)
+  include_directories("cpp-integration/protobuf/config_win")
+else()
+  include_directories("cpp-integration/protobuf/config_unix")
+endif()
 
 SET_SOURCE_FILES_PROPERTIES(
 chuffed/vars/int-var.c
@@ -146,41 +150,41 @@ chuffed/core/propagator.h
 cpp-integration/connector.cpp
 cpp-integration/message.pb.cpp
 
-protobuf/google/protobuf/compiler/importer.cc
-protobuf/google/protobuf/compiler/parser.cc
-protobuf/google/protobuf/descriptor.cc
-protobuf/google/protobuf/descriptor.pb.cc
-protobuf/google/protobuf/descriptor_database.cc
-protobuf/google/protobuf/dynamic_message.cc
-protobuf/google/protobuf/extension_set.cc
-protobuf/google/protobuf/extension_set_heavy.cc
-protobuf/google/protobuf/generated_message_reflection.cc
-protobuf/google/protobuf/generated_message_util.cc
-protobuf/google/protobuf/io/coded_stream.cc
-protobuf/google/protobuf/io/gzip_stream.cc
-protobuf/google/protobuf/io/printer.cc
-protobuf/google/protobuf/io/strtod.cc
-protobuf/google/protobuf/io/tokenizer.cc
-protobuf/google/protobuf/io/zero_copy_stream.cc
-protobuf/google/protobuf/io/zero_copy_stream_impl.cc
-protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
-protobuf/google/protobuf/message.cc
-protobuf/google/protobuf/message_lite.cc
-protobuf/google/protobuf/reflection_ops.cc
-protobuf/google/protobuf/repeated_field.cc
-protobuf/google/protobuf/service.cc
-protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
-protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
-protobuf/google/protobuf/stubs/common.cc
-protobuf/google/protobuf/stubs/once.cc
-protobuf/google/protobuf/stubs/stringprintf.cc
-protobuf/google/protobuf/stubs/structurally_valid.cc
-protobuf/google/protobuf/stubs/strutil.cc
-protobuf/google/protobuf/stubs/substitute.cc
-protobuf/google/protobuf/text_format.cc
-protobuf/google/protobuf/unknown_field_set.cc
-protobuf/google/protobuf/wire_format.cc
-protobuf/google/protobuf/wire_format_lite.cc
+cpp-integration/protobuf/google/protobuf/compiler/importer.cc
+cpp-integration/protobuf/google/protobuf/compiler/parser.cc
+cpp-integration/protobuf/google/protobuf/descriptor.cc
+cpp-integration/protobuf/google/protobuf/descriptor.pb.cc
+cpp-integration/protobuf/google/protobuf/descriptor_database.cc
+cpp-integration/protobuf/google/protobuf/dynamic_message.cc
+cpp-integration/protobuf/google/protobuf/extension_set.cc
+cpp-integration/protobuf/google/protobuf/extension_set_heavy.cc
+cpp-integration/protobuf/google/protobuf/generated_message_reflection.cc
+cpp-integration/protobuf/google/protobuf/generated_message_util.cc
+cpp-integration/protobuf/google/protobuf/io/coded_stream.cc
+cpp-integration/protobuf/google/protobuf/io/gzip_stream.cc
+cpp-integration/protobuf/google/protobuf/io/printer.cc
+cpp-integration/protobuf/google/protobuf/io/strtod.cc
+cpp-integration/protobuf/google/protobuf/io/tokenizer.cc
+cpp-integration/protobuf/google/protobuf/io/zero_copy_stream.cc
+cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl.cc
+cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
+cpp-integration/protobuf/google/protobuf/message.cc
+cpp-integration/protobuf/google/protobuf/message_lite.cc
+cpp-integration/protobuf/google/protobuf/reflection_ops.cc
+cpp-integration/protobuf/google/protobuf/repeated_field.cc
+cpp-integration/protobuf/google/protobuf/service.cc
+cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
+cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
+cpp-integration/protobuf/google/protobuf/stubs/common.cc
+cpp-integration/protobuf/google/protobuf/stubs/once.cc
+cpp-integration/protobuf/google/protobuf/stubs/stringprintf.cc
+cpp-integration/protobuf/google/protobuf/stubs/structurally_valid.cc
+cpp-integration/protobuf/google/protobuf/stubs/strutil.cc
+cpp-integration/protobuf/google/protobuf/stubs/substitute.cc
+cpp-integration/protobuf/google/protobuf/text_format.cc
+cpp-integration/protobuf/google/protobuf/unknown_field_set.cc
+cpp-integration/protobuf/google/protobuf/wire_format.cc
+cpp-integration/protobuf/google/protobuf/wire_format_lite.cc
 )
 
 add_library(chuffed_fzn
@@ -194,7 +198,7 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lprotobuf -lpthread)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lpthread)
 
 add_custom_target(
   versionTarget

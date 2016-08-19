@@ -137,7 +137,7 @@ int get_sign(IntVar* x) {
 
 void int_times(IntVar* x, IntVar* y, IntVar* z) {
 	if (!get_sign(x) || !get_sign(y) || !get_sign(z)) {
-		ERROR("Cannot handle non-sign-fixed vars\n");
+		CHUFFED_ERROR("Cannot handle non-sign-fixed vars\n");
 	}
 	bool x_flip = (get_sign(x) == -1);
 	bool y_flip = (get_sign(y) == -1);
@@ -152,7 +152,7 @@ void int_times(IntVar* x, IntVar* y, IntVar* z) {
 	} else if (x_flip && y_flip && !z_flip) {
 		new Times<1,1,0>(IntView<>(x), IntView<>(y), IntView<>(z));
 	} else {
-		ERROR("Cannot handle this case\n");
+		CHUFFED_ERROR("Cannot handle this case\n");
 	}
 }
 
@@ -219,7 +219,7 @@ public:
 
 void int_div(IntVar* x, IntVar* y, IntVar* z) {
 	if (!get_sign(x) || !get_sign(y) || !get_sign(z)) {
-		ERROR("Cannot handle non-sign-fixed vars\n");
+		CHUFFED_ERROR("Cannot handle non-sign-fixed vars\n");
 	}
 	bool x_flip = (get_sign(x) == -1);
 	bool y_flip = (get_sign(y) == -1);
@@ -238,12 +238,12 @@ void int_div(IntVar* x, IntVar* y, IntVar* z) {
 		// ceil(-x+1 / -y) = z+1
 		new Divide<5,1,4>(IntView<>(x,1,1), IntView<>(y), IntView<>(z,1,1));
 	} else {
-		ERROR("Cannot handle this case\n");
+		CHUFFED_ERROR("Cannot handle this case\n");
 	}
 }
 
 void int_mod(IntVar* x, IntVar* y, IntVar* z) {
-	ERROR("Not yet supported\n");
+	CHUFFED_ERROR("Not yet supported\n");
 }
 
 // z = min(x, y)

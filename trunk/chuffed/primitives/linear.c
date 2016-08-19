@@ -303,7 +303,7 @@ void int_linear(vec<int>& a, vec<IntVar*>& x, IntRelType t, int c, BoolView r) {
 		if (a[i] != 1 && a[i] != -1) scale = true;
 		limit += abs(a[i]) * IntVar::max_limit + INT_MAX;
 	}
-	if (limit >= INT64_MAX) ERROR("Linear constraint may overflow, not yet supported\n");
+	if (limit >= INT64_MAX) CHUFFED_ERROR("Linear constraint may overflow, not yet supported\n");
 
 	if (x.size() == 1 && !scale) {
 		if (r.isTrue()) {

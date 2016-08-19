@@ -436,7 +436,7 @@ namespace FlatZinc {
 		}
 
     void p_set_in(const ConExpr& ce, AST::Node *) {
-			if (ce[1]->isSetVar()) ERROR("Cannot handle set vars\n");
+			if (ce[1]->isSetVar()) CHUFFED_ERROR("Cannot handle set vars\n");
       AST::SetLit* sl = ce[1]->getSet();
       if (ce[0]->isBoolVar()) {
         assert(sl->interval);
@@ -457,7 +457,7 @@ namespace FlatZinc {
     }
 
     void p_set_in_reif(const ConExpr& ce, AST::Node *) {
-			if (ce[1]->isSetVar()) ERROR("Cannot handle set vars\n");
+			if (ce[1]->isSetVar()) CHUFFED_ERROR("Cannot handle set vars\n");
 			assert(ce[0]->isIntVar() || ce[0]->isInt());
 			assert(ce[2]->isBoolVar());
       AST::SetLit* sl = ce[1]->getSet();

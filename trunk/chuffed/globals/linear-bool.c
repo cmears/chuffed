@@ -83,7 +83,7 @@ void bool_linear(vec<BoolView>& x, IntRelType t, IntVar* y) {
 			new BoolLinearLE<5>(x2, IntView<5>(y,1,x.size()-1));
 			break;
 		default:
-			ERROR("Unknown IntRelType %d\n", t);
+			CHUFFED_ERROR("Unknown IntRelType %d\n", t);
 	}
 }
 
