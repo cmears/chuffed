@@ -136,7 +136,7 @@ public:
 	void boundChange(int v, int d);
 	void boundSwap(int v);
 	int  simplex();
-	bool findPivotRow() __attribute__ ((noinline));
+	bool findPivotRow();
 	void regeneratePivotRow();
 	bool findPivotCol();
 	bool findPivotCol2();
@@ -144,11 +144,11 @@ public:
 
 	// Recalculation methods
 
-	void Lmultiply(long double *a) __attribute__ ((noinline));
-	void LTmultiply(long double *a) __attribute__ ((noinline));
-	void Umultiply(long double *a) __attribute__ ((noinline));
-	void UTmultiply(long double *a) __attribute__ ((noinline));
-	void Bmultiply(long double *a) __attribute__ ((noinline));
+	void Lmultiply(long double *a);
+	void LTmultiply(long double *a);
+	void Umultiply(long double *a);
+	void UTmultiply(long double *a);
+	void Bmultiply(long double *a);
 	void calcRHS();
 	void calcObjective();
 	void calcObjBound();

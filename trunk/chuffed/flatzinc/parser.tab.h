@@ -49,7 +49,7 @@
      ANNOTATION = 265,
      ANY = 266,
      ARRAY = 267,
-     BOOL = 268,
+     BOOLTOK = 268,
      CASE = 269,
      COLONCOLON = 270,
      CONSTRAINT = 271,
@@ -59,11 +59,11 @@
      ELSEIF = 275,
      ENDIF = 276,
      ENUM = 277,
-     FLOAT = 278,
+     FLOATTOK = 278,
      FUNCTION = 279,
      IF = 280,
      INCLUDE = 281,
-     INT = 282,
+     INTTOK = 282,
      LET = 283,
      MAXIMIZE = 284,
      MINIMIZE = 285,
@@ -96,7 +96,7 @@
 #define ANNOTATION 265
 #define ANY 266
 #define ARRAY 267
-#define BOOL 268
+#define BOOLTOK 268
 #define CASE 269
 #define COLONCOLON 270
 #define CONSTRAINT 271
@@ -106,11 +106,11 @@
 #define ELSEIF 275
 #define ENDIF 276
 #define ENUM 277
-#define FLOAT 278
+#define FLOATTOK 278
 #define FUNCTION 279
 #define IF 280
 #define INCLUDE 281
-#define INT 282
+#define INTTOK 282
 #define LET 283
 #define MAXIMIZE 284
 #define MINIMIZE 285

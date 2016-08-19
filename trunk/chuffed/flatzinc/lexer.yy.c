@@ -1069,7 +1069,7 @@ YY_RULE_SETUP
 case 18:
 YY_RULE_SETUP
 #line 65 "lexer.lxx"
-{ return BOOL; }
+{ return BOOLTOK; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
@@ -1109,7 +1109,7 @@ YY_RULE_SETUP
 case 26:
 YY_RULE_SETUP
 #line 73 "lexer.lxx"
-{ return FLOAT; }
+{ return FLOATTOK; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
@@ -1129,7 +1129,7 @@ YY_RULE_SETUP
 case 30:
 YY_RULE_SETUP
 #line 77 "lexer.lxx"
-{ return INT; }
+{ return INTTOK; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
@@ -1855,7 +1855,7 @@ static void yy_load_buffer_state  (yyscan_t yyscanner)
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+    b->yy_is_interactive = false;//file ? (isatty( fileno(file) ) > 0) : 0;
     
 	errno = oerrno;
 }

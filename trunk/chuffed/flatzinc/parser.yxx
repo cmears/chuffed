@@ -403,7 +403,7 @@ namespace FlatZinc {
 %token ANNOTATION
 %token ANY
 %token ARRAY
-%token BOOL
+%token BOOLTOK
 %token CASE
 %token COLONCOLON
 %token CONSTRAINT
@@ -550,7 +550,7 @@ pred_arg_type:
 pred_arg_simple_type:
       int_ti_expr_tail
     | SET OF int_ti_expr_tail
-    | BOOL
+    | BOOLTOK
     | FLOAT
 
 pred_array_init:
@@ -687,7 +687,7 @@ vardecl_item:
         pp->intvals.put($3, i);
         delete $4; free($3);        
       }
-    | BOOL ':' ID annotations '=' non_array_expr
+    | BOOLTOK ':' ID annotations '=' non_array_expr
       {
         ParserState* pp = static_cast<ParserState*>(parm);
         yyassert(pp, $6->isBool(), "Invalid bool initializer.");
@@ -894,7 +894,7 @@ vardecl_item:
         free($10);
         delete $11;
       }
-    | ARRAY '[' INT_LIT DOTDOT INT_LIT ']' OF BOOL ':'
+    | ARRAY '[' INT_LIT DOTDOT INT_LIT ']' OF BOOLTOK ':'
         ID annotations '=' '[' bool_list ']'
       {
         ParserState* pp = static_cast<ParserState*>(parm);
@@ -1272,7 +1272,7 @@ int_ti_expr_tail :
       }
 
 bool_ti_expr_tail :
-      BOOL
+      BOOLTOK
       { $$ = Option<AST::SetLit* >::none(); }
     | '{' bool_list_head list_tail '}'
       { bool haveTrue = false;

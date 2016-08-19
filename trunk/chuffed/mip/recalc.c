@@ -210,7 +210,8 @@ void Simplex::updateBasis() {
 
 	U_rows[r].clear();
 
-	int type[m];
+	//	int type[m];
+	int* type = new int[m];
 
 	for (int i = 0; i < m; i++) {
 		checkZero13(column[i]);
@@ -258,7 +259,7 @@ void Simplex::updateBasis() {
 	U_diag[r] = column[r];
 	assert(U_diag[r] != 0);
 	if (SIMPLEX_DEBUG && -0.0001 < U_diag[r] && U_diag[r] < 0.0001) fprintf(stderr, "Very small diag %d, %.18Lf\n", r, U_diag[r]);
-
+	delete type;
 
 }
 
@@ -288,7 +289,11 @@ void Simplex::refactorB() {
 
 	refactors++;
 
-	int col_perm[m], col_perm2[m], row_perm[m], row_perm2[m];
+	//	int col_perm[m], col_perm2[m], row_perm[m], row_perm2[m];
+	int* col_perm = new int[m];
+	int* col_perm2 = new int[m];
+	int* row_perm = new int[m];
+	int* row_perm2 = new int[m];
 
 	for (int i = 0; i < m; i++) {
 		U_perm[i] = i;
@@ -329,7 +334,8 @@ void Simplex::refactorB() {
 	}
 
 	// Do col perms
-	int old_rtoc[m];
+	//	int old_rtoc[m];
+	int* old_rtoc = new int[m];
 	for (int i = 0; i < m; i++) {
 		old_rtoc[i] = rtoc[i];
 	}
@@ -434,14 +440,21 @@ void Simplex::refactorB() {
 
 	// Do row perms
 
-	IndexVal *old_AH[m];
-	int old_AH_nz[m];
-	int old_BC[m];
-	int old_lb[m];
-	int old_ub[m];
-	int old_shift[m];
-	int old_ctor[m];
+	/* IndexVal *old_AH[m]; */
+	/* int old_AH_nz[m]; */
+	/* int old_BC[m]; */
+	/* int old_lb[m]; */
+	/* int old_ub[m]; */
+	/* int old_shift[m]; */
+	/* int old_ctor[m]; */
 
+	IndexVal **old_AH = new IndexVal*[m];
+	int* old_AH_nz = new int[m];
+	int* old_BC = new int[m];
+	int* old_lb = new int[m];
+	int* old_ub = new int[m];
+	int* old_shift = new int[m];
+	int* old_ctor = new int[m];
 	// slack var i -> slack var row_perm[i]
 
 	for (int i = 0; i < m; i++) {
@@ -473,6 +486,19 @@ void Simplex::refactorB() {
 	num_lu_factors = 0;
 
 	if (simplexs > 0) calcObjective();
+
+	delete col_perm;
+	delete col_perm2;
+	delete row_perm;
+	delete row_perm2;
+	delete old_rtoc;
+	delete old_AH;
+	delete old_AH_nz;
+	delete old_BC;
+	delete old_lb;
+	delete old_ub;
+	delete old_shift;
+	delete old_ctor;
 
 //	printB();
 }
@@ -528,7 +554,8 @@ void Simplex::printObjective() {
 
 void Simplex::printTableau(bool full) {
 	calcRHS();
-	long double row[n+m];
+	//	long double row[n+m];
+	long double* row = new long double[n+m];
 	fprintf(stderr, "Tableau:\n");
 	for (int i = 0; i < n+m; i++) fprintf(stderr, "%d:%d ", i, shift[i]); fprintf(stderr, "\n");
 	for (int i = 0; i < m; i++) {
@@ -552,7 +579,10 @@ void Simplex::printTableau(bool full) {
 	printObjective();
 	fflush(stderr);
 
-	long double T[n+m][m];
+	//	long double T[n+m][m];
+	long double** T = new long double*[n+m];
+	for (int i = 0 ; i < n+m ; i++)
+	  T[i] = new long double[m];
 	for (int i = 0; i < n+m; i++) {
 		for (int j = 0; j < m; j++) {
 			T[i][j] = 0;
@@ -568,6 +598,11 @@ void Simplex::printTableau(bool full) {
 		for (int j = 0; j < n+m; j++) fprintf(stderr, "%d:%.3Lf ", j, T[j][i]);
 		fprintf(stderr, "\n");
 	}
+
+	delete row;
+	for (int i = 0 ; i < n+m ; i++)
+	  delete T[i];
+	delete T;
 
 }
 
@@ -654,7 +689,8 @@ void Simplex::checkObjective() {
 void Simplex::checkBasis() {
 //	printTableau(true);
 	fprintf(stderr, "Check basis:\n");
-	long double temp[m];
+	//	long double temp[m];
+	long double* temp = new long double[m];
 	for (int i = 0; i < m; i++) {
 		calcBInvRow(temp, i);
 		for (int j = 0; j < m; j++) {
@@ -668,6 +704,7 @@ void Simplex::checkBasis() {
 		}
 //		fprintf(stderr, "\n");
 	}
+	delete temp;
 }
 
 

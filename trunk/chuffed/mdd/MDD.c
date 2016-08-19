@@ -15,6 +15,8 @@
 
 // static int collisions;
 
+unsigned int nodelen;
+
 //inline MDDNode MDDTable::allocNode(int sz)
 MDDNode MDDTable::allocNode(int sz)
 {

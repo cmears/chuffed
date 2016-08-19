@@ -68,12 +68,15 @@ public:
 	}
 
 	bool check() {
-		bool taken[sz];
+	  if (sz == 0) return true;
+	  bool* taken = new bool[sz];
+	  //		bool taken[sz];
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
-			if (taken[x[i].getShadowVal()]) return false;
+		  if (taken[x[i].getShadowVal()]) { delete taken; return false; }
 			taken[x[i].getShadowVal()] = true;
 		}
+	  delete taken;
 		return true;
 	}
 
@@ -322,12 +325,18 @@ public:
 	}
 
 	bool check() {
-		bool taken[sz];
+	  if (sz == 0) return true;
+	  bool* taken = new bool[sz];
+	  //		bool taken[sz];
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
-			if (taken[x[i].getShadowVal()]) return false;
+		  if (taken[x[i].getShadowVal()]) {
+		    delete taken;
+		    return false;
+		  }
 			taken[x[i].getShadowVal()] = true;
 		}
+	  delete taken;
 		return true;
 	}
 
@@ -569,12 +578,15 @@ public:
 	}
 
 	bool check() {
-		bool taken[sz];
+	  if (sz == 0) return true;
+	  bool* taken = new bool[sz];
+	  //		bool taken[sz];
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
-			if (taken[x[i].getShadowVal()]) return false;
+		  if (taken[x[i].getShadowVal()]) { delete taken; return false;}
 			taken[x[i].getShadowVal()] = true;
 		}
+	  delete taken;
 		return true;
 	}
 

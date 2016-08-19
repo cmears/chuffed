@@ -21,7 +21,7 @@ void SIGINT_handler(int signum) {
 
 void Engine::init() {
 	signal(SIGINT,SIGINT_handler);
-	signal(SIGHUP,SIGINT_handler);
+	//	signal(SIGHUP,SIGINT_handler);
 
 	if (so.parallel) master.initMPI();
 

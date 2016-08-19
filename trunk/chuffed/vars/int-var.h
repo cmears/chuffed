@@ -39,6 +39,9 @@ IntVarLL;: Lazy lit class, lits are lazily generated
 
 */
 
+// Bye bye macros
+#undef min
+#undef max
 
 //-----
 

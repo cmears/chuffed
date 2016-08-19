@@ -20,7 +20,7 @@
 
 #include "cpp-integration/connector.hh"
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+// #include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace Profiling;
 
@@ -464,7 +464,7 @@ RESULT Engine::search(const std::string& problemLabel) {
 
     decisionLevelTip.push_back(1);
 
-    boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::universal_time();
+    /* boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::universal_time(); */
 
     while (true) {
         if (so.parallel && slave.checkMessages()) return RES_UNK;
@@ -494,9 +494,10 @@ RESULT Engine::search(const std::string& problemLabel) {
         int previousDecisionLevel = decisionLevel();
 
         bool propResult = propagate();
-        boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::universal_time();
-        boost::posix_time::time_duration dur = current_time - start_time;
-        long timeus = dur.total_microseconds();
+        /* boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::universal_time(); */
+        /* boost::posix_time::time_duration dur = current_time - start_time; */
+        long timeus = 0;
+        //        long timeus = dur.total_microseconds();
         if (!propResult) {
 #if DEBUG_VERBOSE
             std::cerr << "failure\n";

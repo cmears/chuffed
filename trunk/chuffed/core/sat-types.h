@@ -82,9 +82,9 @@ public:
 	unsigned int padding   : 6;             // save some bits for other bitflags
 	unsigned int sz        : 24;            // the size of the clause
   Lit data[0];                            // the literals of the clause
-	float data2[0];
-  int data3[0];
-  int data4[0];
+  /* 	float data2[0]; */
+  /* int data3[0]; */
+  /* int data4[0]; */
 
 	// NOTE: This constructor cannot be used directly (doesn't allocate enough memory).
 	template<class V>
@@ -105,6 +105,9 @@ public:
     // with newSize until we've copied the activities, and make sure
     // you copy data2 before data3 in case one would overwrite the
     // other.
+    float* data2 = (float*)data;
+    int* data3 = (int*)data;
+    int* data4 = (int*)data;
     if (learnt) {
       data2[newSize]   = data2[sz];
       data3[newSize+1] = data3[sz+1];
@@ -119,9 +122,9 @@ public:
 	Lit          operator [] (int i) const   { return data[i]; }
 	operator const Lit* (void) const         { return data; }
 
-	float&       activity    ()              { return data2[sz]; }
-  int&         rawActivity ()              { return data3[sz+1]; }
-  int& clauseID() { return data4[sz+2]; }
+	float&       activity    ()              {     float* data2 = (float*)data; return data2[sz]; }
+	int&         rawActivity ()              { int* data3 = (int*)data; return data3[sz+1]; }
+	int& clauseID() { int* data4 = (int*)data; return data4[sz+2]; }
 };
 
 template<class V>

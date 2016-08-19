@@ -242,8 +242,10 @@ public:
 	}
 
 	bool findBasicPrecedences() {
-		int eet[x.size()];
-		int lst[x.size()];
+	  int* eet = new int[x.size()];
+	  int* lst = new int[x.size()];
+	  //		int eet[x.size()];
+	  //		int lst[x.size()];
 
 		for (int i = 0; i < x.size(); i++) {
 			eet[i] = x[i]->getMin() + dur[i];
@@ -265,6 +267,8 @@ public:
 			}
 		}
 
+		delete eet;
+		delete lst;
 		return true;
 	}
 
@@ -372,7 +376,8 @@ public:
 
 	void explainFailure(int task, int ps_i) {
 		// find set which forced the precedence
-		bool in[x.size()];
+	  //		bool in[x.size()];
+		bool* in = new bool[x.size()];
 		int set_est = est(task);
 /*
 		for (int i = 0; i < x.size(); i++) {
@@ -435,6 +440,7 @@ public:
 		sat.confl = expl;
 
 		if (DISJ_DEBUG) fprintf(stderr, "EF fail: length %d\n", expl->size());
+		delete in;
 
 	}
 
@@ -458,7 +464,8 @@ public:
 		if (pi.expl != NULL) return pi.expl;
 
 		// find set which forced the precedence
-		bool in[x.size()];
+		//		bool in[x.size()];
+		bool* in = new bool[x.size()];
 		int ps_i = pi.ps_i;
 		int set_est = ps_times[ps_i];
 
@@ -538,6 +545,8 @@ public:
 		pi.expl = expl;
 
 		if (DISJ_DEBUG) fprintf(stderr, "EF explain: length %d\n", expl->size());
+
+		delete in;
 
 		return expl;
 	}

@@ -17,7 +17,8 @@ void regular_check(vec<IntVar*>& x, int q, int s, vec<vec<int> >& d, int q0, vec
 
 void regular(vec<IntVar*>& x, int q, int s, vec<vec<int> >& d, int q0, vec<int>& f) {
 	regular_check(x, q, s, d, q0, f);
-	bool accept[q+1];
+	//	bool accept[q+1];
+	bool* accept = new bool[q+1];
 	for (int i = 0; i <= q; i++) accept[i] = false;
 	for (int i = 0; i < f.size(); i++) accept[f[i]] = true;
 	vec<vec<int> > start, middle, end;
@@ -53,4 +54,5 @@ void regular(vec<IntVar*>& x, int q, int s, vec<vec<int> >& d, int q0, vec<int>&
 	vec<IntVar*> ex;
 	ex.push(y.last()); ex.push(x.last());
 	table(ex, end);
+	delete accept;
 }

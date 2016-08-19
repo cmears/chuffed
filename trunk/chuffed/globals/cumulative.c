@@ -11,7 +11,8 @@ void timed_cumulative(vec<IntVar*>& s, vec<int>& d, vec<int>& r, int b) {
 	assert(s.size() == d.size() && s.size() == r.size());
 	int min = INT_MAX;
 	int max = INT_MIN;
-	bool in[s.size()];
+	//	bool in[s.size()];
+	bool* in = new bool[s.size()];
 	vec<int> a;
 	for (int i = 0; i < s.size(); i++) {
 		in[i] = (d[i] > 0 && r[i] > 0);
@@ -35,6 +36,7 @@ void timed_cumulative(vec<IntVar*>& s, vec<int>& d, vec<int>& r, int b) {
 		}
 		int_linear(a, x, IRT_LE, b);
 	}
+	delete in;
 
 }
 

@@ -3,7 +3,7 @@
 
 // #define USE_POOL
 // #define SPLIT_CACHE
-// #define USE_MAP
+#define USE_MAP
 #include <cassert>
 
 #ifdef USE_POOL
@@ -12,7 +12,7 @@
 
 #include <map>
 
-#include <ext/hash_map>
+#include <hash_map>
 
 #include <vector>
 

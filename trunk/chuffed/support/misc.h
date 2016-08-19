@@ -5,8 +5,14 @@
 #include <cassert>
 #include <ctime>
 #include <cstring>
+
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <sys/time.h>
 #include <unistd.h>
+#endif
+
 #include <stdint.h>
 #include <chuffed/support/vec.h>
 
@@ -19,17 +25,17 @@ extern uint64_t bit[65];
 
 //------
 
-#define ERROR(...) do {                                                            \
-	fprintf(stderr, "%s:%d: %s: ", __FILE__, __LINE__, __PRETTY_FUNCTION__);         \
+#define CHUFFED_ERROR(...) do {                                                            \
+	fprintf(stderr, "%s:%d: ", __FILE__, __LINE__);         \
 	fprintf(stderr, __VA_ARGS__);                                                    \
 	abort();                                                                         \
 } while (0)
 
-#define NOT_SUPPORTED ERROR("Not yet supported\n")
-#define NEVER ERROR("Assertion failed.\n")
+#define NOT_SUPPORTED CHUFFED_ERROR("Not yet supported\n")
+#define NEVER CHUFFED_ERROR("Assertion failed.\n")
 
 // Run time assert
-#define rassert(expr) do { if (!(expr)) ERROR("Assertion `%s' failed.\n", #expr); } while (0)
+#define rassert(expr) do { if (!(expr)) CHUFFED_ERROR("Assertion `%s' failed.\n", #expr); } while (0)
 
 // Compile time assert, adapted from Boost library
 template <int x> struct static_assert_test{};
@@ -64,11 +70,26 @@ static inline int bitcount(T s) {
 }
 
 static inline double wallClockTime() {
-	struct timeval tp;
-	gettimeofday(&tp, NULL);
-	return (double) tp.tv_sec + (double) tp.tv_usec/1000000;
-}
+#ifdef WIN32
+  static const unsigned __int64 epoch = ((unsigned __int64) 116444736000000000ULL);
+  FILETIME    file_time;
+  SYSTEMTIME  system_time;
+  ULARGE_INTEGER ularge;
+  
+  GetSystemTime(&system_time);
+  SystemTimeToFileTime(&system_time, &file_time);
+  ularge.LowPart = file_time.dwLowDateTime;
+  ularge.HighPart = file_time.dwHighDateTime;
 
+  long sec = (ularge.QuadPart - epoch) / 10000000L;
+  long msec = system_time.wMilliseconds;
+  return (double) sec + (double) msec/1000;
+#else
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return (double) tp.tv_sec + (double) tp.tv_usec/1000000;
+#endif
+}
 
 /*
 static inline double wallClockTime() {
@@ -83,14 +104,15 @@ static int mylog2 (int val) {
 }
 
 static double memUsed() {
-	char name[256];
-	sprintf(name, "/proc/%d/statm", getpid());
-	FILE* in = fopen(name, "rb");
-	if (in == NULL) return 0;
-	int value;
-	rassert(fscanf(in, "%d", &value) == 1);
-	fclose(in);
-	return (double) value * getpagesize() / 1048576;
+  return 0;
+	/* char name[256]; */
+	/* sprintf(name, "/proc/%d/statm", getpid()); */
+	/* FILE* in = fopen(name, "rb"); */
+	/* if (in == NULL) return 0; */
+	/* int value; */
+	/* rassert(fscanf(in, "%d", &value) == 1); */
+	/* fclose(in); */
+	/* return (double) value * getpagesize() / 1048576; */
 }
 
 template <class T>
