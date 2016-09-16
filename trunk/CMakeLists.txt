@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 2.8.7)
 
+# Use this to make static binaries.
+# SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
 if (USE_STDLIBCPP)
   set(LIBCPP libstdc++)
 else()

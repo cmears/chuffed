@@ -245,7 +245,6 @@ namespace FlatZinc {
 			}
 		} 
 		if (!hadSearchAnnotation) {
-			fprintf(stderr, "%% No search annotation given. Defaulting to VSIDS!\n");
 			if (!so.vsids) {
 				so.vsids = true;
 				engine.branching->add(&sat);
