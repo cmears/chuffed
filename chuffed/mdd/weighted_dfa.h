@@ -3,7 +3,7 @@
 #include <chuffed/mdd/MurmurHash3.h>
 #include <chuffed/support/vec.h>
 #include <unordered_map>
-#include <tr1/memory>
+#include <memory>
 #include <vector>
 
 #include <chuffed/mdd/opcache.h>

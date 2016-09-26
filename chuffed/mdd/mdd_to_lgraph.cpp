@@ -65,7 +65,7 @@ EVLayerGraph::NodeID mdd_to_layergraph(EVLayerGraph& graph, MDD& r, vec<int>& co
         for( unsigned int k = start; k < end; k++ )
         {
           EVLayerGraph::EInfo einfo = {
-            k,
+            static_cast<int>(k),
             costs[k],
             dest 
           };
