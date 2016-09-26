@@ -267,8 +267,8 @@ public:
 			}
 		}
 
-		delete eet;
-		delete lst;
+		delete[] eet;
+		delete[] lst;
 		return true;
 	}
 
@@ -440,7 +440,7 @@ public:
 		sat.confl = expl;
 
 		if (DISJ_DEBUG) fprintf(stderr, "EF fail: length %d\n", expl->size());
-		delete in;
+		delete[] in;
 
 	}
 
@@ -546,7 +546,7 @@ public:
 
 		if (DISJ_DEBUG) fprintf(stderr, "EF explain: length %d\n", expl->size());
 
-		delete in;
+		delete[] in;
 
 		return expl;
 	}

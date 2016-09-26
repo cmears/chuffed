@@ -73,10 +73,10 @@ public:
 	  //		bool taken[sz];
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
-		  if (taken[x[i].getShadowVal()]) { delete taken; return false; }
+		  if (taken[x[i].getShadowVal()]) { delete[] taken; return false; }
 			taken[x[i].getShadowVal()] = true;
 		}
-	  delete taken;
+	  delete[] taken;
 		return true;
 	}
 
@@ -331,12 +331,12 @@ public:
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
 		  if (taken[x[i].getShadowVal()]) {
-		    delete taken;
+		    delete[] taken;
 		    return false;
 		  }
 			taken[x[i].getShadowVal()] = true;
 		}
-	  delete taken;
+	  delete[] taken;
 		return true;
 	}
 
@@ -583,10 +583,10 @@ public:
 	  //		bool taken[sz];
 		for (int i = 0; i < sz; i++) taken[i] = false;
 		for (int i = 0; i < sz; i++) {
-		  if (taken[x[i].getShadowVal()]) { delete taken; return false;}
+		  if (taken[x[i].getShadowVal()]) { delete[] taken; return false;}
 			taken[x[i].getShadowVal()] = true;
 		}
-	  delete taken;
+	  delete[] taken;
 		return true;
 	}
 

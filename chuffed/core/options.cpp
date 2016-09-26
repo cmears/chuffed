@@ -43,8 +43,8 @@ Options::Options() :
         , introduced_heuristic(false)
         , use_var_is_introduced(false)
         , print_nodes(false)
-        , print_variable_list(false)
         , print_implications(false)
+        , print_variable_list(false)
         , send_skipped(true)
         , send_domains(false)
 

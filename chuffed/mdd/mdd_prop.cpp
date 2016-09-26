@@ -1792,7 +1792,7 @@ void MDDCompile(MDDTable& t, MDD root,
             {
                 // Fresh node. Initialize.
                 inc_node curr = {
-                   nodes[nodeptr[j+1]][1], // Variable
+                   static_cast<int>(nodes[nodeptr[j+1]][1]), // Variable
                    0, // in_start
                    0, // num_in
                    0, // out_start
@@ -1816,7 +1816,7 @@ void MDDCompile(MDDTable& t, MDD root,
 
                 int edge_id = edge_arr.size();
                 inc_edge fedge = {
-                    offset+nodeptr[j], // val
+                    static_cast<Value>(offset+nodeptr[j]), // val
                     0, // kill
                     0, // watch
                     nodeid, // begin

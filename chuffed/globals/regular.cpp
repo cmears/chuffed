@@ -54,5 +54,5 @@ void regular(vec<IntVar*>& x, int q, int s, vec<vec<int> >& d, int q0, vec<int>&
 	vec<IntVar*> ex;
 	ex.push(y.last()); ex.push(x.last());
 	table(ex, end);
-	delete accept;
+	delete[] accept;
 }

@@ -36,7 +36,7 @@ void timed_cumulative(vec<IntVar*>& s, vec<int>& d, vec<int>& r, int b) {
 		}
 		int_linear(a, x, IRT_LE, b);
 	}
-	delete in;
+	delete[] in;
 
 }
 

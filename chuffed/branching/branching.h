@@ -43,7 +43,8 @@ enum ValBranch {
 
 class Tint;
 
-struct DecInfo {
+class DecInfo {
+public:
 	void *var; int val; int type;
 	DecInfo(void *_var, int _val, int _type = -1) :
 		var(_var), val(_val), type(_type) {}

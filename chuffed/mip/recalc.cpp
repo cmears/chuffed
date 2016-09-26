@@ -259,7 +259,7 @@ void Simplex::updateBasis() {
 	U_diag[r] = column[r];
 	assert(U_diag[r] != 0);
 	if (SIMPLEX_DEBUG && -0.0001 < U_diag[r] && U_diag[r] < 0.0001) fprintf(stderr, "Very small diag %d, %.18Lf\n", r, U_diag[r]);
-	delete type;
+	delete[] type;
 
 }
 
@@ -487,18 +487,18 @@ void Simplex::refactorB() {
 
 	if (simplexs > 0) calcObjective();
 
-	delete col_perm;
-	delete col_perm2;
-	delete row_perm;
-	delete row_perm2;
-	delete old_rtoc;
-	delete old_AH;
-	delete old_AH_nz;
-	delete old_BC;
-	delete old_lb;
-	delete old_ub;
-	delete old_shift;
-	delete old_ctor;
+	delete[] col_perm;
+	delete[] col_perm2;
+	delete[] row_perm;
+	delete[] row_perm2;
+	delete[] old_rtoc;
+	delete[] old_AH;
+	delete[] old_AH_nz;
+	delete[] old_BC;
+	delete[] old_lb;
+	delete[] old_ub;
+	delete[] old_shift;
+	delete[] old_ctor;
 
 //	printB();
 }
@@ -599,10 +599,10 @@ void Simplex::printTableau(bool full) {
 		fprintf(stderr, "\n");
 	}
 
-	delete row;
+	delete[] row;
 	for (int i = 0 ; i < n+m ; i++)
 	  delete T[i];
-	delete T;
+	delete[] T;
 
 }
 
@@ -704,7 +704,7 @@ void Simplex::checkBasis() {
 		}
 //		fprintf(stderr, "\n");
 	}
-	delete temp;
+	delete[] temp;
 }
 
 
