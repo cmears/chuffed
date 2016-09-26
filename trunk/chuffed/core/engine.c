@@ -283,7 +283,7 @@ inline bool Engine::constrain() {
     }
 
     //	printf("opt_var = %d, opt_type = %d, best_sol = %d\n", opt_var->var_id, opt_type, best_sol);
-    //	printf("opt_var min = %d, opt_var max = %d\n", opt_var->min, opt_var->max);
+//	printf("%% opt_var min = %d, opt_var max = %d\n", opt_var->getMin(), opt_var->getMax());
 
     Lit p = opt_type ? opt_var->getLit(best_sol+1, 2) : opt_var->getLit(best_sol-1, 3);
     assumptions.clear();
@@ -643,13 +643,17 @@ RESULT Engine::search(const std::string& problemLabel) {
                 /* nextnodeid = 0; */
                 profilerConnector.restart("chuffed", restartCount);
 
-
                 sat.confl = NULL;
                 if (so.lazy && so.toggle_vsids && (starts % 2 == 0)) toggleVSIDS();
                 continue;
             }
 			
-            if (decisionLevel() == 0) topLevelCleanUp();
+            if (decisionLevel() == 0) {
+                topLevelCleanUp();
+                if (opt_var && so.verbosity >= 3) {
+                    printf("%% root level bounds on objective: min %d max %d\n", opt_var->getMin(), opt_var->getMax());
+                }
+            }
 
             DecInfo *di = NULL;
 			
