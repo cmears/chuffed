@@ -18,7 +18,7 @@
 
 #include <chuffed/flatzinc/flatzinc.h>
 
-#include "cpp-integration/connector.hh"
+#include "submodules/cp-profiler-integration/connector.hh"
 
 // #include <boost/date_time/posix_time/posix_time.hpp>
 

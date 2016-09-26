@@ -15,6 +15,8 @@ endif()
 #    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${LIBCPP}")
 # endif(APPLE)
 
+set (CMAKE_CXX_STANDARD 11)
+
 project (chuffed CXX)
 
 # The version number.
@@ -23,105 +25,105 @@ set (chuffed_VERSION_MINOR 9)
 set (chuffed_VERSION_PATCH 0)
 
 include_directories("chuffed")
-include_directories("cpp-integration/protobuf")
+include_directories("submodules/cp-profiler-integration/protobuf")
 include_directories(".")
 include_directories(${CMAKE_BINARY_DIR})
 if (WIN32)
-  include_directories("cpp-integration/protobuf/config_win")
+  include_directories("submodules/cp-profiler-integration/protobuf/config_win")
   add_definitions(-DYY_NO_UNISTD_H)
 else()
-  include_directories("cpp-integration/protobuf/config_unix")
+  include_directories("submodules/cp-profiler-integration/protobuf/config_unix")
 endif()
 
 SET_SOURCE_FILES_PROPERTIES(
-chuffed/vars/int-var.c
-chuffed/vars/int-var-el.c
-chuffed/vars/modelling.c
-chuffed/vars/int-var-sl.c
-chuffed/vars/bool-view.c
-chuffed/vars/int-var-ll.c
-chuffed/parallel/master.c
-chuffed/parallel/slave.c
-chuffed/ldsb/ldsb.c
-chuffed/globals/mddglobals.c
-chuffed/globals/sym-break.c
-chuffed/globals/linear-bool.c
-chuffed/globals/well-founded.c
-chuffed/globals/circuit.c
-chuffed/globals/minimum.c
-chuffed/globals/alldiff.c
-chuffed/globals/template.c
-chuffed/globals/directives.c
-chuffed/globals/cumulative.c
-chuffed/globals/disjunctive.c
-chuffed/globals/regular.c
-chuffed/globals/lex.c
-chuffed/globals/table.c
-chuffed/mdd/MDD.c
-chuffed/mdd/mdd_prop.c
-chuffed/mip/mip.c
-chuffed/mip/recalc.c
-chuffed/mip/simplex.c
-chuffed/primitives/element.c
-chuffed/primitives/bool.c
-chuffed/primitives/linear.c
-chuffed/primitives/arithmetic.c
-chuffed/primitives/binary.c
-chuffed/flatzinc/parser.tab.c
-chuffed/flatzinc/registry.c
-chuffed/flatzinc/flatzinc.c
-chuffed/flatzinc/lexer.yy.c
-chuffed/branching/branching.c
-chuffed/core/init.c
-chuffed/core/stats.c
-chuffed/core/engine.c
-chuffed/core/options.c
-chuffed/core/sat.c
-chuffed/core/conflict.c
-chuffed/flatzinc/fzn_chuffed.c
+chuffed/vars/int-var.cpp
+chuffed/vars/int-var-el.cpp
+chuffed/vars/modelling.cpp
+chuffed/vars/int-var-sl.cpp
+chuffed/vars/bool-view.cpp
+chuffed/vars/int-var-ll.cpp
+chuffed/parallel/master.cpp
+chuffed/parallel/slave.cpp
+chuffed/ldsb/ldsb.cpp
+chuffed/globals/mddglobals.cpp
+chuffed/globals/sym-break.cpp
+chuffed/globals/linear-bool.cpp
+chuffed/globals/well-founded.cpp
+chuffed/globals/circuit.cpp
+chuffed/globals/minimum.cpp
+chuffed/globals/alldiff.cpp
+chuffed/globals/template.cpp
+chuffed/globals/directives.cpp
+chuffed/globals/cumulative.cpp
+chuffed/globals/disjunctive.cpp
+chuffed/globals/regular.cpp
+chuffed/globals/lex.cpp
+chuffed/globals/table.cpp
+chuffed/mdd/MDD.cpp
+chuffed/mdd/mdd_prop.cpp
+chuffed/mip/mip.cpp
+chuffed/mip/recalc.cpp
+chuffed/mip/simplex.cpp
+chuffed/primitives/element.cpp
+chuffed/primitives/bool.cpp
+chuffed/primitives/linear.cpp
+chuffed/primitives/arithmetic.cpp
+chuffed/primitives/binary.cpp
+chuffed/flatzinc/parser.tab.cpp
+chuffed/flatzinc/registry.cpp
+chuffed/flatzinc/flatzinc.cpp
+chuffed/flatzinc/lexer.yy.cpp
+chuffed/branching/branching.cpp
+chuffed/core/init.cpp
+chuffed/core/stats.cpp
+chuffed/core/engine.cpp
+chuffed/core/options.cpp
+chuffed/core/sat.cpp
+chuffed/core/conflict.cpp
+chuffed/flatzinc/fzn_chuffed.cpp
 PROPERTIES LANGUAGE CXX )
 
 add_library(chuffed
-chuffed/vars/int-var.c
-chuffed/vars/int-var-el.c
-chuffed/vars/modelling.c
-chuffed/vars/int-var-sl.c
-chuffed/vars/bool-view.c
-chuffed/vars/int-var-ll.c
-chuffed/parallel/master.c
-chuffed/parallel/slave.c
-chuffed/ldsb/ldsb.c
-chuffed/globals/mddglobals.c
-chuffed/globals/sym-break.c
-chuffed/globals/linear-bool.c
-chuffed/globals/well-founded.c
-chuffed/globals/circuit.c
-chuffed/globals/minimum.c
-chuffed/globals/alldiff.c
-chuffed/globals/template.c
-chuffed/globals/directives.c
-chuffed/globals/cumulative.c
-chuffed/globals/disjunctive.c
-chuffed/globals/regular.c
-chuffed/globals/lex.c
-chuffed/globals/table.c
-chuffed/mdd/MDD.c
-chuffed/mdd/mdd_prop.c
-chuffed/mip/mip.c
-chuffed/mip/recalc.c
-chuffed/mip/simplex.c
-chuffed/primitives/element.c
-chuffed/primitives/bool.c
-chuffed/primitives/linear.c
-chuffed/primitives/arithmetic.c
-chuffed/primitives/binary.c
-chuffed/branching/branching.c
-chuffed/core/init.c
-chuffed/core/stats.c
-chuffed/core/engine.c
-chuffed/core/options.c
-chuffed/core/sat.c
-chuffed/core/conflict.c
+chuffed/vars/int-var.cpp
+chuffed/vars/int-var-el.cpp
+chuffed/vars/modelling.cpp
+chuffed/vars/int-var-sl.cpp
+chuffed/vars/bool-view.cpp
+chuffed/vars/int-var-ll.cpp
+chuffed/parallel/master.cpp
+chuffed/parallel/slave.cpp
+chuffed/ldsb/ldsb.cpp
+chuffed/globals/mddglobals.cpp
+chuffed/globals/sym-break.cpp
+chuffed/globals/linear-bool.cpp
+chuffed/globals/well-founded.cpp
+chuffed/globals/circuit.cpp
+chuffed/globals/minimum.cpp
+chuffed/globals/alldiff.cpp
+chuffed/globals/template.cpp
+chuffed/globals/directives.cpp
+chuffed/globals/cumulative.cpp
+chuffed/globals/disjunctive.cpp
+chuffed/globals/regular.cpp
+chuffed/globals/lex.cpp
+chuffed/globals/table.cpp
+chuffed/mdd/MDD.cpp
+chuffed/mdd/mdd_prop.cpp
+chuffed/mip/mip.cpp
+chuffed/mip/recalc.cpp
+chuffed/mip/simplex.cpp
+chuffed/primitives/element.cpp
+chuffed/primitives/bool.cpp
+chuffed/primitives/linear.cpp
+chuffed/primitives/arithmetic.cpp
+chuffed/primitives/binary.cpp
+chuffed/branching/branching.cpp
+chuffed/core/init.cpp
+chuffed/core/stats.cpp
+chuffed/core/engine.cpp
+chuffed/core/options.cpp
+chuffed/core/sat.cpp
+chuffed/core/conflict.cpp
 chuffed/vars/int-var.h
 chuffed/vars/vars.h
 chuffed/vars/int-var-sl.h
@@ -151,64 +153,64 @@ chuffed/core/sat-types.h
 chuffed/core/options.h
 chuffed/core/propagator.h
 
-cpp-integration/connector.cpp
-cpp-integration/message.pb.cpp
+submodules/cp-profiler-integration/connector.cpp
+submodules/cp-profiler-integration/message.pb.cpp
 
-cpp-integration/protobuf/google/protobuf/compiler/importer.cc
-cpp-integration/protobuf/google/protobuf/compiler/parser.cc
-cpp-integration/protobuf/google/protobuf/descriptor.cc
-cpp-integration/protobuf/google/protobuf/descriptor.pb.cc
-cpp-integration/protobuf/google/protobuf/descriptor_database.cc
-cpp-integration/protobuf/google/protobuf/dynamic_message.cc
-cpp-integration/protobuf/google/protobuf/extension_set.cc
-cpp-integration/protobuf/google/protobuf/extension_set_heavy.cc
-cpp-integration/protobuf/google/protobuf/generated_message_reflection.cc
-cpp-integration/protobuf/google/protobuf/generated_message_util.cc
-cpp-integration/protobuf/google/protobuf/io/coded_stream.cc
-cpp-integration/protobuf/google/protobuf/io/gzip_stream.cc
-cpp-integration/protobuf/google/protobuf/io/printer.cc
-cpp-integration/protobuf/google/protobuf/io/strtod.cc
-cpp-integration/protobuf/google/protobuf/io/tokenizer.cc
-cpp-integration/protobuf/google/protobuf/io/zero_copy_stream.cc
-cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl.cc
-cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
-cpp-integration/protobuf/google/protobuf/message.cc
-cpp-integration/protobuf/google/protobuf/message_lite.cc
-cpp-integration/protobuf/google/protobuf/reflection_ops.cc
-cpp-integration/protobuf/google/protobuf/repeated_field.cc
-cpp-integration/protobuf/google/protobuf/service.cc
-cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
-cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
-cpp-integration/protobuf/google/protobuf/stubs/common.cc
-cpp-integration/protobuf/google/protobuf/stubs/once.cc
-cpp-integration/protobuf/google/protobuf/stubs/stringprintf.cc
-cpp-integration/protobuf/google/protobuf/stubs/structurally_valid.cc
-cpp-integration/protobuf/google/protobuf/stubs/strutil.cc
-cpp-integration/protobuf/google/protobuf/stubs/substitute.cc
-cpp-integration/protobuf/google/protobuf/text_format.cc
-cpp-integration/protobuf/google/protobuf/unknown_field_set.cc
-cpp-integration/protobuf/google/protobuf/wire_format.cc
-cpp-integration/protobuf/google/protobuf/wire_format_lite.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/compiler/importer.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/compiler/parser.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/descriptor.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/descriptor.pb.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/descriptor_database.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/dynamic_message.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/extension_set.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/extension_set_heavy.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/generated_message_reflection.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/generated_message_util.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/coded_stream.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/gzip_stream.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/printer.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/strtod.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/tokenizer.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/zero_copy_stream.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/zero_copy_stream_impl.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/message.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/message_lite.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/reflection_ops.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/repeated_field.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/service.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/common.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/once.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/stringprintf.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/structurally_valid.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/strutil.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/stubs/substitute.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/text_format.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/unknown_field_set.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/wire_format.cc
+submodules/cp-profiler-integration/protobuf/google/protobuf/wire_format_lite.cc
 )
 
 add_library(chuffed_fzn
-chuffed/flatzinc/parser.tab.c
-chuffed/flatzinc/registry.c
-chuffed/flatzinc/flatzinc.c
-chuffed/flatzinc/lexer.yy.c
+chuffed/flatzinc/parser.tab.cpp
+chuffed/flatzinc/registry.cpp
+chuffed/flatzinc/flatzinc.cpp
+chuffed/flatzinc/lexer.yy.cpp
 chuffed/flatzinc/parser.tab.h
 chuffed/flatzinc/flatzinc.h
 chuffed/flatzinc/ast.h
 )
 
-add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.c)
+add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.cpp)
 target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lpthread)
 
-add_custom_target(
-  versionTarget
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/update-version.sh ${CMAKE_BINARY_DIR}/version.h
-)
-add_dependencies(fzn_chuffed versionTarget)
+# add_custom_target(
+#   versionTarget
+#   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/update-version.sh ${CMAKE_BINARY_DIR}/version.h
+# )
+# add_dependencies(fzn_chuffed versionTarget)
 
 INSTALL(TARGETS fzn_chuffed chuffed
   RUNTIME DESTINATION bin
@@ -257,4 +259,4 @@ chuffed/core/propagator.h
 )
 
 INSTALL(DIRECTORY chuffed DESTINATION include
-        PATTERN *.c EXCLUDE)
+        PATTERN *.cpp EXCLUDE)
