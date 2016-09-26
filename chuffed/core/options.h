@@ -141,6 +141,8 @@ public:
 
 extern Options so;
 
-void parseOptions(int& argc, char**& argv);
+/// Parse command line options. If \a fileArg is not NULL, expect
+/// a filename with extension \a fileExt.
+void parseOptions(int& argc, char**& argv, std::string* fileArg=NULL, const std::string& fileExt=std::string());
 
 #endif

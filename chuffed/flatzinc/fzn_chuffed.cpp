@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
     // }
 
     
-	parseOptions(argc, argv);
+  std::string filename;
+  parseOptions(argc, argv, &filename, "fzn");
 /*
 	if (argc < 2) {
 		printf("usage: %s [options] infile.fzn
@@ -95,7 +96,7 @@ int main(int argc, char** argv) {
 	if (argc == 1) {
 		FlatZinc::solve(std::cin, std::cerr);
 	} else {
-		FlatZinc::solve(std::string(argv[1]));
+		FlatZinc::solve(filename);
 	}
 
 	engine.solve(FlatZinc::s, commandLine);
