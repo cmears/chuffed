@@ -213,7 +213,8 @@ public:
       } else if (buffer=="false" || buffer=="0") {
         result = false;
       } else {
-        return false;
+        --i;
+        result = true;
       }
       return true;
     }
@@ -280,6 +281,7 @@ void parseOptions(int& argc, char**& argv, std::string* fileArg, const std::stri
     CLOParser cop(i,argc,argv);
     int intBuffer;
     bool boolBuffer;
+    std::string stringBuffer;
     if (cop.get("-h --help")) {
       printHelp(argc,argv,fileExt);
       std::exit(EXIT_SUCCESS);
@@ -346,8 +348,8 @@ void parseOptions(int& argc, char**& argv, std::string* fileArg, const std::stri
       so.print_implications = boolBuffer;
     } else if (cop.getBool("--send-skipped", boolBuffer)) {
       so.send_skipped = boolBuffer;
-    } else if (cop.getBool("--filter-domains", boolBuffer)) {
-      so.filter_domains = boolBuffer;
+    } else if (cop.get("--filter-domains", &stringBuffer)) {
+      so.filter_domains = stringBuffer;
     } else if (cop.getBool("--learnt-stats", boolBuffer)) {
       so.learnt_stats = boolBuffer;
     } else if (cop.getBool("--learnt-stats-nogood", boolBuffer)) {
