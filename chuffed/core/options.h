@@ -58,7 +58,9 @@ public:
         bool introduced_heuristic;       // Use name of variable to decide whether a variable is introduced
         bool use_var_is_introduced;      // Use var_is_introduced annotation to decide
                                          // whether a variable is introduced
-        bool print_nodes;                // Print nodes as they are sent to the profiler (or
+
+  bool use_profiler;               // Connect to CP Profiler
+  bool print_nodes;                // Print nodes as they are sent to the profiler (or
                                          // would be sent)
         bool print_implications;
         bool print_variable_list;

@@ -44,6 +44,7 @@ Options::Options() :
         , decide_introduced(true)
         , introduced_heuristic(false)
         , use_var_is_introduced(false)
+        , use_profiler(false)
         , print_nodes(false)
         , print_implications(false)
         , print_variable_list(false)
@@ -248,6 +249,8 @@ void printHelp(int& argc, char**& argv, const std::string& fileExt) {
   "     Time out in seconds (default " << def.time_out << ").\n"
   "  --rnd-seed <n>\n"
   "     Set random seed (default " << def.rnd_seed << ").\n"
+  "  --profiling\n"
+  "     Send search to CPProfiler (default " << (def.use_profiler ? "on" : "off") << ").\n"
   "\n"
   "Search Options:\n"
   " --vsids\n"
@@ -340,6 +343,8 @@ void parseOptions(int& argc, char**& argv, std::string* fileArg, const std::stri
       so.introduced_heuristic = boolBuffer;
     } else if (cop.getBool("--use-var-is-introduced", boolBuffer)) {
       so.use_var_is_introduced = boolBuffer;
+    } else if (cop.getBool("--profiling", boolBuffer)) {
+      so.use_profiler = boolBuffer;
     } else if (cop.getBool("--print-nodes", boolBuffer)) {
       so.print_nodes = boolBuffer;
     } else if (cop.getBool("--print-variable-list", boolBuffer)) {
