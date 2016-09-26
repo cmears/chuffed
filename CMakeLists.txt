@@ -24,6 +24,9 @@ set (chuffed_VERSION_MAJOR 0)
 set (chuffed_VERSION_MINOR 9)
 set (chuffed_VERSION_PATCH 0)
 
+
+find_package(Threads)
+
 include_directories("chuffed")
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cp-profiler-integration/protobuf")
@@ -191,7 +194,7 @@ chuffed/flatzinc/ast.h
 )
 
 add_executable(fzn_chuffed chuffed/flatzinc/fzn_chuffed.cpp)
-target_link_libraries(fzn_chuffed chuffed_fzn chuffed -lpthread)
+target_link_libraries(fzn_chuffed chuffed_fzn chuffed ${CMAKE_THREAD_LIBS_INIT})
 
 # add_custom_target(
 #   versionTarget
