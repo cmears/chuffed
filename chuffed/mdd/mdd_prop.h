@@ -89,7 +89,6 @@ template<int U = 0>
 class MDDProp : public Propagator {
 public:
     MDDProp(MDDTemplate*, vec< IntView<U> >& _vars, const MDDOpts& opts);
-    ~MDDProp();
     
     bool fullProp(void);
     unsigned char fullPropRec(int node, int timestamp);
