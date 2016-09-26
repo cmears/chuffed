@@ -58,7 +58,6 @@ public:
 	vec<int> new_bc;
 
 	MIP();
-	~MIP();
 
 	// Interface methods
 

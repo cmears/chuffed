@@ -100,7 +100,6 @@ class WMDDProp : public Propagator {
 
 public:
   WMDDProp(vec< IntView<> >& _vs, IntView<> _c, vec<int>& _levels, vec<Edge>& _edges, const MDDOpts& opts);
-  ~WMDDProp();
   
   bool fullProp(void);
   bool incProp(void);

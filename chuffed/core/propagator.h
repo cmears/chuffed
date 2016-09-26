@@ -44,6 +44,8 @@ public:
 		satisfied(false), in_queue(false) {
 		engine.propagators.push(this);
 	}
+  
+  virtual ~Propagator() {}
 
 	// Push propgator into queue if it isn't already there
 	void pushInQueue() {
