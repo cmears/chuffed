@@ -531,7 +531,7 @@ void SAT::reduceDB() {
   }
   learnts.resize(j);
 
-	if (so.verbosity >= 1) printf("Pruned %d learnt clauses\n", i-j);
+	if (so.verbosity >= 1) printf("%% Pruned %d learnt clauses\n", i-j);
 }
 
 std::string showClause(Clause& c) {
