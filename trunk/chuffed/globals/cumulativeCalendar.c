@@ -24,7 +24,7 @@ using namespace std;
 #define CUMU_PT_GETMAX0(x) x->getMax0()
 #define CUMU_PT_ISFIXED(x) x->isFixed()
 
-#define CUMU_MEMCHECK(ptr) do { if (ptr == NULL) ERROR("Out of memory!\n"); } while(0)
+#define CUMU_MEMCHECK(ptr) do { if (ptr == NULL) CHUFFED_ERROR("Out of memory!\n"); } while(0)
 
 
 class CumulativeCalProp : public Propagator {

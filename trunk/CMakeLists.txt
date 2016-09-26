@@ -17,6 +17,8 @@ endif()
 
 project (chuffed CXX)
 
+set (CMAKE_CXX_STANDARD 11)
+
 # The version number.
 set (chuffed_VERSION_MAJOR 0)
 set (chuffed_VERSION_MINOR 9)
@@ -43,9 +45,11 @@ chuffed/vars/int-var-ll.c
 chuffed/parallel/master.c
 chuffed/parallel/slave.c
 chuffed/ldsb/ldsb.c
+chuffed/globals/subcircuit.c
 chuffed/globals/mddglobals.c
 chuffed/globals/sym-break.c
 chuffed/globals/linear-bool.c
+chuffed/globals/linear-bool-decomp.c
 chuffed/globals/well-founded.c
 chuffed/globals/circuit.c
 chuffed/globals/minimum.c
@@ -53,12 +57,18 @@ chuffed/globals/alldiff.c
 chuffed/globals/template.c
 chuffed/globals/directives.c
 chuffed/globals/cumulative.c
+chuffed/globals/cumulativeCalendar.c
 chuffed/globals/disjunctive.c
 chuffed/globals/regular.c
 chuffed/globals/lex.c
 chuffed/globals/table.c
 chuffed/mdd/MDD.c
 chuffed/mdd/mdd_prop.c
+chuffed/mdd/mdd_to_lgraph.c
+chuffed/mdd/MurmurHash3.c
+chuffed/mdd/opcache.c
+chuffed/mdd/weighted_dfa.c
+chuffed/mdd/wmdd_prop.c
 chuffed/mip/mip.c
 chuffed/mip/recalc.c
 chuffed/mip/simplex.c
@@ -91,9 +101,11 @@ chuffed/vars/int-var-ll.c
 chuffed/parallel/master.c
 chuffed/parallel/slave.c
 chuffed/ldsb/ldsb.c
+chuffed/globals/subcircuit.c
 chuffed/globals/mddglobals.c
 chuffed/globals/sym-break.c
 chuffed/globals/linear-bool.c
+chuffed/globals/linear-bool-decomp.c
 chuffed/globals/well-founded.c
 chuffed/globals/circuit.c
 chuffed/globals/minimum.c
@@ -101,12 +113,18 @@ chuffed/globals/alldiff.c
 chuffed/globals/template.c
 chuffed/globals/directives.c
 chuffed/globals/cumulative.c
+chuffed/globals/cumulativeCalendar.c
 chuffed/globals/disjunctive.c
 chuffed/globals/regular.c
 chuffed/globals/lex.c
 chuffed/globals/table.c
 chuffed/mdd/MDD.c
 chuffed/mdd/mdd_prop.c
+chuffed/mdd/mdd_to_lgraph.c
+chuffed/mdd/MurmurHash3.c
+chuffed/mdd/opcache.c
+chuffed/mdd/weighted_dfa.c
+chuffed/mdd/wmdd_prop.c
 chuffed/mip/mip.c
 chuffed/mip/recalc.c
 chuffed/mip/simplex.c
@@ -138,9 +156,19 @@ chuffed/support/sparse_set.h
 chuffed/ldsb/ldsb.h
 chuffed/globals/globals.h
 chuffed/globals/mddglobals.h
-chuffed/mdd/opts.h
+chuffed/mdd/CFG.h
+chuffed/mdd/circ_fns.h
+chuffed/mdd/circutil.h
+chuffed/mdd/CYK.h
 chuffed/mdd/MDD.h
 chuffed/mdd/mdd_prop.h
+chuffed/mdd/mdd_to_lgraph.h
+chuffed/mdd/MurmurHash3.h
+chuffed/mdd/opcache.h
+chuffed/mdd/opts.h
+chuffed/mdd/sorters.h
+chuffed/mdd/weighted_dfa.h
+chuffed/mdd/wmdd_prop.h
 chuffed/mip/mip.h
 chuffed/mip/simplex.h
 chuffed/primitives/primitives.h
@@ -242,9 +270,19 @@ chuffed/support/sparse_set.h
 chuffed/ldsb/ldsb.h
 chuffed/globals/globals.h
 chuffed/globals/mddglobals.h
-chuffed/mdd/opts.h
+chuffed/mdd/CFG.h
+chuffed/mdd/circ_fns.h
+chuffed/mdd/circutil.h
+chuffed/mdd/CYK.h
 chuffed/mdd/MDD.h
 chuffed/mdd/mdd_prop.h
+chuffed/mdd/mdd_to_lgraph.h
+chuffed/mdd/MurmurHash3.h
+chuffed/mdd/opcache.h
+chuffed/mdd/opts.h
+chuffed/mdd/sorters.h
+chuffed/mdd/weighted_dfa.h
+chuffed/mdd/wmdd_prop.h
 chuffed/mip/mip.h
 chuffed/mip/simplex.h
 chuffed/primitives/primitives.h
