@@ -132,10 +132,10 @@ public:
 	int tt_profile_size;
 	struct ProfilePart * tt_profile;
 
-	int * est2;
-	int * lst2;
-	int * ect2;
-	int * lct2;
+	int * est_2;
+	int * lst_2;
+	int * ect_2;
+	int * lct_2;
 	int * min_energy2;
 	Tint * min_energy2_global;
 	int * free_energy2;
@@ -143,13 +143,13 @@ public:
 	// Inline functions
 	struct SortEstAsc {
 		CumulativeCalProp *p;
-		bool operator() (int i, int j) { return p->est2[i] < p->est2[j]; }
+		bool operator() (int i, int j) { return p->est_2[i] < p->est_2[j]; }
 		SortEstAsc(CumulativeCalProp *_p) : p(_p) {}
 	} sort_est_asc;
 
 	struct SortLctAsc {
 		CumulativeCalProp *p;
-		bool operator() (int i, int j) { return p->lct2[i] < p->lct2[j]; }
+		bool operator() (int i, int j) { return p->lct_2[i] < p->lct_2[j]; }
 		SortLctAsc(CumulativeCalProp *_p) : p(_p) {}
 	} sort_lct_asc;
 
@@ -207,16 +207,16 @@ public:
 		tt_profile_size = 0;
 
 		// Memory allocation of the core structures
-		est2 = (int *) malloc(start.size() * sizeof(int));
-		lst2 = (int *) malloc(start.size() * sizeof(int));
-		ect2 = (int *) malloc(start.size() * sizeof(int));
-		lct2 = (int *) malloc(start.size() * sizeof(int));
+		est_2 = (int *) malloc(start.size() * sizeof(int));
+		lst_2 = (int *) malloc(start.size() * sizeof(int));
+		ect_2 = (int *) malloc(start.size() * sizeof(int));
+		lct_2 = (int *) malloc(start.size() * sizeof(int));
 		
 		// Memory check
-		CUMU_MEMCHECK(est2);
-		CUMU_MEMCHECK(lst2);
-		CUMU_MEMCHECK(ect2);
-		CUMU_MEMCHECK(lct2);
+		CUMU_MEMCHECK(est_2);
+		CUMU_MEMCHECK(lst_2);
+		CUMU_MEMCHECK(ect_2);
+		CUMU_MEMCHECK(lct_2);
 		
 		// Allocating memory required by the TTEF inconsistency check or
 		// filtering algorithm
@@ -353,14 +353,14 @@ public:
 	void
 	retrieveCoreParameters(int i) {
 		// Earliest start time
-		est2[i] = CUMU_PT_GETMIN(start[i]);
+		est_2[i] = CUMU_PT_GETMIN(start[i]);
 		// Latest start time
-		lst2[i] = CUMU_PT_GETMAX(start[i]);
+		lst_2[i] = CUMU_PT_GETMAX(start[i]);
 		// Earliest completion time
 		const int duration = CUMU_PT_GETMIN(dur[i]);
-		ect2[i] = getEndTimeForStartTime(i, est2[i], duration);
+		ect_2[i] = getEndTimeForStartTime(i, est_2[i], duration);
 		// Latest completion time
-		lct2[i] = getEndTimeForStartTime(i, lst2[i], duration);
+		lct_2[i] = getEndTimeForStartTime(i, lst_2[i], duration);
 	}
 
 	int
@@ -374,19 +374,19 @@ public:
 		// Resource stays engaged
 		const int duration = min_dur(i);
 		const int cal_idx = taskCalendar[i] - 1;
-		const int ls = lst2[i];
+		const int ls = lst_2[i];
 		// Calculate distance when task starts as earliest as possible
-		int end = est2[i] + duration;
+		int end = est_2[i] + duration;
 		int workDays;
 		int distance;
 		do {
-			workDays = workingPeriods[cal_idx][est2[i]] - workingPeriods[cal_idx][end];
+			workDays = workingPeriods[cal_idx][est_2[i]] - workingPeriods[cal_idx][end];
 			end += duration - workDays;
 		} while (workDays < duration);
 		assert(workDays == duration);
-		distance = end - est2[i];
+		distance = end - est_2[i];
 		// Calculate minimal distance
-		for (int time = est2[i] + 1; time <= ls && distance > min_energy2_global[i]; time++) {
+		for (int time = est_2[i] + 1; time <= ls && distance > min_energy2_global[i]; time++) {
 			if (calendar[cal_idx][time - 1] == 1)
 				workDays--;
 			while (workDays < duration) {
@@ -406,17 +406,17 @@ public:
 	retrieveFreeEnergy(const int i) {
 		if (rho == 1) { 
 			// Resource stays engaged
-			return (min_energy2[i] - min_usage(i) * max(0, ect2[i] - lst2[i])); 
+			return (min_energy2[i] - min_usage(i) * max(0, ect_2[i] - lst_2[i])); 
 		} else { 
 			// Resource is released
-			int workDays = workingPeriods[taskCalendar[i]-1][lst2[i]] - workingPeriods[taskCalendar[i]-1][ect2[i]];
+			int workDays = workingPeriods[taskCalendar[i]-1][lst_2[i]] - workingPeriods[taskCalendar[i]-1][ect_2[i]];
 			return (min_energy2[i] - min_usage(i) * max(0, workDays)); 
 		}
 	}
 
 	void
 	retrieveEnergyParameters(const int i) {
-		// NOTE it is assumpted that the arrays est2, lst2, ect2, and lct2 are up to date!
+		// NOTE it is assumpted that the arrays est_2, lst_2, ect_2, and lct_2 are up to date!
 		// Minimal required energy for executing the task
 		min_energy2[i] = retrieveMinEnergy(i);
 		// Free energy
@@ -583,9 +583,9 @@ public:
 	inline int
 	get_free_dur_right_shift2(const int tw_begin, const int tw_end, const int task)
 	{
-		if (tw_begin > est2[task] || tw_end <= lst2[task] || tw_end <= ect2[task])
+		if (tw_begin > est_2[task] || tw_end <= lst_2[task] || tw_end <= ect_2[task])
 			return 0;
-		const int free_lst = (lst2[task] < ect2[task] ? ect2[task] : lst2[task]);
+		const int free_lst = (lst_2[task] < ect_2[task] ? ect_2[task] : lst_2[task]);
 		if (rho == 0) {
 			// Resource is released
 			const int cal_idx = taskCalendar[task] - 1;
@@ -600,9 +600,9 @@ public:
 	inline int
 	get_free_dur_left_shift2(const int tw_begin, const int tw_end, const int task)
 	{
-		if (tw_end < lct2[task] || tw_begin >= ect2[task] || tw_begin >= lst2[task])
+		if (tw_end < lct_2[task] || tw_begin >= ect_2[task] || tw_begin >= lst_2[task])
 			return 0;
-		const int free_ect = (lst2[task] < ect2[task] ? lst2[task] : ect2[task]);
+		const int free_ect = (lst_2[task] < ect_2[task] ? lst_2[task] : ect_2[task]);
 		if (rho == 0) {
 			// Resource is released
 			const int * wPeriods = workingPeriods[taskCalendar[task] - 1];
@@ -639,8 +639,8 @@ public:
 			if (min_dur(i) > 0 && min_usage(i) > 0)
 				retrieveCoreParameters(i);
 			// Compute the time window for consideration
-			tw_begin = min(tw_begin, est2[i]);
-			tw_end   = max(tw_end, lct2[i]);
+			tw_begin = min(tw_begin, est_2[i]);
+			tw_end   = max(tw_end, lct_2[i]);
 			// Check whether the task 'i' is fixed
 			if ((CUMU_PT_ISFIXED(start[i]) && CUMU_PT_ISFIXED(dur[i]) && CUMU_PT_ISFIXED(usage[i])) || max_dur(i) <= 0 || max_usage(i) <= 0) {
 				// Swaping the id's
@@ -651,7 +651,7 @@ public:
 					free_energy2[i] = 0;
 					if (rho == 1) {
 						// Resource stays engaged
-						min_energy2[i] = min_usage(i) * (lct2[i] - est2[i]);
+						min_energy2[i] = min_usage(i) * (lct_2[i] - est_2[i]);
 					} else {
 						// Resource is released
 						min_energy2[i] = min_usage(i) * min_dur(i);
@@ -868,10 +868,10 @@ public:
 #if CUMUVERB>2
 			fprintf(stderr, "\t\tcomp part = %d\n", *iter);
 #endif
-			lst_i = lst2[*iter];
-			ect_i = ect2[*iter];
+			lst_i = lst_2[*iter];
+			ect_i = ect_2[*iter];
 #if CUMUVERB>2
-			fprintf(stderr, "\t\tFinding first profile part ; est: %d ; lst: %d ; ect: %d ; dur: %d\n",est2[*iter],lst_i, ect_i, min_dur(*iter));
+			fprintf(stderr, "\t\tFinding first profile part ; est: %d ; lst: %d ; ect: %d ; dur: %d\n",est_2[*iter],lst_i, ect_i, min_dur(*iter));
 #endif
 			// Find first profile
 			i = find_first_profile(profile, 0, size - 1, lst_i);
@@ -1069,24 +1069,24 @@ CumulativeCalProp::get_compulsory_parts2(
 	for (int ii = i_start; ii < i_end; ii++) {
 		const int i = task[ii];
 #if CUMUVERB>2
-		fprintf(stderr, "\t\tii = %d; task[ii] = %d; est %d; dur %d\n", ii, i, est2[i], min_dur(i));
+		fprintf(stderr, "\t\tii = %d; task[ii] = %d; est %d; dur %d\n", ii, i, est_2[i], min_dur(i));
 #endif
 		// Check whether the task creates a compulsory part and if it falls into
 		// the considered time window
-		if (min_dur(i) > 0 && min_usage(i) > 0 && lst2[i] < ect2[i] && tw_begin < lct2[i] && est2[i] < tw_end) {
+		if (min_dur(i) > 0 && min_usage(i) > 0 && lst_2[i] < ect_2[i] && tw_begin < lct_2[i] && est_2[i] < tw_end) {
 #if CUMUVERB>2
-			fprintf(stderr, "\t\ttask[ii] = %d, comp part [%d, %d)\n", i, lst2[i], ect2[i]);
+			fprintf(stderr, "\t\ttask[ii] = %d, comp part [%d, %d)\n", i, lst_2[i], ect_2[i]);
 #endif
 			// Add task to the list
 			comp_task.push_back(i);
 			// Add time points to change lists
 			int t;
-			changes.push_back( ProfileChangePt(lst2[i], PROFINC) );
-			changes.push_back( ProfileChangePt(ect2[i], PROFDEC) );
+			changes.push_back( ProfileChangePt(lst_2[i], PROFINC) );
+			changes.push_back( ProfileChangePt(ect_2[i], PROFDEC) );
 			if (rho == 0){
 				// Resource is released
 				// Calculating the breaks of the task 'i'
-				for	(t = lst2[i] + 1; t < ect2[i]; t++){
+				for	(t = lst_2[i] + 1; t < ect_2[i]; t++){
 					const int tCal = taskCalendar[i] - 1;
 					if (calendar[tCal][t] == 1 && calendar[tCal][t-1] == 0) {
 						changes.push_back( ProfileChangePt(t, PROFINC) );
@@ -1157,7 +1157,7 @@ CumulativeCalProp::time_table_filtering(ProfilePart profile[], int size, CUMU_AR
 #endif
 				// Find initial profile part for lower bound propagation
 				//
-			index = find_first_profile_for_lb(profile, 0, size - 1, est2[i]);
+			index = find_first_profile_for_lb(profile, 0, size - 1, est_2[i]);
 #if CUMUVERB>2
 			fprintf(stderr, "Lower bound starting from index %d\n", index);
 #endif
@@ -1169,7 +1169,7 @@ CumulativeCalProp::time_table_filtering(ProfilePart profile[], int size, CUMU_AR
 			fprintf(stderr, "Finding the first index for UB ...\n");
 #endif
 			// Find initial profile part for upper bound propagation
-			index = find_first_profile_for_ub(profile, 0, size - 1, lct2[task[i]]);
+			index = find_first_profile_for_ub(profile, 0, size - 1, lct_2[task[i]]);
 #if CUMUVERB>2
 			fprintf(stderr, "Upper bound starting from index %d\n", index);
 #endif
@@ -1188,28 +1188,28 @@ CUMU_BOOL
 CumulativeCalProp::time_table_filtering_lb(ProfilePart profile[], int low, int high, int task) {
 	int i;
 	for (i = low; i <= high; i++) {
-		if (ect2[task] <= profile[i].begin) {
+		if (ect_2[task] <= profile[i].begin) {
 			// No lower bound update possible
 			break;
 		}
 		// ASSUMPTION
-		// - ect2[task] > profile[i].begin
-		if (est2[task] < profile[i].end && profile[i].level + min_usage(task) > max_limit() ) {
+		// - ect_2[task] > profile[i].begin
+		if (est_2[task] < profile[i].end && profile[i].level + min_usage(task) > max_limit() ) {
 			// Possibly a lower bound update if "task" as no compulsory part in the profile
-			if (lst2[task] < ect2[task] && lst2[task] <= profile[i].begin && profile[i].end <= ect2[task]) {
+			if (lst_2[task] < ect_2[task] && lst_2[task] <= profile[i].begin && profile[i].end <= ect_2[task]) {
 				// No lower bound update possible for this profile part, because 
 				// "task" has a compulsory part in it
 				continue ;
 			}
 			const int cal_idx = taskCalendar[task] - 1;
 			const int * wPeriods = workingPeriods[cal_idx];
-			const int end = min(ect2[task], profile[i].end);
+			const int end = min(ect_2[task], profile[i].end);
 			if (rho == 0 && wPeriods[profile[i].begin] == wPeriods[end])
 				continue;
 #if CUMUVERB>1
 			fprintf(stderr, "\n----\n");
 			fprintf(stderr, "setMin of task %d in profile part [%d, %d)\n", task, profile[i].begin, profile[i].end);
-			fprintf(stderr, "task %d: lst = %d; ect = %d; dur = %d;\n", task, lst2[task], ect2[task], min_dur(task));
+			fprintf(stderr, "task %d: lst = %d; ect = %d; dur = %d;\n", task, lst_2[task], ect_2[task], min_dur(task));
 #endif
 			int expl_end = profile[i].end;
 			Clause * reason = NULL;
@@ -1271,16 +1271,16 @@ CUMU_BOOL
 CumulativeCalProp::time_table_filtering_ub(ProfilePart profile[], int low, int high, int task) {
 	int i;
 	for (i = high; i >= low; i--) {
-		if (profile[i].end <= lst2[task]) {
+		if (profile[i].end <= lst_2[task]) {
 			// No upper bound update possible
 			break;
 		}
 		// ASSUMPTION for the remaining for-loop
-		// - profile[i].end > lst2[task]
-		if (profile[i].begin < lst2[task] && profile[i].level + min_usage(task) > max_limit()) {
+		// - profile[i].end > lst_2[task]
+		if (profile[i].begin < lst_2[task] && profile[i].level + min_usage(task) > max_limit()) {
 			// Possibly a upper bound update possible if "task" has no compulsory part 
 			// in this profile part
-			if (lst2[task] < ect2[task] && lst2[task] <= profile[i].begin && profile[i].end <= ect2[task]) {
+			if (lst_2[task] < ect_2[task] && lst_2[task] <= profile[i].begin && profile[i].end <= ect_2[task]) {
 				// No lower bound update possible for this profile part, because 
 				// "task" has a compulsory part in it
 				continue ;
@@ -1288,7 +1288,7 @@ CumulativeCalProp::time_table_filtering_ub(ProfilePart profile[], int low, int h
 			// Check whether the task has a working period in the profile part
 			// if the resource is released
 			const int cal_idx = taskCalendar[task] - 1;
-			const int begin = max(lst2[task], profile[i].begin);
+			const int begin = max(lst_2[task], profile[i].begin);
 			if (rho == 0 && workingPeriods[cal_idx][begin] == workingPeriods[cal_idx][profile[i].end])
 				continue;
 
@@ -1301,7 +1301,7 @@ CumulativeCalProp::time_table_filtering_ub(ProfilePart profile[], int low, int h
 				// TODO Choices of different explanations
 				// Pointwise explanation
 				expl_begin = begin;
-				//expl_begin = max(profile[i].begin, lst2[task]);
+				//expl_begin = max(profile[i].begin, lst_2[task]);
 				int expl_end = expl_begin + 1;
 				vec<Lit> expl;
 				// Get the negated literal for [[start[task] <= expl_begin]]
@@ -1551,8 +1551,8 @@ CumulativeCalProp::ttef_initialise_parameters() {
 	if (ttef_filt) {
 		for (int ii = 0; ii <= last_unfixed; ii++) {
 			const int i = task_id[ii];
-			new_est[i] = est2[i];
-			new_lct[i] = lct2[i];
+			new_est[i] = est_2[i];
+			new_lct[i] = lct_2[i];
 		}
 	}
 		// Sorting of the task id's arrays
@@ -1563,12 +1563,12 @@ CumulativeCalProp::ttef_initialise_parameters() {
 		//
 	for (int ii = last_unfixed; ii >= 0; ii--) {
 		const int i = task_id_est[ii];
-		if (p_idx < 0 || tt_profile[p_idx].end <= est2[i]) {
+		if (p_idx < 0 || tt_profile[p_idx].end <= est_2[i]) {
 			tt_after_est[ii] = energy;
-		} else if (tt_profile[p_idx].begin <= est2[i]) {
-			tt_after_est[ii] = energy + tt_profile[p_idx].level * (tt_profile[p_idx].end - est2[i]);
+		} else if (tt_profile[p_idx].begin <= est_2[i]) {
+			tt_after_est[ii] = energy + tt_profile[p_idx].level * (tt_profile[p_idx].end - est_2[i]);
 		} else {
-			assert(tt_profile[p_idx].begin > est2[i]);
+			assert(tt_profile[p_idx].begin > est_2[i]);
 			energy += tt_profile[p_idx].level * (tt_profile[p_idx].end - tt_profile[p_idx].begin);
 			p_idx--;
 			ii++;
@@ -1580,12 +1580,12 @@ CumulativeCalProp::ttef_initialise_parameters() {
 	energy = 0;
 	for (int ii = last_unfixed; ii >= 0; ii--) {
 		unsigned i = task_id_lct[ii];
-		if (p_idx < 0 || tt_profile[p_idx].end <= lct2[i]) {
+		if (p_idx < 0 || tt_profile[p_idx].end <= lct_2[i]) {
 			tt_after_lct[ii] = energy;
-		} else if (tt_profile[p_idx].begin <= lct2[i]) {
-			tt_after_lct[ii] = energy + tt_profile[p_idx].level * (tt_profile[p_idx].end - lct2[i]);
+		} else if (tt_profile[p_idx].begin <= lct_2[i]) {
+			tt_after_lct[ii] = energy + tt_profile[p_idx].level * (tt_profile[p_idx].end - lct_2[i]);
 		} else {
-			assert(tt_profile[p_idx].begin > lct2[i]);
+			assert(tt_profile[p_idx].begin > lct_2[i]);
 			energy += tt_profile[p_idx].level * (tt_profile[p_idx].end - tt_profile[p_idx].begin);
 			p_idx--;
 			ii++;
@@ -1618,38 +1618,38 @@ CumulativeCalProp::ttef_consistency_check(
 	bool consistent = true;
 	
 	int dom_jj_last = -1;
-	int sumFreeEnergy[last_unfixed + 1];
+	int* sumFreeEnergy = new int[last_unfixed + 1];
 	for (int ii = 0; ii <= last_unfixed; ii++) {
 		const int i = task_id_est[ii];
 		sumFreeEnergy[ii] = (ii > 0 ? sumFreeEnergy[ii - 1] : 0) + free_energy2[i];
 	}
 	
-	end = lct2[task_id_lct[last_unfixed]] + 1;
+	end = lct_2[task_id_lct[last_unfixed]] + 1;
 
 		// Outer Loop: iterating over lct in non-increasing order
 		//
 	for (int ii = last_unfixed; ii >= 0; ii--) {
 		i = task_id_lct[ii];
-		if (end == lct2[i]) continue;
+		if (end == lct_2[i]) continue;
 
-		assert(lct2[i] < lct2[i_last] || i == i_last);
+		assert(lct_2[i] < lct_2[i_last] || i == i_last);
 			
 			// Check whether the current latest completion time have to be considered
 		// Dominance rule for skipping time intervals
-		workingDays = lct2[i_last] - lct2[i];
+		workingDays = lct_2[i_last] - lct_2[i];
 		if(rho == 0) {
 			// Resource is released
-			workingDays = (rPeriods[lct2[i]] - rPeriods[lct2[i_last]]);
+			workingDays = (rPeriods[lct_2[i]] - rPeriods[lct_2[i_last]]);
 		} 
 		const int free = maxLimit * workingDays - (tt_after_lct[ii] - tt_after_lct[lct_idx_last]);
 		if (min_en_avail >= free) continue;
 
 		lct_idx_last = ii;
 		i_last = i;
-		min_en_avail = maxLimit * (lct2[task_id_lct[last_unfixed]] - est2[task_id_est[0]]);
+		min_en_avail = maxLimit * (lct_2[task_id_lct[last_unfixed]] - est_2[task_id_est[0]]);
 		
-		end = lct2[i];
-		while (est2[task_id_est[est_idx_last]] >= end) est_idx_last--;
+		end = lct_2[i];
+		while (est_2[task_id_est[est_idx_last]] >= end) est_idx_last--;
 		en_req_free = 0;
 
 		dom_jj_last = -1;
@@ -1662,8 +1662,8 @@ CumulativeCalProp::ttef_consistency_check(
 			// Dominance rule for skipping time intervals
 			if (dom_jj_last >= 0) {
 				// Computing an over-approximation of the required energy in the time
-				// interval [est2[j], end)
-				const int dom_begin = est2[j];
+				// interval [est_2[j], end)
+				const int dom_begin = est_2[j];
 				const int dom_en_comp = tt_after_est[0] - tt_after_est[jj + 1];
 				const int dom_en_free = sumFreeEnergy[jj] + en_req;
 				const int dom_wdays = (rho == 1 ? end - dom_begin : rPeriods[dom_begin] - rPeriods[end]);
@@ -1673,9 +1673,9 @@ CumulativeCalProp::ttef_consistency_check(
 			}
 
 
-			assert(est2[j] < end);
-			begin = est2[j];
-			if (lct2[j] <= end) {
+			assert(est_2[j] < end);
+			begin = est_2[j];
+			if (lct_2[j] <= end) {
 				// Task lies in the considered time interval	
 				en_req_free += free_energy2[j];
 			} else if (shift_in == 1) {
@@ -1683,7 +1683,7 @@ CumulativeCalProp::ttef_consistency_check(
 				dur_shift = get_free_dur_right_shift2(begin, end, j);
 				// Adjusting dur_shift if resource stays engaged
 				if (rho == 1) {
-					const int dur_fixed = max(0, ect2[j] - lst2[j]);
+					const int dur_fixed = max(0, ect_2[j] - lst_2[j]);
 					dur_shift = min(min_energy2[j] / min_usage(j) - dur_fixed, dur_shift);
 				}
 				en_req_free += min_usage(j) * dur_shift;
@@ -1711,6 +1711,8 @@ CumulativeCalProp::ttef_consistency_check(
 			}
 		}
 	}
+
+	delete[] sumFreeEnergy;
 
 	if (!consistent) {
 		vec<Lit> expl;
@@ -1811,24 +1813,24 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 	bool consistent = true;
 	
 	int maxEnergy = 0, lct_idx_last = -1;
-	int sumFreeEnergy[last_unfixed + 1];
+	int* sumFreeEnergy = new int[last_unfixed + 1];
 	for (int ii = 0; ii <= last_unfixed; ii++) {
 		const int i = task_id_est[ii];
-		maxEnergy = max(maxEnergy, min_usage(i) * (rho == 1 ? ect2[i] - est2[i] : min_dur(i)));
+		maxEnergy = max(maxEnergy, min_usage(i) * (rho == 1 ? ect_2[i] - est_2[i] : min_dur(i)));
 		sumFreeEnergy[ii] = (ii == 0 ? 0 : sumFreeEnergy[ii - 1]) + free_energy2[i];
 	}
 	
-	end = lct2[task_id_lct[last_unfixed]] + 1;
+	end = lct_2[task_id_lct[last_unfixed]] + 1;
 
 		// Outer Loop: iterating over lct in non-increasing order
 		//
 	for (int ii = last_unfixed; ii >= 0; ii--) {
 		i = task_id_lct[ii];
-		if (end == lct2[i]) continue;
+		if (end == lct_2[i]) continue;
 			
 		// Dominance rule for skipping time intervals
 		if (min_en_avail >= 0) {
-			const int dom_wdays = (rho == 1 ? end - lct2[i] : rPeriods[lct2[i]] - rPeriods[end]);
+			const int dom_wdays = (rho == 1 ? end - lct_2[i] : rPeriods[lct_2[i]] - rPeriods[end]);
 			const int dom_en_comp = tt_after_lct[ii] - tt_after_lct[lct_idx_last];
 			const int dom_en_avail = maxLimit * dom_wdays - dom_en_comp;
 			if (min_en_avail - dom_en_avail >= maxEnergy)
@@ -1836,11 +1838,11 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 		}
 		lct_idx_last = ii;
 			// Check whether the current latest completion time have to be considered
-		min_en_avail = maxLimit * (lct2[task_id_lct[last_unfixed]] - est2[task_id_est[0]]);
+		min_en_avail = maxLimit * (lct_2[task_id_lct[last_unfixed]] - est_2[task_id_est[0]]);
 		min_begin = minTime - 1;
 		
-		end = lct2[i];
-		while (est2[task_id_est[est_idx_last]] >= end) est_idx_last--;
+		end = lct_2[i];
+		while (est_2[task_id_est[est_idx_last]] >= end) est_idx_last--;
 		
 		// Initialisations for the inner loop
 		en_req_free = 0;
@@ -1855,7 +1857,7 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 			nb_ttef_lb_calls++;
 			j = task_id_est[jj];
 
-			assert(est2[j] < end);
+			assert(est_2[j] < end);
 			
 			// Check for TTEEF propagation in the time interval [min_begin, end)
 			if (minTime <= min_begin && tteef_filt)
@@ -1864,8 +1866,8 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 			// TTEF Dominance rule for skipping time intervals
 			// NOTE this rule can cut off TTEEF propagation
 			if (jj < est_idx_last) {
-				// Computing an over-estimate of the energy in the time interval [est2[j], end)
-				const int dom_wdays = (rho == 1 ? end - est2[j] : rPeriods[est2[j]] - rPeriods[end]);
+				// Computing an over-estimate of the energy in the time interval [est_2[j], end)
+				const int dom_wdays = (rho == 1 ? end - est_2[j] : rPeriods[est_2[j]] - rPeriods[end]);
 				const int dom_en_comp = tt_after_est[0] - tt_after_est[jj + 1];
 				const int dom_en_free = sumFreeEnergy[jj] + en_req;
 				const int dom_en_avail = maxLimit * dom_wdays - dom_en_comp - dom_en_free;
@@ -1873,22 +1875,22 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 					break;
 			}
 
-			begin = est2[j];
+			begin = est_2[j];
 
 			// Computing the required free energy of task 'j' in the
 			// time interval [begin, end)
-			if (lct2[j] <= end) {
+			if (lct_2[j] <= end) {
 				// Task 'j' lies in the considered time interval	
 				en_req_free += free_energy2[j];
 			} else {
 				// Task might partially lie in the considered time interval
 				const int cal_idx = taskCalendar[j] - 1;
 				const int * wPeriods = workingPeriods[cal_idx];
-				const int ect_in = min(end, ect2[j]);
+				const int ect_in = min(end, ect_2[j]);
 				int workDays_req_in = 0;
 				// Add the compulsory part of 'j' to the required energy in the time interval [begin, end)
-				if (lst2[j] < ect2[j]) {
-					const int begin_comp = min(end, lst2[j]);
+				if (lst_2[j] < ect_2[j]) {
+					const int begin_comp = min(end, lst_2[j]);
 					workDays_req_in += (rho == 1 ? ect_in - begin_comp : wPeriods[begin_comp] - wPeriods[ect_in]);
 				}
 				
@@ -1898,16 +1900,16 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 					dur_shift = get_free_dur_right_shift2(begin, end, j);
 					// Adjusting dur_shift if resource stays engaged
 					if (rho == 1) {
-						const int dur_fixed = max(0, ect2[j] - lst2[j]);
+						const int dur_fixed = max(0, ect_2[j] - lst_2[j]);
 						dur_shift = min(min_energy2[j] / min_usage(j) - dur_fixed, dur_shift);
 					}
 					workDays_req_in += dur_shift;
 					en_req_free += min_usage(j) * dur_shift;
 				}
 				
-				// Calculation of the additional required energy for starting at est2[j]
+				// Calculation of the additional required energy for starting at est_2[j]
 				// in time window [begin, end)
-				const int workDays_start = (rho == 1 ? ect_in - est2[j] : wPeriods[est2[j]] - wPeriods[ect_in]);
+				const int workDays_start = (rho == 1 ? ect_in - est_2[j] : wPeriods[est_2[j]] - wPeriods[ect_in]);
 				const int en_req_start = min_usage(j) * (workDays_start - workDays_req_in);
 				assert(workDays_start >= workDays_req_in);
 				if (en_req_start > update_en_req_start) {
@@ -1957,6 +1959,8 @@ CumulativeCalProp::ttef_bounds_propagation_lb(
 			}
 		}
 	}
+
+	delete[] sumFreeEnergy;
 
 	if (!consistent) {
 		vec<Lit> expl;
@@ -2011,26 +2015,26 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 
 	int maxEnergy = 0, est_idx_last = -1;
 	int maxLength = 0;
-    int sumFreeEnergy[last_unfixed + 2];
-    sumFreeEnergy[last_unfixed + 1] = 0;
+        int* sumFreeEnergy = new int[last_unfixed + 2];
+        sumFreeEnergy[last_unfixed + 1] = 0;
 	for (int ii = last_unfixed; ii >= 0; ii--) {
 		const int i = task_id_lct[ii];
-		maxLength = (rho == 1 ? max(lct2[i] - lst2[i], ect2[i] - est2[i]) : min_dur(i));
+		maxLength = (rho == 1 ? max(lct_2[i] - lst_2[i], ect_2[i] - est_2[i]) : min_dur(i));
 		maxEnergy = max(maxEnergy, min_usage(i) * maxLength);
 		sumFreeEnergy[ii] = sumFreeEnergy[ii + 1] + free_energy2[i];
 	}
 	
-	begin = est2[task_id_est[0]] - 1;
+	begin = est_2[task_id_est[0]] - 1;
 
 		// Outer Loop: iterating over est in non-decreasing order
 		//
 	for (int ii = 0; ii <= last_unfixed; ii++) {
 		i = task_id_est[ii];
-		if (begin == est2[i]) continue;
+		if (begin == est_2[i]) continue;
 		
 		// Dominance rule for skipping time intervals
 		if (min_en_avail >= 0) {
-			const int dom_wdays = (rho == 1 ? est2[i] - begin : rPeriods[begin] - rPeriods[est2[i]]);
+			const int dom_wdays = (rho == 1 ? est_2[i] - begin : rPeriods[begin] - rPeriods[est_2[i]]);
 			const int dom_en_comp = tt_after_est[est_idx_last] - tt_after_est[ii];
 			const int dom_en_avail = maxLimit * dom_wdays - dom_en_comp;
 			if (min_en_avail - dom_en_avail >= maxEnergy)
@@ -2040,11 +2044,11 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 
 		// Intialisation for the minimal avaible energy of a time interval starting
 		// at begin
-		min_en_avail = maxLimit * (lct2[task_id_lct[last_unfixed]] - est2[task_id_est[0]]);
+		min_en_avail = maxLimit * (lct_2[task_id_lct[last_unfixed]] - est_2[task_id_est[0]]);
 		min_end = minTime - 1;
 
-		begin = est2[i];
-		while (lct2[task_id_lct[lct_idx_last]] <= begin) lct_idx_last++;
+		begin = est_2[i];
+		while (lct_2[task_id_lct[lct_idx_last]] <= begin) lct_idx_last++;
 		
 		// Initialisations for the inner loop
 		en_req = 0;
@@ -2060,7 +2064,7 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 			nb_ttef_ub_calls++;
 			j = task_id_lct[jj];
 
-			assert(lct2[j] > begin);
+			assert(lct_2[j] > begin);
 
 			// Check for TTEEF propagation in the time interval [begin, min_end)
 			if (minTime <= min_end && tteef_filt)
@@ -2069,8 +2073,8 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 			// TTEF Dominance rule for skipping time intervals
 			// NOTE this rule can cut off TTEEF propagation
 			if (jj > lct_idx_last) {
-				// Computing an over-estimate of the energy in the time interval [begin, lct2[j])
-				const int dom_wdays = (rho == 1 ? lct2[j] - begin : rPeriods[begin] - rPeriods[lct2[j]]);
+				// Computing an over-estimate of the energy in the time interval [begin, lct_2[j])
+				const int dom_wdays = (rho == 1 ? lct_2[j] - begin : rPeriods[begin] - rPeriods[lct_2[j]]);
 				const int dom_en_comp = tt_after_lct[jj - 1];
 				const int dom_en_free = sumFreeEnergy[jj] + en_req;
 				const int dom_en_avail =  maxLimit * dom_wdays - dom_en_comp - dom_en_free;
@@ -2079,22 +2083,22 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 			}
 
 			// Update end
-			end = lct2[j];
+			end = lct_2[j];
 
 			// Computing the required free energy of task 'j' in the 
 			// time interval [begin, end)
-			if (begin <= est2[j]) {
+			if (begin <= est_2[j]) {
 				// Task lies in the considered time interval [begin, end)
 				en_req_free += free_energy2[j];
 			} else {
 				// Task might partially lie in the considered time interval
 				const int cal_idx = taskCalendar[j] - 1;
 				const int * wPeriods = workingPeriods[cal_idx];
-				const int lst_in = max(begin, lst2[j]);
+				const int lst_in = max(begin, lst_2[j]);
 				int workDays_req_in = 0;
 				// Add the compulsory part of 'j' to the required energy in the time interval [begin, end)
-				if (lst2[j] < ect2[j]) {
-					const int end_comp = max(begin, ect2[j]);
+				if (lst_2[j] < ect_2[j]) {
+					const int end_comp = max(begin, ect_2[j]);
 					workDays_req_in += (rho == 1 ? end_comp - lst_in : wPeriods[lst_in] - wPeriods[end_comp]);
 				}
 
@@ -2104,16 +2108,16 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 					dur_shift = get_free_dur_left_shift2(begin, end, j);
 					// Adjusting dur_shift if resource stays engaged
 					if (rho == 1) {
-						const int dur_fixed = max(0, ect2[j] - lst2[j]);
+						const int dur_fixed = max(0, ect_2[j] - lst_2[j]);
 						dur_shift = min(min_energy2[j] / min_usage(j) - dur_fixed, dur_shift);
 					}
 					workDays_req_in += dur_shift;
 					en_req_free += min_usage(j) * dur_shift;
 				}
 
-				// Calculation of the additional required energy for ending at lct2[j]
+				// Calculation of the additional required energy for ending at lct_2[j]
 				// in time window [begin, end)
-				const int workDays_end = (rho == 1 ? lct2[j] - lst_in : wPeriods[lst_in] - wPeriods[lct2[j]]);
+				const int workDays_end = (rho == 1 ? lct_2[j] - lst_in : wPeriods[lst_in] - wPeriods[lct_2[j]]);
 				const int en_req_end = min_usage(j) * (workDays_end - workDays_req_in);
 				assert(workDays_end >= workDays_req_in);
 				if (en_req_end > update_en_req_end) {
@@ -2164,6 +2168,8 @@ CumulativeCalProp::ttef_bounds_propagation_ub(
 		}
 	}
 
+	delete[] sumFreeEnergy;
+
 	if (!consistent) {
 		vec<Lit> expl;
         // Increment the inconsistency counter
@@ -2199,18 +2205,18 @@ CumulativeCalProp::tteef_bounds_propagation_lb(
 	const int begin, const int end, const int en_avail, const int j,
 	std::queue<TTEFUpdate> & update_queue
 ) {
-	if (begin <= est2[j] || ect2[j] <= begin)
+	if (begin <= est_2[j] || ect_2[j] <= begin)
 		return ;
 
 	// Some useful constants
 	const int * wPeriods = workingPeriods[taskCalendar[j] - 1];
-	const int est_in = max(begin, est2[j]);
-	const int ect_in = min(end, ect2[j]);
+	const int est_in = max(begin, est_2[j]);
+	const int ect_in = min(end, ect_2[j]);
 	assert(est_in <= ect_in);
 
 	// Computing the compulsory part in the time interval [begin, end)
 	int wdays_in = 0;
-	if (lst2[j] < ect2[j]) {
+	if (lst_2[j] < ect_2[j]) {
 		const int end_comp_in = max(begin, ect_in);
 		wdays_in += (rho == 1 ? end_comp_in - est_in : wPeriods[est_in] - wPeriods[end_comp_in]);
 	}
@@ -2241,17 +2247,17 @@ CumulativeCalProp::tteef_bounds_propagation_ub(
 	const int begin, const int end, const int en_avail, const int j,
 	std::queue<TTEFUpdate> & update_queue
 ) {
-	if (lst2[j] >= end || lct2[j] <= begin || est2[j] >= begin)
+	if (lst_2[j] >= end || lct_2[j] <= begin || est_2[j] >= begin)
 		return ;
 
 	// Some useful constants
 	const int * wPeriods = workingPeriods[taskCalendar[j] - 1];
-	const int lst_in = max(begin, lst2[j]);
-	const int lct_in = min(end, lct2[j]);
+	const int lst_in = max(begin, lst_2[j]);
+	const int lct_in = min(end, lct_2[j]);
 	
 	// Computing the compulsory part in time interval [begin, end)
 	int wdays_in = 0;
-	if (lst2[j] < ect2[j]) {
+	if (lst_2[j] < ect_2[j]) {
 		const int end_comp_in = max(begin, lct_in);
 		wdays_in += (rho == 1 ? end_comp_in - lst_in : wPeriods[lst_in] - wPeriods[end_comp_in]);
 	}
@@ -2293,17 +2299,17 @@ CumulativeCalProp::ttef_get_new_start_time(
 	}
 	// Resource stays engaged
 	const int * cal = calendar[taskCalendar[task] - 1];
-	const int begin_in = max(begin, est2[task]);
-	const int end_in = min(end, ect2[task]);
+	const int begin_in = max(begin, est_2[task]);
+	const int end_in = min(end, ect_2[task]);
 	assert(begin_in < end_in);
 	int wdays_in = end_in - begin_in;
 	assert(wdays_in > min_wdays_in);
 	//const int max_est = min(max_start0(task), end - min_wdays_in);
 	const int max_est = max_start0(task);
-	int last_est = est2[task];
+	int last_est = est_2[task];
 	int last_wdays_in = wdays_in;
-	int est = est2[task] + 1;
-	int ect = ect2[task] + 1;
+	int est = est_2[task] + 1;
+	int ect = ect_2[task] + 1;
 
 	for (; est <= max_est; est++, ect++) {
 		// Updating the working days
@@ -2359,16 +2365,16 @@ CumulativeCalProp::ttef_get_new_end_time(
 	}
 	// Resource stays engaged
 	const int * cal = calendar[taskCalendar[task] - 1];
-	const int begin_in = max(begin, lst2[task]);
-	const int end_in = min(end, lct2[task]);
+	const int begin_in = max(begin, lst_2[task]);
+	const int end_in = min(end, lct_2[task]);
 	assert(begin_in < end_in);
 	int wdays_in = end_in - begin_in;
 	assert(wdays_in > min_wdays_in);
 	const int lst0 = min_start0(task);
-	int last_lct = lct2[task];
+	int last_lct = lct_2[task];
 	int last_wdays_in = wdays_in;
-	int lst = lst2[task] - 1;
-	int lct = lct2[task] - 1;
+	int lst = lst_2[task] - 1;
+	int lct = lct_2[task] - 1;
 
 	for (; lst <= lst0; lst--, lct--) {
 		assert(cal[lst + 1] == 1);
@@ -2435,8 +2441,8 @@ CumulativeCalProp::ttef_explanation_for_update_lb(
 	
 	// Some consistency checks
 	assert(new_lb >= bound);
-	assert(rho == 0 || en_avail < min_usage(task) * (min(end, ect2[task]) - max(begin, est2[task])));
-	assert(rho == 1 || en_avail < min_usage(task) * (wPeriods[max(begin, est2[task])] - wPeriods[min(end, ect2[task])]));
+	assert(rho == 0 || en_avail < min_usage(task) * (min(end, ect_2[task]) - max(begin, est_2[task])));
+	assert(rho == 1 || en_avail < min_usage(task) * (wPeriods[max(begin, est_2[task])] - wPeriods[min(end, ect_2[task])]));
 
 	// Calculating the explanation lower bound on the start time
 	int expl_wdays_in;
@@ -2447,9 +2453,9 @@ CumulativeCalProp::ttef_explanation_for_update_lb(
 		expl_lb = ttef_analyse_tasks_left_shift(begin, end, min_wdays_in, task, 0, expl_wdays_in);
 	case ED_NAIVE:
 	default:
-		expl_lb = est2[task];
+		expl_lb = est_2[task];
 		const int expl_begin = max(begin, expl_lb);
-		const int expl_end   = min(end, ect2[task]);
+		const int expl_end   = min(end, ect_2[task]);
 		expl_wdays_in = (rho == 1 ? expl_end - expl_begin : wPeriods[expl_begin] - wPeriods[expl_end]);
 	}
 
@@ -2458,7 +2464,7 @@ CumulativeCalProp::ttef_explanation_for_update_lb(
 	en_lift += min_usage(task) * (expl_wdays_in - wdays_avail - 1);
 
 	// More consistency checks
-	assert(expl_lb <= est2[task]);
+	assert(expl_lb <= est_2[task]);
 	assert(expl_wdays_in >= wdays_avail + 1);
 	assert(en_lift >= 0);
 
@@ -2511,8 +2517,8 @@ CumulativeCalProp::ttef_explanation_for_update_ub(
 
 	// Some consistency checks
 	assert(new_lct <= bound);
-	assert(rho == 0 || en_avail < min_usage(task) * (min(end, lct2[task]) - max(begin, lst2[task])));
-	assert(rho == 1 || en_avail < min_usage(task) * (wPeriods[max(begin, lst2[task])] - wPeriods[min(end, lct2[task])]));
+	assert(rho == 0 || en_avail < min_usage(task) * (min(end, lct_2[task]) - max(begin, lst_2[task])));
+	assert(rho == 1 || en_avail < min_usage(task) * (wPeriods[max(begin, lst_2[task])] - wPeriods[min(end, lct_2[task])]));
 
 	// Calculating the explanation lower bound on the start time
 	int expl_wdays_in;
@@ -2523,9 +2529,9 @@ CumulativeCalProp::ttef_explanation_for_update_ub(
 		expl_ub = ttef_analyse_tasks_right_shift(begin, end, min_wdays_in, task, 0, expl_wdays_in);
 	case ED_NAIVE:
 	default:
-		expl_ub = lst2[task];
+		expl_ub = lst_2[task];
 		const int expl_begin = max(begin, expl_ub);
-		const int expl_end   = min(end, lct2[task]);
+		const int expl_end   = min(end, lct_2[task]);
 		expl_wdays_in = (rho == 1 ? expl_end - expl_begin : wPeriods[expl_begin] - wPeriods[expl_end]);
 	}
 
@@ -2534,7 +2540,7 @@ CumulativeCalProp::ttef_explanation_for_update_ub(
 	en_lift += min_usage(task) * (expl_wdays_in - wdays_avail - 1);
 
 	// More consistency checks
-	assert(expl_ub >= lst2[task]);
+	assert(expl_ub >= lst_2[task]);
 	assert(expl_wdays_in >= wdays_avail + 1);
 	assert(en_lift >= 0);
 
@@ -2599,7 +2605,7 @@ CumulativeCalProp::ttef_update_bounds(
 				// Update the lower bound
 				const int new_ub = getStartTimeForEndTime(task, bound, min_dur(task));
 #if CUMUVERB > 0
-				fprintf(stderr, "Bounds Update UB: task = %d, old = %d, new = %d \n",task, lst2[task], new_ub);
+				fprintf(stderr, "Bounds Update UB: task = %d, old = %d, new = %d \n",task, lst_2[task], new_ub);
 #endif
                 nb_ttef_filt++;
 				if (!start[task]->setMax(new_ub, reason)) {
@@ -2626,19 +2632,19 @@ CumulativeCalProp::ttef_retrieve_tasks(
 	// Getting fixed tasks
 	for (int ii = 0; ii < task_id.size(); ii++) {
 		const int i = task_id[ii];
-		if (i == fb_id || lct2[i] <= begin || end <= est2[i]) 
+		if (i == fb_id || lct_2[i] <= begin || end <= est_2[i]) 
 			continue;
-		if (begin <= est2[i] && lct2[i] <= end) {
+		if (begin <= est_2[i] && lct_2[i] <= end) {
 			// Task lies in the time interval [begin, end)
 			en_req += min_energy2[i];
 			const int usedDays = min_energy2[i] / min_usage(i);
 			tasks_tw.push_back(TaskDur(i, usedDays));
 			continue;
 		} 
-		if (lst2[i] < ect2[i] && is_intersecting(begin, end, lst2[i], ect2[i])) {
+		if (lst_2[i] < ect_2[i] && is_intersecting(begin, end, lst_2[i], ect_2[i])) {
 			// Compulsory part partially or fully lies in [begin, end)
-			const int begin_comp = max(begin, lst2[i]);
-			const int end_comp = min(end, ect2[i]);
+			const int begin_comp = max(begin, lst_2[i]);
+			const int end_comp = min(end, ect_2[i]);
 			dur_comp = end_comp - begin_comp;
 			if (rho == 0) {
 				const int cal_idx = taskCalendar[i] - 1;
@@ -2647,10 +2653,10 @@ CumulativeCalProp::ttef_retrieve_tasks(
 			dur_shift = 0;
 			if (shift_in == 1) {
 				dur_shift = get_free_dur_right_shift2(begin, end, i);
-				assert(begin <= est2[i] || dur_shift == 0);
+				assert(begin <= est_2[i] || dur_shift == 0);
 				// Adjusting dur_shift if the resource stays engaged
 				if (rho == 1) {
-					const int dur_fixed = max(0, ect2[i] - lst2[i]);
+					const int dur_fixed = max(0, ect_2[i] - lst_2[i]);
 					dur_shift = min(min_energy2[i] / min_usage(i) - dur_fixed, dur_shift);
 				}
 			} else {
@@ -2658,7 +2664,7 @@ CumulativeCalProp::ttef_retrieve_tasks(
 				dur_shift = get_free_dur_left_shift2(begin, end, i);
 				// Adjusting dur_shift if the resource stays engaged
 				if (rho == 1) {
-					const int dur_fixed = max(0, ect2[i] - lst2[i]);
+					const int dur_fixed = max(0, ect_2[i] - lst_2[i]);
 					dur_shift = min(min_energy2[i] / min_usage(i) - dur_fixed, dur_shift);
 				}
 			}
@@ -2671,19 +2677,19 @@ CumulativeCalProp::ttef_retrieve_tasks(
 		dur_in = 0;
 		if (shift_in == 1) {
 			dur_in = get_free_dur_right_shift2(begin, end, i);
-			assert(begin <= est2[i] || dur_in == 0);
+			assert(begin <= est_2[i] || dur_in == 0);
 			// Adjusting dur_shift if the resource stays engaged
 			if (rho == 1) {
-				const int dur_fixed = max(0, ect2[i] - lst2[i]);
+				const int dur_fixed = max(0, ect_2[i] - lst_2[i]);
 				dur_in = min(min_energy2[i] / min_usage(i) - dur_fixed, dur_in);
 			}
 		} else {
 			assert(shift_in == 2);
 			dur_in = get_free_dur_left_shift2(begin, end, i);
-			assert(lct2[i] <= end || dur_in == 0);
+			assert(lct_2[i] <= end || dur_in == 0);
 			// Adjusting dur_shift if the resource stays engaged
 			if (rho == 1) {
-				const int dur_fixed = max(0, ect2[i] - lst2[i]);
+				const int dur_fixed = max(0, ect_2[i] - lst_2[i]);
 				dur_in = min(min_energy2[i] / min_usage(i) - dur_fixed, dur_in);
 			}
 		}
@@ -2722,7 +2728,7 @@ int
 CumulativeCalProp::ttef_analyse_tasks_right_shift(const int begin, const int end, const int dur_in, const int task, const int max_dur_lift, int & last_dur)
 {
 	// Some assumptions
-	assert(est2[task] < end && begin < lct2[task]);
+	assert(est_2[task] < end && begin < lct_2[task]);
 
 	// Defining some constants
 	const int lst0 = max_start0(task);
@@ -2735,14 +2741,14 @@ CumulativeCalProp::ttef_analyse_tasks_right_shift(const int begin, const int end
 	const int * wPeriods = workingPeriods[cal_idx];
 	const int * tCal     = calendar[cal_idx];
 	const int min_dur_in = dur_in - max_dur_lift;
-	const int begin_in   = max(begin, min(lst2[task], end));
-	const int end_in     = min(lct2[task], end);
+	const int begin_in   = max(begin, min(lst_2[task], end));
+	const int end_in     = min(lct_2[task], end);
 	// Defining some variables
 	int workDays = (rho == 1 ? end_in - begin_in : wPeriods[begin_in] - wPeriods[end_in]);
-	int last_lst = lst2[task];
+	int last_lst = lst_2[task];
 	last_dur = workDays;
-	int lst = lst2[task] + 1;
-	int lct = lct2[task] + 1;
+	int lst = lst_2[task] + 1;
+	int lct = lct_2[task] + 1;
 
 	assert(workDays >= dur_in);
 
@@ -2790,7 +2796,7 @@ int
 CumulativeCalProp::ttef_analyse_tasks_left_shift(const int begin, const int end, const int dur_in, const int task, const int max_dur_lift, int & last_dur)
 {
 	// Determining the earliest start time so that a certain number of work days are within the time window [begin, end)
-	assert(est2[task] < end && begin < lct2[task]);
+	assert(est_2[task] < end && begin < lct_2[task]);
 	const int est0 = min_start0(task);
 	if (dur_in <= max_dur_lift) {
 		last_dur = 0;
@@ -2801,13 +2807,13 @@ CumulativeCalProp::ttef_analyse_tasks_left_shift(const int begin, const int end,
 	const int * wPeriods = workingPeriods[cal_idx];
 	const int * tCal     = calendar[cal_idx];
 	const int min_dur_in = dur_in - max_dur_lift;
-	const int end_in = min(ect2[task], end);
-	const int begin_in = max(est2[task], begin);
+	const int end_in = min(ect_2[task], end);
+	const int begin_in = max(est_2[task], begin);
 	int wdays = (rho == 1 ? end_in - begin_in : wPeriods[begin_in] - wPeriods[end_in]);
-	int last_est = est2[task];
+	int last_est = est_2[task];
 	last_dur = wdays;
-	int ect = ect2[task] - 1;
-	int est = est2[task] - 1;
+	int ect = ect_2[task] - 1;
+	int est = est_2[task] - 1;
 	for (; est >= est0; est--, ect--) {
 		assert(tCal[last_est] == 1);
 		// Determining the new start time and updating the number of working days
@@ -2858,7 +2864,7 @@ CumulativeCalProp::ttef_analyse_tasks_check_expl_lb(const int begin, const int e
 		printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
 		printf("EXPL LB\n");
 		printf(" tw [%d, %d); expl_lb %d\n", begin, end, expl_lb);
-		printf(" task %d: start [%d, %d]; end [%d, %d];\n", task, est2[task], lst2[task], ect2[task], lct2[task]);
+		printf(" task %d: start [%d, %d]; end [%d, %d];\n", task, est_2[task], lst_2[task], ect_2[task], lct_2[task]);
 		printf(" start0 [%d, %d]\n", min_start0(task), max_start0(task));
 		printf(" min_dur %d; dur_in %d;\n", min_dur(task), dur_in);
 		printf(" min_energy2 %d; min_usage %d;\n", min_energy2[task], min_usage(task));
@@ -2885,7 +2891,7 @@ CumulativeCalProp::ttef_analyse_tasks_check_expl_ub(const int begin, const int e
 		printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
 		printf("EXPL UB\n");
 		printf(" tw [%d, %d); expl_ub %d\n", begin, end, expl_ub);
-		printf(" task %d: start [%d, %d]; end [%d, %d];\n", task, est2[task], lst2[task], ect2[task], lct2[task]);
+		printf(" task %d: start [%d, %d]; end [%d, %d];\n", task, est_2[task], lst_2[task], ect_2[task], lct_2[task]);
 		printf(" start0 [%d, %d]\n", min_start0(task), max_start0(task));
 		printf(" min_dur %d; dur_in %d;\n", min_dur(task), dur_in);
 		printf(" min_energy2 %d; min_usage %d;\n", min_energy2[task], min_usage(task));
@@ -2925,8 +2931,8 @@ CumulativeCalProp::ttef_analyse_tasks(const int begin, const int end, list<TaskD
 					if (calendar[taskCalendar[i]-1][t-1] == 1) sto1++;
 					t--;
 				}
-				expl_lb = min(est2[i], t);
-				expl_ub = lst2[i];//max(lst2[i], end - dur_in);
+				expl_lb = min(est_2[i], t);
+				expl_ub = lst_2[i];//max(lst_2[i], end - dur_in);
 			} else {
 				// Resource is released
 				sto1 = 0;
@@ -2936,7 +2942,7 @@ CumulativeCalProp::ttef_analyse_tasks(const int begin, const int end, list<TaskD
 					if(calendar[taskCalendar[i]-1][t-1]==1) sto1++;
 					t--;
 				}
-				expl_lb = min(est2[i], t);
+				expl_lb = min(est_2[i], t);
 				sto1 = 0;
 				sto2 = dur_in;
 				t = end;
@@ -2944,7 +2950,7 @@ CumulativeCalProp::ttef_analyse_tasks(const int begin, const int end, list<TaskD
 					if(calendar[taskCalendar[i]-1][t-1]==1) sto1++;
 					t--;
 				}
-				expl_ub = max(lst2[i], t);
+				expl_ub = max(lst_2[i], t);
 			}
 			//expl_lb = begin + dur_in - min_dur(i); expl_ub = end - dur_in;
 			break;
@@ -2972,7 +2978,7 @@ CumulativeCalProp::ttef_analyse_tasks(const int begin, const int end, list<TaskD
 		//-----------------------------------------------------------
 		case ED_NAIVE:
 		default:
-			expl_lb = est2[i]; expl_ub = lst2[i];
+			expl_lb = est_2[i]; expl_ub = lst_2[i];
 		}
 		//printf("%d: dur_in %d/%d; en_in %d; est0 %d; lst0 %d\t", i, dur_in, dur[i], dur_in * min_usage(i), est0, lst0);
 		if (est0 < expl_lb) {
