@@ -99,7 +99,15 @@ int main(int argc, char** argv) {
 		FlatZinc::solve(filename);
 	}
 
-	engine.solve(FlatZinc::s, commandLine);
+  if (engine.opt_var && so.nof_solutions!=0) {
+    std::string os;
+    std::stringstream oss(os);
+    engine.setOutputStream(oss);
+    engine.solve(FlatZinc::s, commandLine);
+    std::cout << oss.str();
+  } else {
+    engine.solve(FlatZinc::s, commandLine);
+  }
 
 	return 0;
 }

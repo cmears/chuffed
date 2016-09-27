@@ -302,7 +302,7 @@ namespace FlatZinc {
 		void setOutput();
 
 		void printElem(AST::Node* ai, std::ostream& out = std::cout) const;
-		void print();
+    void print(std::ostream& out);
 		void printStream(std::ostream& out);
                 
                 void printDomains(std::ostream& out = std::cout);

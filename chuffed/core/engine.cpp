@@ -206,6 +206,7 @@ Engine::Engine()
     , propagations(0)
     , solutions(0)
     , next_simp_db(0)
+    , output_stream(&std::cout)
 {
     p_queue.growTo(num_queues);
     for (int i = 0; i < 64; i++) bit[i] = ((long long) 1 << i);
@@ -543,7 +544,7 @@ RESULT Engine::search(const std::string& problemLabel) {
             conflicts++; conflictC++;
 
             if (time(NULL) > so.time_out) {
-                printf("Time limit exceeded!\n");
+                (*output_stream) << "% Time limit exceeded!\n";
                 return RES_UNK;
             }
 
@@ -724,10 +725,13 @@ RESULT Engine::search(const std::string& problemLabel) {
 
             if (!di) {
                 solutions++;
+                if (std::stringstream* oss = dynamic_cast<std::stringstream*>(output_stream)) {
+                  oss->str("");
+                }
                 if (so.print_sol) {
-                    problem->print();
-                    printf("\n----------\n");
-                    fflush(stdout);
+                    problem->print(*output_stream);
+                    (*output_stream) << "\n----------\n";
+                    output_stream->flush();
                 }
 #if DEBUG_VERBOSE
                 std::cerr << "solution\n";
@@ -848,15 +852,15 @@ void Engine::solve(Problem *p, const std::string& problemLabel) {
         status = search(problemLabel);
         if (status == RES_GUN || status == RES_LUN) {
             if (solutions > 0)
-                printf("==========\n");
+                (*output_stream) << "==========\n";
             else
-                printf("=====UNSATISFIABLE=====\n");
+                (*output_stream) << "=====UNSATISFIABLE=====\n";
         }
     } else {
         // parallel
         if (so.thread_no == -1) master.solve();
         else slave.solve();
-        if (so.thread_no == -1 && master.status == RES_GUN) printf("==========\n");
+        if (so.thread_no == -1 && master.status == RES_GUN) (*output_stream) << "==========\n";
     }
 
     if (so.learnt_stats) {

@@ -62,6 +62,7 @@ public:
 	double base_memory;
 	long long int conflicts, nodes, propagations, solutions, next_simp_db;
 
+  std::ostream* output_stream;
 private:
 
 	// Init
@@ -105,6 +106,10 @@ public:
 		return 0;
 	}
 
+  void setOutputStream(std::ostream& os) {
+    output_stream = &os;
+  }
+  
 };
 
 extern Engine engine;
@@ -198,7 +203,7 @@ inline int64_t Tint64_t::operator = (int64_t o) {
 
 class Problem {
 public: 
-	virtual void print() = 0;
+  virtual void print(std::ostream&) = 0;
 	virtual void restrict_learnable() {}
 };
 

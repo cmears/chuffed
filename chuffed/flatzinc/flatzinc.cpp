@@ -366,39 +366,7 @@ namespace FlatZinc {
 		}
 	}
 
-	void FlatZincSpace::print() {
-		if (output == NULL) return;
-		for (unsigned int i=0; i< output->a.size(); i++) {
-			AST::Node* ai = output->a[i];
-			if (ai->isArray()) {
-				AST::Array* aia = ai->getArray();
-				int size = aia->a.size();
-				std::cout << "[";
-				for (int j=0; j<size; j++) {
-					printElem(aia->a[j]);
-					if (j<size-1) cout << ", ";
-				}
-				std::cout << "]";
-			} else if (ai->isCall("ifthenelse")) {
-				AST::Array* aia = ai->getCall("ifthenelse")->getArgs(3);
-				if (aia->a[0]->isBool()) {
-					if (aia->a[0]->getBool()) printElem(aia->a[1]);
-					else printElem(aia->a[2]);
-				} else if (aia->a[0]->isBoolVar()) {
-					BoolView b = bv[aia->a[0]->getBoolVar()];
-					if (b.isTrue()) printElem(aia->a[1]);
-					else if (b.isFalse()) printElem(aia->a[2]);
-					else std::cerr << "% Error: Condition not fixed." << std::endl;
-				} else {
-					std::cerr << "% Error: Condition not Boolean." << std::endl;        
-				}
-			} else {
-				printElem(ai);
-			}
-		}
-	}
-
-        void FlatZincSpace::printStream(ostream& out) {
+  void FlatZincSpace::print(ostream& out) {
 		if (output == NULL) return;
 		for (unsigned int i=0; i< output->a.size(); i++) {
 			AST::Node* ai = output->a[i];
